@@ -9,7 +9,11 @@ const io = new Server(httpServer, { cors: {
 }});
 
 io.on("connection", (socket) => {
-  console.log(socket.id)
+  socket.on('checkOrCreateUser', (arg, callback)=>{
+    const {data} = arg;
+    console.log(data)
+    callback(true)
+  })
 });
 
 httpServer.listen(8000);
