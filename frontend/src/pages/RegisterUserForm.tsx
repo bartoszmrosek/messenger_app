@@ -1,6 +1,6 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { useContext, useState } from 'react';
-import {SocketContext} from '../SocketContext'
+import { SocketContext } from '../SocketContext';
 
 interface userInput {
   username: String;
@@ -9,13 +9,15 @@ interface userInput {
 }
 
 const RegisterUserForm = () => {
-  const socket:any = useContext(SocketContext)
+  const socket: any = useContext(SocketContext);
   const { register, handleSubmit } = useForm<userInput>();
-  const [isSubmitSuccessfull, setIsSubmitSuccessfull] = useState(false)
-  const onSubmit: SubmitHandler<userInput> = (data) => {
-    socket.emit('checkOrCreateUser', {data}, (createdUser:boolean)=>{
-      if(createdUser) {setIsSubmitSuccessfull(true)}
-    })
+  const [isSubmitSuccessfull, setIsSubmitSuccessfull] = useState(false);
+  const onSubmit: SubmitHandler<userInput> = data => {
+    socket.emit('checkOrCreateUser', { data }, (createdUser: boolean) => {
+      if (createdUser) {
+        setIsSubmitSuccessfull(true);
+      }
+    });
   };
 
   return (
@@ -26,7 +28,7 @@ const RegisterUserForm = () => {
           type="text"
           {...register('username', {
             required: 'username is required',
-            minLength: 1
+            minLength: 1,
           })}
           name="username"
           placeholder="username"
@@ -47,7 +49,11 @@ const RegisterUserForm = () => {
         />
         <button onClick={handleSubmit(onSubmit)}>Submit</button>
       </form>
-      <p>{isSubmitSuccessfull? "Uzytkownik zostal utworzony" : "Uzytkownik juz istnieje"}</p>
+      <p>
+        {isSubmitSuccessfull
+          ? 'Uzytkownik zostal utworzony'
+          : 'Uzytkownik juz istnieje'}
+      </p>
     </div>
   );
 };

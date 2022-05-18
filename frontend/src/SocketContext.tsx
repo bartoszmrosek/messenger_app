@@ -1,5 +1,5 @@
 import { FunctionComponent } from 'react';
-import { createContext, useState } from 'react';
+import { createContext } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 interface ServerToClientEvents {
@@ -13,20 +13,20 @@ interface ClientToServerEvents {
 }
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  'http://localhost:8000/'
+  'http://localhost:8000/',
 );
 
 interface SocketChildrenProps {
-    children?: React.ReactNode;
-  }
+  children?: React.ReactNode;
+}
 
 const SocketContext = createContext({});
-const SocketContextProvider: FunctionComponent<SocketChildrenProps> = ({children}) => {
+const SocketContextProvider: FunctionComponent<SocketChildrenProps> = ({
+  children,
+}) => {
   return (
-    <SocketContext.Provider value={socket}>
-        {children}
-    </SocketContext.Provider>
-      );
+    <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
+  );
 };
 
 export { SocketContextProvider, SocketContext };
