@@ -1,3 +1,4 @@
+import e from 'express';
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -19,8 +20,13 @@ io.on('connection', socket => {
       data.email,
       data.password,
     ];
-    await createNewUser(userInformationsArray);
-    callback(true);
+    const informations = await createNewUser(userInformationsArray);
+    if(informations === undefined){
+      callback('usrCreated')
+    }else{
+      console.log(informations.code === '23505')
+      informations.code === '23505' ? callback('usrAlrInDb') : callback('connectionErr')
+    }
   });
 });
 

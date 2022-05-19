@@ -11,12 +11,21 @@ interface userInput {
 const RegisterUserForm = () => {
   const socket: any = useContext(SocketContext);
   const { register, handleSubmit } = useForm<userInput>();
-  const [isSubmitSuccessfull, setIsSubmitSuccessfull] = useState(false);
+  const [isSubmitSuccessfull, setIsSubmitSuccessfull] = useState('');
+
+  function handleDbResponse(dbResponse: string){
+    if(dbResponse==='usrCreated'){
+      setIsSubmitSuccessfull('true')
+    }else if(dbResponse==='usrAlrInDb'){
+      setIsSubmitSuccessfull('usrAlrInDbError')
+    }else{
+      setIsSubmitSuccessfull('dbConnectionError')
+    }
+  }
+
   const onSubmit: SubmitHandler<userInput> = data => {
-    socket.emit('checkOrCreateUser', { data }, (createdUser: boolean) => {
-      if (createdUser) {
-        setIsSubmitSuccessfull(true);
-      }
+    socket.emit('checkOrCreateUser', { data }, (dbResponse: string) => {
+      handleDbResponse(dbResponse)
     });
   };
 
@@ -50,9 +59,10 @@ const RegisterUserForm = () => {
         <button onClick={handleSubmit(onSubmit)}>Submit</button>
       </form>
       <p>
-        {isSubmitSuccessfull
-          ? 'Uzytkownik zostal utworzony'
-          : 'Uzytkownik juz istnieje'}
+        {isSubmitSuccessfull === 'true'? "Użytkownik zostaly utworzony" : (
+          isSubmitSuccessfull === 'usrAlrInDbError' ? 'Dane użytkownika są obecnie używane' :
+          "Błąd połączenia z serwerem, spróbuj ponownie"
+        )}
       </p>
     </div>
   );
