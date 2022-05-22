@@ -1,8 +1,7 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import React, { useContext, useState } from 'react';
 import { SocketContext } from '../Contexts/SocketContext';
-import dbResponseHandler from '../DatabaseHandlers/dbResponse'
-
+import dbResponseHandler from '../DatabaseHandlers/dbResponse';
 
 interface userInput {
   username: String;
@@ -17,7 +16,7 @@ const RegisterUserForm = () => {
 
   const onSubmit: SubmitHandler<userInput> = data => {
     socket.emit('checkOrCreateUser', { data }, (dbResponse: string) => {
-      dbResponseHandler(dbResponse, setIsSubmitSuccessfull)
+      dbResponseHandler(dbResponse, setIsSubmitSuccessfull);
     });
   };
 
@@ -51,10 +50,11 @@ const RegisterUserForm = () => {
         <button onClick={handleSubmit(onSubmit)}>Submit</button>
       </form>
       <p>
-        {isSubmitSuccessfull === 'true'? "Użytkownik zostaly utworzony" : (
-          isSubmitSuccessfull === 'usrAlrInDbError' ? 'Dane użytkownika są obecnie używane' :
-          "Błąd połączenia z serwerem, spróbuj ponownie"
-        )}
+        {isSubmitSuccessfull === 'true'
+          ? 'Użytkownik zostaly utworzony'
+          : isSubmitSuccessfull === 'usrAlrInDbError'
+          ? 'Dane użytkownika są obecnie używane'
+          : 'Błąd połączenia z serwerem, spróbuj ponownie'}
       </p>
     </div>
   );
