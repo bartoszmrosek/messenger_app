@@ -2,7 +2,7 @@ import e from 'express';
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { createNewUser } from './dbHandler';
+import { createNewUser, loginUser } from './dbHandler';
 
 const app = express();
 const httpServer = createServer(app);
@@ -28,6 +28,25 @@ io.on('connection', socket => {
       informations.code === '23505' ? callback('usrAlrInDb') : callback('connectionErr')
     }
   });
+  socket.on('checkUserLoginData', async (payload, callback)=>{
+    const {data} = payload;
+    const userInformations: string[] = [
+      data.email,
+      data.password
+    ];
+    const callbackInfo = await loginUser(userInformations);
+    if(callbackInfo === undefined){
+      callback({
+        type: 'usrInfoWrong',
+        payload: null
+      })
+    }else{
+      callback({
+        type: 'confirm',
+        payload: callbackInfo
+      })
+    }
+  })
 });
 
 httpServer.listen(8000);

@@ -1,6 +1,8 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { useContext, useState } from 'react';
-import { SocketContext } from '../SocketContext';
+import React, { useContext, useState } from 'react';
+import { SocketContext } from '../Contexts/SocketContext';
+import dbResponseHandler from '../DatabaseHandlers/dbResponse'
+
 
 interface userInput {
   username: String;
@@ -13,19 +15,9 @@ const RegisterUserForm = () => {
   const { register, handleSubmit } = useForm<userInput>();
   const [isSubmitSuccessfull, setIsSubmitSuccessfull] = useState('');
 
-  function handleDbResponse(dbResponse: string){
-    if(dbResponse==='usrCreated'){
-      setIsSubmitSuccessfull('true')
-    }else if(dbResponse==='usrAlrInDb'){
-      setIsSubmitSuccessfull('usrAlrInDbError')
-    }else{
-      setIsSubmitSuccessfull('dbConnectionError')
-    }
-  }
-
   const onSubmit: SubmitHandler<userInput> = data => {
     socket.emit('checkOrCreateUser', { data }, (dbResponse: string) => {
-      handleDbResponse(dbResponse)
+      dbResponseHandler(dbResponse, setIsSubmitSuccessfull)
     });
   };
 
