@@ -1,9 +1,13 @@
 import { NavLink } from 'react-router-dom';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { UserContext } from '../Contexts/UserContext';
 
 const Navbar = () => {
   const loggedUser: any = useContext(UserContext);
+  const [searchParameters, setSearchParameters] = useState<string>();
+
+  
+
   const shouldRenderUser = () => {
     if (loggedUser.userInformations.user_id !== undefined) {
       return (
@@ -14,6 +18,26 @@ const Navbar = () => {
       );
     }
   };
+
+  const shouldRenderNewListItems = () =>{
+    if(loggedUser.userInformations.user_id !== undefined){
+      return(
+        <>
+          <li><NavLink to='Messeges'>Messeges</NavLink></li>
+          <li>
+            <form>
+              <input 
+                type="text"
+                name="search-params"
+              />
+              <button>Wyszukaj</button>
+            </form>
+          </li>
+        </>
+      )
+    }
+  }
+
   return (
     <div>
       <nav>
@@ -24,9 +48,7 @@ const Navbar = () => {
           <li>
             <NavLink to="Login">Login</NavLink>
           </li>
-          {loggedUser.userInformations.user_id !== undefined && 
-            <li><NavLink to='Messeges'>Messeges</NavLink></li>
-          }
+          {shouldRenderNewListItems()}
         </ul>
       </nav>
       {shouldRenderUser()}

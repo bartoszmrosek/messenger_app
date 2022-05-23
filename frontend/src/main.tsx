@@ -8,11 +8,11 @@ import App from './App';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Router>
-      <SocketContextProvider>
-        <UserContextProvider>
+      <UserContextProvider>
+        <SocketContextProvider>
           <App />
-        </UserContextProvider>
-      </SocketContextProvider>
+        </SocketContextProvider>
+      </UserContextProvider>
     </Router>
   </React.StrictMode>,
 );

@@ -1,4 +1,4 @@
-import React, {FunctionComponent, createContext} from 'react'
+import React, { FunctionComponent, createContext } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 interface ServerToClientEvents {
@@ -11,20 +11,22 @@ interface ClientToServerEvents {
   hello: () => void;
 }
 
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  'http://localhost:8000/',
-);
-
 interface SocketChildrenProps {
   children?: React.ReactNode;
 }
+
+const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
+  'http://localhost:8000/',
+);
 
 const SocketContext = createContext({});
 const SocketContextProvider: FunctionComponent<SocketChildrenProps> = ({
   children,
 }) => {
   return (
-    <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
+    <SocketContext.Provider value={{ standardSocket }}>
+      {children}
+    </SocketContext.Provider>
   );
 };
 

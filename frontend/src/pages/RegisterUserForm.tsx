@@ -10,12 +10,12 @@ interface userInput {
 }
 
 const RegisterUserForm = () => {
-  const socket: any = useContext(SocketContext);
+  const {standardSocket}: any = useContext(SocketContext);
   const { register, handleSubmit } = useForm<userInput>();
   const [isSubmitSuccessfull, setIsSubmitSuccessfull] = useState('');
 
   const onSubmit: SubmitHandler<userInput> = data => {
-    socket.emit('checkOrCreateUser', { data }, (dbResponse: string) => {
+    standardSocket.emit('checkOrCreateUser', { data }, (dbResponse: string) => {
       dbResponseHandler(dbResponse, setIsSubmitSuccessfull);
     });
   };

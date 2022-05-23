@@ -19,13 +19,13 @@ interface dbResponse {
 }
 
 const LoginForm = () => {
-  const socket: any = useContext(SocketContext);
+  const {standardSocket}: any = useContext(SocketContext);
   const userSetter: any = useContext(UserContext);
   const [errorType, setErrorType] = useState('');
   const { register, handleSubmit } = useForm<userInput>();
 
   const onSubmit: SubmitHandler<userInput> = data => {
-    socket.emit('checkUserLoginData', { data }, (dbResponse: dbResponse) => {
+    standardSocket.emit('checkUserLoginData', { data }, (dbResponse: dbResponse) => {
       if (dbResponse.type === 'confirm') {
         setErrorType('');
         const { payload } = dbResponse;
@@ -39,7 +39,6 @@ const LoginForm = () => {
       }
     });
   };
-  console.log(errorType);
 
   return (
     <form>
