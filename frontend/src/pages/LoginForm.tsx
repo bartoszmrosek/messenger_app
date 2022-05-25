@@ -19,25 +19,29 @@ interface dbResponse {
 }
 
 const LoginForm = () => {
-  const {standardSocket}: any = useContext(SocketContext);
+  const { standardSocket }: any = useContext(SocketContext);
   const userSetter: any = useContext(UserContext);
   const [errorType, setErrorType] = useState('');
   const { register, handleSubmit } = useForm<userInput>();
 
   const onSubmit: SubmitHandler<userInput> = data => {
-    standardSocket.emit('checkUserLoginData', { data }, (dbResponse: dbResponse) => {
-      if (dbResponse.type === 'confirm') {
-        setErrorType('');
-        const { payload } = dbResponse;
-        userSetter.handleNewInformations(
-          payload?.user_id,
-          payload?.username,
-          payload?.email,
-        );
-      } else {
-        dbResponseHandler(dbResponse.type, setErrorType);
-      }
-    });
+    standardSocket.emit(
+      'checkUserLoginData',
+      { data },
+      (dbResponse: dbResponse) => {
+        if (dbResponse.type === 'confirm') {
+          setErrorType('');
+          const { payload } = dbResponse;
+          userSetter.handleNewInformations(
+            payload?.user_id,
+            payload?.username,
+            payload?.email,
+          );
+        } else {
+          dbResponseHandler(dbResponse.type, setErrorType);
+        }
+      },
+    );
   };
 
   return (

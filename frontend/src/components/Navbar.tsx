@@ -1,12 +1,21 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useSearchParams } from 'react-router-dom';
 import React, { useContext, useState } from 'react';
 import { UserContext } from '../Contexts/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const loggedUser: any = useContext(UserContext);
-  const [searchParameters, setSearchParameters] = useState<string>();
+  const [searchParameters, setSearchParameters] = useState<string>('');
+  const navigate = useNavigate();
 
-  
+  const handleChange = (inputValue: React.FormEvent<HTMLInputElement>):void =>{
+    setSearchParameters(inputValue.currentTarget.value)
+  }
+
+  const handleSearchSubmit = (event: React.SyntheticEvent) =>{
+    event.preventDefault();
+    navigate('/SearchResults', {state: {searchParameters}})
+  }
 
   const shouldRenderUser = () => {
     if (loggedUser.userInformations.user_id !== undefined) {
@@ -24,15 +33,6 @@ const Navbar = () => {
       return(
         <>
           <li><NavLink to='Messeges'>Messeges</NavLink></li>
-          <li>
-            <form>
-              <input 
-                type="text"
-                name="search-params"
-              />
-              <button>Wyszukaj</button>
-            </form>
-          </li>
         </>
       )
     }
@@ -49,6 +49,17 @@ const Navbar = () => {
             <NavLink to="Login">Login</NavLink>
           </li>
           {shouldRenderNewListItems()}
+          <li>
+            <form onSubmit={handleSearchSubmit}>
+              <input 
+                type="text"
+                name="search-params"
+                value={searchParameters}
+                onChange={handleChange}
+              />
+              <button>Wyszukaj</button>
+            </form>
+          </li>
         </ul>
       </nav>
       {shouldRenderUser()}

@@ -10,7 +10,7 @@ interface userInput {
 }
 
 const RegisterUserForm = () => {
-  const {standardSocket}: any = useContext(SocketContext);
+  const { standardSocket }: any = useContext(SocketContext);
   const { register, handleSubmit } = useForm<userInput>();
   const [isSubmitSuccessfull, setIsSubmitSuccessfull] = useState('');
 
