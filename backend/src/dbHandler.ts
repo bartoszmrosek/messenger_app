@@ -8,7 +8,7 @@ const checkUser =
 const searchUserQuery =
   'SELECT user_id, username FROM user_accounts WHERE username LIKE $1';
 const searchUserMessageQuery =
-  `SELECT user_accounts.user_id, user_accounts.username, user_messages.message_sent, user_messages.sender, user_messages.reciever, user_messages.is_read
+  `SELECT user_accounts.user_id, user_accounts.username, user_messages.message_sent, user_messages.sender, user_messages.reciever, user_messages.is_read, user_messages.created_at
   FROM user_accounts
   INNER JOIN user_messages ON user_accounts.user_id = user_messages.sender
   WHERE (user_messages.sender = $1 OR user_messages.reciever = $1) ORDER BY user_messages.created_at DESC`
@@ -57,6 +57,7 @@ const searchUserMessages = async(userId:number)=>{
   try{
     const res = await client.query(searchUserMessageQuery, [userId]);
     client.release();
+    console.log(res.rows)
     return res.rows;
   }catch(error){
     client.release();

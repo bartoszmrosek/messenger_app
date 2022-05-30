@@ -14,7 +14,8 @@ interface userMessagesTypes {
   message_sent: string,
   sender: number,
   reciever: number,
-  isRead: boolean
+  isRead: boolean,
+  created_at: string
 }
 
 interface userInformationsInterface {

@@ -15,7 +15,9 @@ const Messeges = () => {
   }: exportUserContextTypes = useContext(UserContext);
   const { standardSocket }: any = useContext(SocketContext);
   const [activeChat, setActiveChat] = useState<number>();
-  const [filteredMessages, setFilteredMessages] = useState<userMessagesTypes[]>();
+  const [filteredMessages, setFilteredMessages] =
+    useState<userMessagesTypes[]>();
+  const [groupedUsers, setGroupedUsers] = useState<userMessagesTypes[]>();
 
   useEffect(() => {
     if (userInformations?.user_id !== undefined) {
@@ -34,6 +36,7 @@ const Messeges = () => {
       );
     }
   }, []);
+
   useEffect(() => {
     if (activeChat !== undefined) {
       if (userMessages !== undefined) {
@@ -42,6 +45,21 @@ const Messeges = () => {
     }
   }, [activeChat]);
 
+  useEffect(() => {
+    const uniqueUser: any[] = [];
+    if (userMessages !== undefined) {
+      const uniqueUsers = userMessages.filter(element => {
+        const isDuplicate = uniqueUser.includes(element.user_id);
+        if (!isDuplicate) {
+          uniqueUser.push(element.user_id);
+          return true;
+        }
+        return false;
+      });
+      setGroupedUsers(uniqueUsers);
+    }
+  }, [userMessages]);
+
   const handleChatChange = (user_id: number) => {
     setActiveChat(user_id);
   };
@@ -49,7 +67,6 @@ const Messeges = () => {
     messages: userMessagesTypes[],
     activeChat: number,
   ) => {
-    console.log(messages);
     return messages.filter(message => {
       if (
         (activeChat === message.sender &&
@@ -61,16 +78,15 @@ const Messeges = () => {
       }
     });
   };
-  console.log(filteredMessages)
   return (
     <div>
-      {userMessages !== undefined &&
-        (userMessages.length === 0 ? (
+      {groupedUsers !== undefined &&
+        (groupedUsers.length === 0 ? (
           <div>
             It's seems that you don't have any conversations yet, make some!
           </div>
         ) : (
-          userMessages.map((userNode, index )=> {
+          groupedUsers.map((userNode, index) => {
             return (
               <section key={index}>
                 <div>
@@ -86,17 +102,16 @@ const Messeges = () => {
       <div>
         {activeChat !== undefined && filteredMessages !== undefined && (
           <div>
-            {filteredMessages.length > 0 && (
-              filteredMessages.map((message)=>{
-                return(
-                <Message
-                key={message.message_sent}
-                message={message.message_sent}
-                isRecieved={false}
-              />
-              )
-              })
-            )}
+            {filteredMessages.length > 0 &&
+              filteredMessages.map(message => {
+                return (
+                  <Message
+                    key={message.created_at}
+                    message={message.message_sent}
+                    isRecieved={false}
+                  />
+                );
+              })}
           </div>
         )}
       </div>
