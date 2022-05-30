@@ -4,39 +4,43 @@ import { UserContext } from '../Contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
-  const loggedUser: any = useContext(UserContext);
+  const {userInformations}: any = useContext(UserContext);
   const [searchParameters, setSearchParameters] = useState<string>('');
   const navigate = useNavigate();
 
-  const handleChange = (inputValue: React.FormEvent<HTMLInputElement>):void =>{
-    setSearchParameters(inputValue.currentTarget.value)
-  }
+  const handleChange = (
+    inputValue: React.FormEvent<HTMLInputElement>,
+  ): void => {
+    setSearchParameters(inputValue.currentTarget.value);
+  };
 
-  const handleSearchSubmit = (event: React.SyntheticEvent) =>{
+  const handleSearchSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
-    navigate('/SearchResults', {state: {searchParameters}})
-  }
+    navigate('/SearchResults', { state: { searchParameters } });
+  };
 
   const shouldRenderUser = () => {
-    if (loggedUser.userInformations.user_id !== undefined) {
+    if (userInformations !== undefined) {
       return (
         <section>
-          <h1>Username: {loggedUser.userInformations.username}</h1>
-          <h3>Email: {loggedUser.userInformations.email}</h3>
+          <h1>Username: {userInformations.username}</h1>
+          <h3>Email: {userInformations.email}</h3>
         </section>
       );
     }
   };
 
-  const shouldRenderNewListItems = () =>{
-    if(loggedUser.userInformations.user_id !== undefined){
-      return(
+  const shouldRenderNewListItems = () => {
+    if (userInformations !== undefined) {
+      return (
         <>
-          <li><NavLink to='Messeges'>Messeges</NavLink></li>
+          <li>
+            <NavLink to="Messeges">Messeges</NavLink>
+          </li>
         </>
-      )
+      );
     }
-  }
+  };
 
   return (
     <div>
@@ -51,7 +55,7 @@ const Navbar = () => {
           {shouldRenderNewListItems()}
           <li>
             <form onSubmit={handleSearchSubmit}>
-              <input 
+              <input
                 type="text"
                 name="search-params"
                 value={searchParameters}

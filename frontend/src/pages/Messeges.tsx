@@ -1,58 +1,105 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { SocketContext } from '../Contexts/SocketContext';
 import { UserContext } from '../Contexts/UserContext';
-
-interface UserConnection {
-  user_id: number;
-  username: string;
-  last_message: string;
-  is_read: boolean;
-}
+import type {
+  userMessagesTypes,
+  exportUserContextTypes,
+} from '../Contexts/UserContext';
+import Message from '../components/Message';
 
 const Messeges = () => {
-  const { userInformations }: any = useContext(UserContext);
+  const {
+    userInformations,
+    userMessages,
+    handleNewMessage,
+  }: exportUserContextTypes = useContext(UserContext);
   const { standardSocket }: any = useContext(SocketContext);
-  const [userConnections, setUserConnections] = useState(
-    [] as Array<UserConnection>,
-  );
   const [activeChat, setActiveChat] = useState<number>();
+  const [filteredMessages, setFilteredMessages] = useState<userMessagesTypes[]>();
 
   useEffect(() => {
-    standardSocket.emit(
-      'checkUserHistory',
-      userInformations.user_id,
-      (error: unknown, data: UserConnection[]) => {
-        if (error) {
-          console.log(error);
-        } else {
-          setUserConnections(data);
-        }
-      },
-    );
+    if (userInformations?.user_id !== undefined) {
+      standardSocket.emit(
+        'checkUserHistory',
+        userInformations.user_id,
+        (response: any[] | 'error') => {
+          if (response === 'error') {
+            console.log(response);
+          } else {
+            if (handleNewMessage !== undefined) {
+              handleNewMessage(response);
+            }
+          }
+        },
+      );
+    }
   }, []);
+  useEffect(() => {
+    if (activeChat !== undefined) {
+      if (userMessages !== undefined) {
+        setFilteredMessages(filterMessages(userMessages, activeChat));
+      }
+    }
+  }, [activeChat]);
 
-  function handleChatChange(user_id: number) {
+  const handleChatChange = (user_id: number) => {
     setActiveChat(user_id);
-  }
+  };
+  const filterMessages = (
+    messages: userMessagesTypes[],
+    activeChat: number,
+  ) => {
+    console.log(messages);
+    return messages.filter(message => {
+      if (
+        (activeChat === message.sender &&
+          userInformations?.user_id === message.reciever) ||
+        (userInformations?.user_id === message.sender &&
+          activeChat === message.sender)
+      ) {
+        return message;
+      }
+    });
+  };
+  console.log(filteredMessages)
   return (
     <div>
-      {userConnections.length === 0 ? (
-        <div>
-          It's seems that you don't have any conversations yet, make some!
-        </div>
-      ) : (
-        userConnections.map(userNode => {
-          return (
-            <div>
-              <h3>{userNode.username}</h3>
-              <h4>{userNode.last_message}</h4>
-              <button
-                onClick={() => handleChatChange(userNode.user_id)}
-              ></button>
-            </div>
-          );
-        })
-      )}
+      {userMessages !== undefined &&
+        (userMessages.length === 0 ? (
+          <div>
+            It's seems that you don't have any conversations yet, make some!
+          </div>
+        ) : (
+          userMessages.map((userNode, index )=> {
+            return (
+              <section key={index}>
+                <div>
+                  <h3>{userNode.username}</h3>
+                  <button onClick={() => handleChatChange(userNode.user_id)}>
+                    Wybierz czat
+                  </button>
+                </div>
+              </section>
+            );
+          })
+        ))}
+      <div>
+        {activeChat !== undefined && filteredMessages !== undefined && (
+          <div>
+            {filteredMessages.length > 0 && (
+              filteredMessages.map((message)=>{
+                return(
+                <Message
+                key={message.message_sent}
+                message={message.message_sent}
+                isRecieved={false}
+              />
+              )
+              })
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

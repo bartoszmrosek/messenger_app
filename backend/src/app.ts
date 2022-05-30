@@ -1,7 +1,7 @@
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { createNewUser, loginUser, searchUser } from './dbHandler';
+import { createNewUser, loginUser, searchUser, searchUserMessages } from './dbHandler';
 
 const app = express();
 const httpServer = createServer(app);
@@ -53,6 +53,14 @@ io.on('connection', socket => {
       callback(callbackInfo)
     }
   })
+
+  socket.on('checkUserHistory', async(payload, callback)=>{
+    const callbackInfo: any | "error" = await searchUserMessages(payload);
+    if(callback!=='error'){
+      callback(callbackInfo)
+    }
+  })
+
   console.log(socket.id);
 });
 
