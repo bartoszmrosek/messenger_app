@@ -4,7 +4,7 @@ import 'dotenv/config';
 const insertNewUser =
   'INSERT INTO user_accounts(username, email, password) VALUES($1, $2, $3) RETURNING *';
 const checkUser =
-  'SELECT user_id, username, email, password FROM user_accounts WHERE email = $1 AND password = $2';
+  'SELECT user_id, username, email FROM user_accounts WHERE email = $1 AND password = $2';
 const searchUserQuery =
   'SELECT user_id, username FROM user_accounts WHERE username LIKE $1';
 const searchUserMessageQuery =
@@ -57,7 +57,6 @@ const searchUserMessages = async(userId:number)=>{
   try{
     const res = await client.query(searchUserMessageQuery, [userId]);
     client.release();
-    console.log(res.rows)
     return res.rows;
   }catch(error){
     client.release();

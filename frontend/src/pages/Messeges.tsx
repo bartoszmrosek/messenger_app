@@ -18,6 +18,7 @@ const Messeges = () => {
   const [filteredMessages, setFilteredMessages] =
     useState<userMessagesTypes[]>();
   const [groupedUsers, setGroupedUsers] = useState<userMessagesTypes[]>();
+  const [newMessageValue, setNewMessageValue] = useState<string>('');
 
   useEffect(() => {
     if (userInformations?.user_id !== undefined) {
@@ -78,6 +79,26 @@ const Messeges = () => {
       }
     });
   };
+
+  const handleInput = (inputValue: React.FormEvent<HTMLInputElement>) => {
+    setNewMessageValue(inputValue.currentTarget.value);
+  };
+
+  const sendNewMessage = () => {
+    if (newMessageValue.length > 0) {
+      standardSocket.emit(
+        'newMessage',
+        {
+          user_id: userInformations?.user_id,
+          message: newMessageValue,
+        },
+        (ack: string) => {
+          setNewMessageValue(ack);
+        },
+      );
+    }
+  };
+
   return (
     <div>
       {groupedUsers !== undefined &&
@@ -92,7 +113,7 @@ const Messeges = () => {
                 <div>
                   <h3>{userNode.username}</h3>
                   <button onClick={() => handleChatChange(userNode.user_id)}>
-                    Wybierz czat
+                    Pick chat
                   </button>
                 </div>
               </section>
@@ -102,16 +123,25 @@ const Messeges = () => {
       <div>
         {activeChat !== undefined && filteredMessages !== undefined && (
           <div>
-            {filteredMessages.length > 0 &&
-              filteredMessages.map(message => {
-                return (
-                  <Message
-                    key={message.created_at}
-                    message={message.message_sent}
-                    isRecieved={false}
-                  />
-                );
-              })}
+            {filteredMessages.length > 0 && (
+              <div>
+                {filteredMessages.map(message => {
+                  return (
+                    <Message
+                      key={message.created_at}
+                      message={message.message_sent}
+                      isRecieved={false}
+                    />
+                  );
+                })}
+                <input
+                  name="newMessage"
+                  onChange={handleInput}
+                  value={newMessageValue}
+                />
+                <button onClick={sendNewMessage}>Send message</button>
+              </div>
+            )}
           </div>
         )}
       </div>

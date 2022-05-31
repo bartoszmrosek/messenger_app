@@ -3,6 +3,12 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { createNewUser, loginUser, searchUser, searchUserMessages } from './dbHandler';
 
+interface UserDetails{
+  user_id: number,
+  username: string,
+  email: string,
+}
+
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -10,6 +16,10 @@ const io = new Server(httpServer, {
     origin: '*',
   },
 });
+
+const currentlyConnectedUsers: {user_id: number, socket_id: string}[] = [];
+
+// CHANGE SOCKET IF USER ALREADY CONNECTED
 
 io.on('connection', socket => {
   socket.on('checkOrCreateUser', async (payload, callback) => {
@@ -33,13 +43,18 @@ io.on('connection', socket => {
   socket.on('checkUserLoginData', async (payload, callback) => {
     const { data } = payload;
     const userInformations: string[] = [data.email, data.password];
-    const callbackInfo = await loginUser(userInformations);
+    const callbackInfo: UserDetails = await loginUser(userInformations);
     if (callbackInfo === undefined) {
       callback({
         type: 'usrInfoWrong',
         payload: null,
       });
     } else {
+      // INVOKE FILTERING FUNCTION
+      /* currentlyConnectedUsers.push({
+        user_id: callbackInfo.user_id,
+        socket_id: socket.id
+      }) */
       callback({
         type: 'confirm',
         payload: callbackInfo,
@@ -61,7 +76,13 @@ io.on('connection', socket => {
     }
   })
 
-  console.log(socket.id);
+  socket.on('newMessage', (payload: {user_id: number, message: string}, callback)=>{
+    console.log(payload.user_id, payload.message)
+    console.log(socket.id)
+    callback('ack')
+  })
+
+  console.log(socket.id)
 });
 
 httpServer.listen(8000);
