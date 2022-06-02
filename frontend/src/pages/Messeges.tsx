@@ -50,9 +50,9 @@ const Messeges = () => {
     const uniqueUser: any[] = [];
     if (userMessages !== undefined) {
       const uniqueUsers = userMessages.filter(element => {
-        const isDuplicate = uniqueUser.includes(element.user_id);
+        const isDuplicate = uniqueUser.includes(element.username);
         if (!isDuplicate) {
-          uniqueUser.push(element.user_id);
+          uniqueUser.push(element.username);
           return true;
         }
         return false;
@@ -70,10 +70,9 @@ const Messeges = () => {
   ) => {
     return messages.filter(message => {
       if (
-        (activeChat === message.sender &&
-          userInformations?.user_id === message.reciever) ||
-        (userInformations?.user_id === message.sender &&
-          activeChat === message.sender)
+        (activeChat === message.sender_user_id &&
+          userInformations?.user_id === message.reciever_user_id) ||
+        (activeChat===message.reciever_user_id && userInformations?.user_id === message.sender_user_id)
       ) {
         return message;
       }
@@ -84,6 +83,7 @@ const Messeges = () => {
     setNewMessageValue(inputValue.currentTarget.value);
   };
 
+  const date = new Date();
   const sendNewMessage = () => {
     if (newMessageValue.length > 0) {
       standardSocket.emit(
@@ -91,6 +91,15 @@ const Messeges = () => {
         {
           user_id: userInformations?.user_id,
           message: newMessageValue,
+          sender: userInformations?.user_id,
+          reciever: activeChat,
+          isRead: false,
+          created_at: `${date
+            .toISOString()
+            .slice(
+              0,
+              10,
+            )} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
         },
         (ack: string) => {
           setNewMessageValue(ack);
@@ -99,6 +108,13 @@ const Messeges = () => {
     }
   };
 
+  const userToSendMessageTo = (userNode: userMessagesTypes): number => {
+    if (userInformations?.user_id === userNode.reciever_user_id) {
+      return userNode.sender_user_id;
+    } else {
+      return userNode.reciever_user_id;
+    }
+  };
   return (
     <div>
       {groupedUsers !== undefined &&
@@ -112,7 +128,11 @@ const Messeges = () => {
               <section key={index}>
                 <div>
                   <h3>{userNode.username}</h3>
-                  <button onClick={() => handleChatChange(userNode.user_id)}>
+                  <button
+                    onClick={() =>
+                      handleChatChange(userToSendMessageTo(userNode))
+                    }
+                  >
                     Pick chat
                   </button>
                 </div>
@@ -129,7 +149,7 @@ const Messeges = () => {
                   return (
                     <Message
                       key={message.created_at}
-                      message={message.message_sent}
+                      message={message.message}
                       isRecieved={false}
                     />
                   );

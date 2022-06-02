@@ -9,11 +9,10 @@ interface userTypes {
 }
 
 interface userMessagesTypes {
-  user_id: number,
   username: string,
-  message_sent: string,
-  sender: number,
-  reciever: number,
+  message: string,
+  sender_user_id: number,
+  reciever_user_id: number,
   isRead: boolean,
   created_at: string
 }

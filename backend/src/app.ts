@@ -8,6 +8,19 @@ interface UserDetails{
   username: string,
   email: string,
 }
+interface UserIdWithSocket{
+  userId:number,
+  socketId:string
+}
+
+interface NewMessage{
+  user_id: number,
+  message: string,
+  sender: number,
+  reciever: number,
+  isRead: boolean,
+  created_at: string
+}
 
 const app = express();
 const httpServer = createServer(app);
@@ -17,9 +30,17 @@ const io = new Server(httpServer, {
   },
 });
 
-const currentlyConnectedUsers: {user_id: number, socket_id: string}[] = [];
-
-// CHANGE SOCKET IF USER ALREADY CONNECTED
+const currentlyConnectedUsers: UserIdWithSocket[] = [];
+const checkIsUserConnected = (userId:number): UserIdWithSocket|'Not connected' =>{
+  const isConnected = currentlyConnectedUsers.find((user)=>{
+    return user.userId === userId;
+  })
+  if(isConnected !== undefined){
+    return isConnected;
+  }else{
+    return 'Not connected'
+  }
+}
 
 io.on('connection', socket => {
   socket.on('checkOrCreateUser', async (payload, callback) => {
@@ -50,11 +71,10 @@ io.on('connection', socket => {
         payload: null,
       });
     } else {
-      // INVOKE FILTERING FUNCTION
-      /* currentlyConnectedUsers.push({
-        user_id: callbackInfo.user_id,
-        socket_id: socket.id
-      }) */
+       currentlyConnectedUsers.push({
+        userId: callbackInfo.user_id,
+        socketId: socket.id
+      })
       callback({
         type: 'confirm',
         payload: callbackInfo,
@@ -76,13 +96,24 @@ io.on('connection', socket => {
     }
   })
 
-  socket.on('newMessage', (payload: {user_id: number, message: string}, callback)=>{
-    console.log(payload.user_id, payload.message)
-    console.log(socket.id)
-    callback('ack')
+  socket.on('newMessage', (payload: NewMessage, callback)=>{
+    const shouldSentToUser = checkIsUserConnected(payload.reciever);
+    if(shouldSentToUser !== 'Not connected'){
+      socket.to(shouldSentToUser.socketId).emit('newMessage',
+      payload
+      , (isRecieved: boolean)=>{
+        if(isRecieved===true){
+          callback('delivered')
+        }else{
+          callback('sent')
+        }
+      })
+    }else{
+      callback('sent')
+    }
+    console.log(payload)
   })
 
-  console.log(socket.id)
 });
 
 httpServer.listen(8000);

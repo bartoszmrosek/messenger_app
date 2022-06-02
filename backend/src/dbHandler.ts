@@ -7,11 +7,11 @@ const checkUser =
   'SELECT user_id, username, email FROM user_accounts WHERE email = $1 AND password = $2';
 const searchUserQuery =
   'SELECT user_id, username FROM user_accounts WHERE username LIKE $1';
-const searchUserMessageQuery =
-  `SELECT user_accounts.user_id, user_accounts.username, user_messages.message_sent, user_messages.sender, user_messages.reciever, user_messages.is_read, user_messages.created_at
-  FROM user_accounts
-  INNER JOIN user_messages ON user_accounts.user_id = user_messages.sender
-  WHERE (user_messages.sender = $1 OR user_messages.reciever = $1) ORDER BY user_messages.created_at DESC`
+const searchUserMessageQuery = `SELECT user_accounts.username, user_messages.message, user_messages.sender_user_id, user_messages.reciever_user_id, user_messages.is_read, user_messages.created_at
+  FROM user_accounts, user_messages
+  WHERE (user_messages.reciever_user_id = $1 AND user_messages.sender_user_id = user_accounts.user_id) OR
+  (user_messages.sender_user_id = $1 AND user_messages.reciever_user_id = user_accounts.user_id)
+  ORDER BY user_messages.created_at ASC`;
 
 const pool = new Pool();
 const createNewUser = async (userInformations: string[]) => {
@@ -26,43 +26,44 @@ const createNewUser = async (userInformations: string[]) => {
   }
 };
 
-const loginUser = async(userInformations: string[]) =>{
+const loginUser = async (userInformations: string[]) => {
   const client = await pool.connect();
-  try{
+  try {
     const res = await client.query(checkUser, userInformations);
     client.release();
     return res.rows[0];
-  }catch(error){
+  } catch (error) {
     client.release();
     return error;
   }
-}
+};
 
-const searchUser = async(username: string)=>{
+const searchUser = async (username: string) => {
   const client = await pool.connect();
-  const chgToArr = [`%${username}%`]
-  try{
+  const chgToArr = [`%${username}%`];
+  try {
     const res = await client.query(searchUserQuery, chgToArr);
     client.release();
     return res.rows;
-  }catch(error){
+  } catch (error) {
     client.release();
-    console.log(error)
+    console.log(error);
     return 'error';
   }
-}
+};
 
-const searchUserMessages = async(userId:number)=>{
+const searchUserMessages = async (userId: number) => {
   const client = await pool.connect();
-  try{
+  try {
     const res = await client.query(searchUserMessageQuery, [userId]);
+    console.log(res.rows);
     client.release();
     return res.rows;
-  }catch(error){
+  } catch (error) {
     client.release();
-    console.log(error)
-    return('error')
+    console.log(error);
+    return 'error';
   }
-}
+};
 
 export { createNewUser, loginUser, searchUser, searchUserMessages };
