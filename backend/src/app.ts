@@ -30,7 +30,7 @@ const io = new Server(httpServer, {
   },
 });
 
-const currentlyConnectedUsers: UserIdWithSocket[] = [];
+let currentlyConnectedUsers: UserIdWithSocket[] = [];
 const checkIsUserConnected = (userId:number): UserIdWithSocket|'Not connected' =>{
   const isConnected = currentlyConnectedUsers.find((user)=>{
     return user.userId === userId;
@@ -54,7 +54,6 @@ io.on('connection', socket => {
     if (informations === undefined) {
       callback('usrCreated');
     } else {
-      console.log(informations.code === '23505');
       informations.code === '23505'
         ? callback('usrAlrInDb')
         : callback('connectionErr');
@@ -96,13 +95,14 @@ io.on('connection', socket => {
     }
   })
 
-  socket.on('newMessage', (payload: NewMessage, callback)=>{
-    const shouldSentToUser = checkIsUserConnected(payload.reciever);
-    if(shouldSentToUser !== 'Not connected'){
-      socket.to(shouldSentToUser.socketId).emit('newMessage',
+  socket.on('newMessageToServer', (payload: NewMessage, callback)=>{
+    const stateOfRecieverUser = checkIsUserConnected(payload.reciever);
+    if(stateOfRecieverUser !== 'Not connected'){
+      socket.timeout(10000).to(stateOfRecieverUser.socketId).emit('newMessageToClient',
       payload
-      , (isRecieved: boolean)=>{
-        if(isRecieved===true){
+      , (ack: any)=>{
+        console.log(ack)
+        if(ack===true){
           callback('delivered')
         }else{
           callback('sent')
@@ -111,7 +111,12 @@ io.on('connection', socket => {
     }else{
       callback('sent')
     }
-    console.log(payload)
+  })
+
+  socket.on('disconnect',()=>{
+    currentlyConnectedUsers = currentlyConnectedUsers.filter((user)=>{
+      return user.socketId !== socket.id
+    })
   })
 
 });

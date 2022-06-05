@@ -1,5 +1,10 @@
-import React, { FunctionComponent, createContext, useState } from 'react';
-
+import React, {
+  FunctionComponent,
+  createContext,
+  useState,
+  useContext,
+} from 'react';
+import { SocketContext } from './SocketContext';
 interface UserContextChildren {
   children?: React.ReactNode;
 }
@@ -9,12 +14,12 @@ interface userTypes {
 }
 
 interface userMessagesTypes {
-  username: string,
-  message: string,
-  sender_user_id: number,
-  reciever_user_id: number,
-  isRead: boolean,
-  created_at: string
+  username: string;
+  message: string;
+  sender_user_id: number;
+  reciever_user_id: number;
+  isRead: boolean;
+  created_at: string;
 }
 
 interface userInformationsInterface {
@@ -31,6 +36,7 @@ interface exportUserContextTypes {
 }
 
 const UserContext = createContext({});
+
 const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   children,
 }) => {
@@ -41,7 +47,7 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
     setUserInformations({ user_id, username, email });
   };
   const handleNewMessage = (messages: any) => {
-    setUserMessages(messages)
+    setUserMessages(messages);
   };
   return (
     <UserContext.Provider

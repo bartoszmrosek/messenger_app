@@ -15,26 +15,34 @@ const searchUserMessageQuery = `SELECT user_accounts.username, user_messages.mes
 
 const pool = new Pool();
 const createNewUser = async (userInformations: string[]) => {
-  const client = await pool.connect();
-  try {
-    const res = await client.query(insertNewUser, userInformations);
-    client.release();
-    console.log(res.rows[0]);
-  } catch (err1) {
-    client.release();
-    return err1;
+  try{
+    const client = await pool.connect();
+    try {
+      const res = await client.query(insertNewUser, userInformations);
+      client.release();
+      console.log(res.rows[0]);
+    } catch (err1) {
+      client.release();
+      return err1;
+    }
+  }catch(err){
+    console.log(err)
   }
 };
 
 const loginUser = async (userInformations: string[]) => {
-  const client = await pool.connect();
-  try {
-    const res = await client.query(checkUser, userInformations);
-    client.release();
-    return res.rows[0];
-  } catch (error) {
-    client.release();
-    return error;
+  try{
+    const client = await pool.connect();
+    try {
+      const res = await client.query(checkUser, userInformations);
+      client.release();
+      return res.rows[0];
+    } catch (error) {
+      client.release();
+      return error;
+    }
+  }catch(err){
+    console.log(err)
   }
 };
 
@@ -56,7 +64,6 @@ const searchUserMessages = async (userId: number) => {
   const client = await pool.connect();
   try {
     const res = await client.query(searchUserMessageQuery, [userId]);
-    console.log(res.rows);
     client.release();
     return res.rows;
   } catch (error) {

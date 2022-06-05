@@ -5,7 +5,17 @@ import type {
   userMessagesTypes,
   exportUserContextTypes,
 } from '../Contexts/UserContext';
-import Message from '../components/Message';
+import MessageSection from '../components/MessageSection';
+import UserActiveChats from '../components/UserActiveChats';
+
+interface newMessage{
+  user_id: number,
+  message: string,
+  sender: number,
+  reciever: number,
+  isRead: boolean,
+  created_at: string
+}
 
 const Messeges = () => {
   const {
@@ -72,7 +82,8 @@ const Messeges = () => {
       if (
         (activeChat === message.sender_user_id &&
           userInformations?.user_id === message.reciever_user_id) ||
-        (activeChat===message.reciever_user_id && userInformations?.user_id === message.sender_user_id)
+        (activeChat === message.reciever_user_id &&
+          userInformations?.user_id === message.sender_user_id)
       ) {
         return message;
       }
@@ -87,19 +98,14 @@ const Messeges = () => {
   const sendNewMessage = () => {
     if (newMessageValue.length > 0) {
       standardSocket.emit(
-        'newMessage',
+        'newMessageToServer',
         {
           user_id: userInformations?.user_id,
           message: newMessageValue,
           sender: userInformations?.user_id,
           reciever: activeChat,
           isRead: false,
-          created_at: `${date
-            .toISOString()
-            .slice(
-              0,
-              10,
-            )} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
+          created_at: `${date.toISOString()}`,
         },
         (ack: string) => {
           setNewMessageValue(ack);
@@ -115,56 +121,29 @@ const Messeges = () => {
       return userNode.reciever_user_id;
     }
   };
+
+  standardSocket.on('newMessageToClient',(newMessage: newMessage, callback: any)=>{
+    callback({ack:true})
+    console.log(newMessage)
+  })
+
   return (
     <div>
-      {groupedUsers !== undefined &&
-        (groupedUsers.length === 0 ? (
-          <div>
-            It's seems that you don't have any conversations yet, make some!
-          </div>
-        ) : (
-          groupedUsers.map((userNode, index) => {
-            return (
-              <section key={index}>
-                <div>
-                  <h3>{userNode.username}</h3>
-                  <button
-                    onClick={() =>
-                      handleChatChange(userToSendMessageTo(userNode))
-                    }
-                  >
-                    Pick chat
-                  </button>
-                </div>
-              </section>
-            );
-          })
-        ))}
-      <div>
-        {activeChat !== undefined && filteredMessages !== undefined && (
-          <div>
-            {filteredMessages.length > 0 && (
-              <div>
-                {filteredMessages.map(message => {
-                  return (
-                    <Message
-                      key={message.created_at}
-                      message={message.message}
-                      isRecieved={false}
-                    />
-                  );
-                })}
-                <input
-                  name="newMessage"
-                  onChange={handleInput}
-                  value={newMessageValue}
-                />
-                <button onClick={sendNewMessage}>Send message</button>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      {groupedUsers !== undefined && (
+        <UserActiveChats
+          groupedUsers={groupedUsers}
+          handleChatChange={handleChatChange}
+          userToSendMessageTo={userToSendMessageTo}
+        />
+      )}
+      {activeChat !== undefined && filteredMessages !== undefined && (
+        <MessageSection
+          filteredMessages={filteredMessages}
+          handleInput={handleInput}
+          newMessageValue={newMessageValue}
+          sendNewMessage={sendNewMessage}
+        />
+      )}
     </div>
   );
 };
