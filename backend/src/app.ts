@@ -62,7 +62,7 @@ io.on('connection', socket => {
 
   socket.on('checkUserLoginData', async (payload, callback) => {
     const { data } = payload;
-    const userInformations: string[] = [data.email, data.password];
+    const userInformations: [string, string|number] = [data.email, data.password];
     const callbackInfo: UserDetails = await loginUser(userInformations);
     if (callbackInfo === undefined) {
       callback({
@@ -98,16 +98,15 @@ io.on('connection', socket => {
   socket.on('newMessageToServer', (payload: NewMessage, callback)=>{
     const stateOfRecieverUser = checkIsUserConnected(payload.reciever);
     if(stateOfRecieverUser !== 'Not connected'){
-      socket.timeout(10000).to(stateOfRecieverUser.socketId).emit('newMessageToClient',
-      payload
-      , (ack: any)=>{
-        console.log(ack)
-        if(ack===true){
-          callback('delivered')
-        }else{
-          callback('sent')
-        }
-      })
+      try{
+        io.sockets.timeout(10000).to(stateOfRecieverUser.socketId).emit('newMessageToClient',
+        payload
+        )
+        callback('delivered')
+      }catch(error){
+        console.log(error)
+        callback('sent')
+      }
     }else{
       callback('sent')
     }

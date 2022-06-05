@@ -122,10 +122,14 @@ const Messeges = () => {
     }
   };
 
-  standardSocket.on('newMessageToClient',(newMessage: newMessage, callback: any)=>{
-    callback({ack:true})
-    console.log(newMessage)
-  })
+  useEffect(()=>{
+    standardSocket.on('newMessageToClient',(newMessage: newMessage)=>{
+      console.log(newMessage)
+    })
+    return ()=>{
+      standardSocket.off('newMessageToClient')
+    }
+  }, [])
 
   return (
     <div>

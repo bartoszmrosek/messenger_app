@@ -3,6 +3,7 @@ import { SocketContext } from '../Contexts/SocketContext';
 import { UserContext } from '../Contexts/UserContext';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import dbResponseHandler from '../DatabaseHandlers/dbResponse';
+import type {exportUserContextTypes} from '../Contexts/UserContext'
 
 interface userInput {
   email: string;
@@ -10,8 +11,8 @@ interface userInput {
 }
 interface dbResponse {
   type: string;
-  payload?: {
-    user_id: string;
+  payload: {
+    user_id: number;
     username: string;
     email: string;
     password: string;
@@ -20,7 +21,7 @@ interface dbResponse {
 
 const LoginForm = () => {
   const { standardSocket }: any = useContext(SocketContext);
-  const userSetter: any = useContext(UserContext);
+  const userSetter: exportUserContextTypes = useContext(UserContext);
   const [errorType, setErrorType] = useState('');
   const { register, handleSubmit } = useForm<userInput>();
 
@@ -32,11 +33,13 @@ const LoginForm = () => {
         if (dbResponse.type === 'confirm') {
           setErrorType('');
           const { payload } = dbResponse;
-          userSetter.handleNewInformations(
-            payload?.user_id,
-            payload?.username,
-            payload?.email,
-          );
+          if(userSetter.handleNewInformations !== undefined){
+            userSetter.handleNewInformations(
+              payload.user_id,
+              payload.username,
+              payload.email,
+            );
+          }
         } else {
           dbResponseHandler(dbResponse.type, setErrorType);
         }

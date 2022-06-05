@@ -1,14 +1,66 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import RegisterUserForm from './pages/RegisterUserForm';
 import Navbar from './components/Navbar';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginForm from './pages/LoginForm';
-import { UserContext } from './Contexts/UserContext';
 import Messeges from './pages/Messeges';
-import SearchResultsPage from './pages/SeachResultsPage'
+import SearchResultsPage from './pages/SeachResultsPage';
+import { UserContext } from './Contexts/UserContext';
+import { SocketContext } from './Contexts/SocketContext';
+import type { exportUserContextTypes } from './Contexts/UserContext';
 
-function App() {
-  const {userInformations}: any = useContext(UserContext);
+interface dbResponse {
+  type: string;
+  payload: {
+    user_id: number;
+    username: string;
+    email: string;
+    password: string;
+  };
+}
+
+const App = () => {
+  const { userInformations, handleNewInformations }: exportUserContextTypes =
+    useContext(UserContext);
+  const { standardSocket }: any = useContext(SocketContext);
+  useEffect(() => {
+    /* 
+      This doesn't explain itself well, so i thought about writing this comment,
+      it reautorizes user if connection is ever to be lost,
+      tries would go on for forever
+    */
+    standardSocket.io.on('reconnect', () => {
+      if (userInformations !== undefined) {
+        standardSocket.emit(
+          'checkUserLoginData',
+          {
+            data: {
+              email: userInformations.email,
+              password: userInformations.user_id,
+            },
+          },
+          (dbResponse: dbResponse) => {
+            if (dbResponse.type === 'confirm') {
+              const { payload } = dbResponse;
+              if (handleNewInformations !== undefined) {
+                handleNewInformations(
+                  payload.user_id,
+                  payload.username,
+                  payload.email,
+                );
+              }
+            } else {
+              console.log(dbResponse.type);
+            }
+          },
+        );
+      }
+    });
+    return () => {
+      standardSocket.io.off('reconnect');
+    };
+  }, []);
+
   return (
     <div>
       <Navbar />
@@ -24,6 +76,6 @@ function App() {
       </Routes>
     </div>
   );
-}
+};
 
 export default App;

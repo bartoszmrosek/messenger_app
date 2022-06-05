@@ -10,7 +10,7 @@ interface UserContextChildren {
 }
 
 interface userTypes {
-  (user_id: number, username: string, email: string, password: string): void;
+  (user_id: number, username: string, email: string, password?: string): void;
 }
 
 interface userMessagesTypes {

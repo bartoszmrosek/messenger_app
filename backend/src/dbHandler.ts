@@ -3,8 +3,13 @@ import 'dotenv/config';
 
 const insertNewUser =
   'INSERT INTO user_accounts(username, email, password) VALUES($1, $2, $3) RETURNING *';
-const checkUser =
-  'SELECT user_id, username, email FROM user_accounts WHERE email = $1 AND password = $2';
+const checkUser = (shouldUseUserId: boolean) =>{
+  if(shouldUseUserId){
+    return `SELECT user_id, username, email FROM user_accounts WHERE email = $1 AND user_id = $2`
+  }else{
+    return `SELECT user_id, username, email FROM user_accounts WHERE email = $1 AND password = $2`
+  }
+}
 const searchUserQuery =
   'SELECT user_id, username FROM user_accounts WHERE username LIKE $1';
 const searchUserMessageQuery = `SELECT user_accounts.username, user_messages.message, user_messages.sender_user_id, user_messages.reciever_user_id, user_messages.is_read, user_messages.created_at
@@ -30,15 +35,16 @@ const createNewUser = async (userInformations: string[]) => {
   }
 };
 
-const loginUser = async (userInformations: string[]) => {
+const loginUser = async (userInformations: [string, string|number]) => {
   try{
     const client = await pool.connect();
     try {
-      const res = await client.query(checkUser, userInformations);
+      const res = await client.query(checkUser(typeof userInformations[1] === 'number'), userInformations);
       client.release();
       return res.rows[0];
     } catch (error) {
       client.release();
+      console.log('Login User Failed: ', error)
       return error;
     }
   }catch(err){
