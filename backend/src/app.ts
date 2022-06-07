@@ -99,7 +99,7 @@ io.on('connection', socket => {
     }
   });
 
-  socket.on('newMessageToServer', (payload: NewMessage, callback) => {
+  socket.on('newMessageToServer', async (payload: NewMessage, callback) => {
     const stateOfRecieverUser = checkIsUserConnected(payload.reciever_user_id);
     const {
       created_at,
@@ -131,7 +131,7 @@ io.on('connection', socket => {
     } else {
       callback('sent');
     }
-    saveNewMessageToDataBase(payload);
+    await saveNewMessageToDataBase(payload);
   });
 
   socket.on('disconnect', () => {
