@@ -6,13 +6,13 @@ while also beeing nice to look at and great with usability.
 ## Technologies used:
 ### Frontend:
 - React
-- Typescript
 - React router
 - React hook form
-- Socket.io
 ### Backend:
 - Node.js
 - Express
-- Socket.io
 - node-postgres
 - PostgreSQL
+### Others:
+- Typescript
+- Socket.io
