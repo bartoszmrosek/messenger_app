@@ -22,7 +22,7 @@ const MessageSection = ({
           {filteredMessages.map(message => {
             return (
               <Message
-                key={message.created_at}
+                key={message.message_id}
                 message={message.message}
                 isRecieved={false}
               />

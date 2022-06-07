@@ -1,18 +1,27 @@
 import { Pool } from 'pg';
 import 'dotenv/config';
 
+interface NewMessage {
+  username: string;
+  message: string;
+  sender_user_id: number;
+  reciever_user_id: number;
+  is_read: boolean;
+  created_at: string;
+}
+
 const insertNewUser =
   'INSERT INTO user_accounts(username, email, password) VALUES($1, $2, $3) RETURNING *';
-const checkUser = (shouldUseUserId: boolean) =>{
-  if(shouldUseUserId){
-    return `SELECT user_id, username, email FROM user_accounts WHERE email = $1 AND user_id = $2`
-  }else{
-    return `SELECT user_id, username, email FROM user_accounts WHERE email = $1 AND password = $2`
+const checkUser = (shouldUseUserId: boolean) => {
+  if (shouldUseUserId) {
+    return `SELECT user_id, username, email FROM user_accounts WHERE email = $1 AND user_id = $2`;
+  } else {
+    return `SELECT user_id, username, email FROM user_accounts WHERE email = $1 AND password = $2`;
   }
-}
+};
 const searchUserQuery =
   'SELECT user_id, username FROM user_accounts WHERE username LIKE $1';
-const searchUserMessageQuery = `SELECT user_accounts.username, user_messages.message, user_messages.sender_user_id, user_messages.reciever_user_id, user_messages.is_read, user_messages.created_at
+const searchUserMessageQuery = `SELECT user_accounts.username, user_messages.message, user_messages.sender_user_id, user_messages.reciever_user_id, user_messages.is_read, user_messages.created_at, user_messages.message_id
   FROM user_accounts, user_messages
   WHERE (user_messages.reciever_user_id = $1 AND user_messages.sender_user_id = user_accounts.user_id) OR
   (user_messages.sender_user_id = $1 AND user_messages.reciever_user_id = user_accounts.user_id)
@@ -20,7 +29,7 @@ const searchUserMessageQuery = `SELECT user_accounts.username, user_messages.mes
 
 const pool = new Pool();
 const createNewUser = async (userInformations: string[]) => {
-  try{
+  try {
     const client = await pool.connect();
     try {
       const res = await client.query(insertNewUser, userInformations);
@@ -30,25 +39,28 @@ const createNewUser = async (userInformations: string[]) => {
       client.release();
       return err1;
     }
-  }catch(err){
-    console.log(err)
+  } catch (err) {
+    console.log(err);
   }
 };
 
-const loginUser = async (userInformations: [string, string|number]) => {
-  try{
+const loginUser = async (userInformations: [string, string | number]) => {
+  try {
     const client = await pool.connect();
     try {
-      const res = await client.query(checkUser(typeof userInformations[1] === 'number'), userInformations);
+      const res = await client.query(
+        checkUser(typeof userInformations[1] === 'number'),
+        userInformations,
+      );
       client.release();
       return res.rows[0];
     } catch (error) {
       client.release();
-      console.log('Login User Failed: ', error)
+      console.log('Login User Failed: ', error);
       return error;
     }
-  }catch(err){
-    console.log(err)
+  } catch (err) {
+    console.log(err);
   }
 };
 
@@ -79,4 +91,13 @@ const searchUserMessages = async (userId: number) => {
   }
 };
 
-export { createNewUser, loginUser, searchUser, searchUserMessages };
+const saveNewMessageToDataBase = (message: NewMessage) => {};
+
+export {
+  createNewUser,
+  loginUser,
+  searchUser,
+  searchUserMessages,
+  saveNewMessageToDataBase,
+};
+export type { NewMessage };

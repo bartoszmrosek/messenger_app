@@ -7,20 +7,22 @@ import type {
 } from '../Contexts/UserContext';
 import MessageSection from '../components/MessageSection';
 import UserActiveChats from '../components/UserActiveChats';
+import { nanoid } from 'nanoid';
 
-interface newMessage{
-  user_id: number,
-  message: string,
-  sender: number,
-  reciever: number,
-  isRead: boolean,
-  created_at: string
+interface newMessage {
+  username: string;
+  message: string;
+  sender_user_id: number;
+  reciever_user_id: number;
+  is_read: boolean;
+  created_at: string;
 }
 
 const Messeges = () => {
   const {
     userInformations,
     userMessages,
+    getAndSetMessagesFromHistory,
     handleNewMessage,
   }: exportUserContextTypes = useContext(UserContext);
   const { standardSocket }: any = useContext(SocketContext);
@@ -39,8 +41,8 @@ const Messeges = () => {
           if (response === 'error') {
             console.log(response);
           } else {
-            if (handleNewMessage !== undefined) {
-              handleNewMessage(response);
+            if (getAndSetMessagesFromHistory !== undefined) {
+              getAndSetMessagesFromHistory(response);
             }
           }
         },
@@ -54,16 +56,18 @@ const Messeges = () => {
         setFilteredMessages(filterMessages(userMessages, activeChat));
       }
     }
-  }, [activeChat]);
+  }, [activeChat, userMessages]);
 
   useEffect(() => {
     const uniqueUser: any[] = [];
     if (userMessages !== undefined) {
       const uniqueUsers = userMessages.filter(element => {
         const isDuplicate = uniqueUser.includes(element.username);
-        if (!isDuplicate) {
-          uniqueUser.push(element.username);
-          return true;
+        if (userInformations?.username !== element.username) {
+          if (!isDuplicate) {
+            uniqueUser.push(element.username);
+            return true;
+          }
         }
         return false;
       });
@@ -71,9 +75,21 @@ const Messeges = () => {
     }
   }, [userMessages]);
 
+  useEffect(() => {
+    standardSocket.on('newMessageToClient', (newMessage: newMessage) => {
+      if (handleNewMessage !== undefined) {
+        handleNewMessage(newMessage);
+      }
+    });
+    return () => {
+      standardSocket.off('newMessageToClient');
+    };
+  }, [userMessages]);
+
   const handleChatChange = (user_id: number) => {
     setActiveChat(user_id);
   };
+
   const filterMessages = (
     messages: userMessagesTypes[],
     activeChat: number,
@@ -101,9 +117,10 @@ const Messeges = () => {
         'newMessageToServer',
         {
           user_id: userInformations?.user_id,
+          username: userInformations?.username,
           message: newMessageValue,
-          sender: userInformations?.user_id,
-          reciever: activeChat,
+          sender_user_id: userInformations?.user_id,
+          reciever_user_id: activeChat,
           isRead: false,
           created_at: `${date.toISOString()}`,
         },
@@ -111,6 +128,18 @@ const Messeges = () => {
           setNewMessageValue(ack);
         },
       );
+      if (handleNewMessage !== undefined) {
+        handleNewMessage({
+          user_id: userInformations?.user_id,
+          username: userInformations?.username,
+          message: newMessageValue,
+          sender_user_id: userInformations?.user_id,
+          reciever_user_id: activeChat,
+          isRead: false,
+          created_at: `${date.toISOString()}`,
+          message_id: nanoid(),
+        });
+      }
     }
   };
 
@@ -121,15 +150,6 @@ const Messeges = () => {
       return userNode.reciever_user_id;
     }
   };
-
-  useEffect(()=>{
-    standardSocket.on('newMessageToClient',(newMessage: newMessage)=>{
-      console.log(newMessage)
-    })
-    return ()=>{
-      standardSocket.off('newMessageToClient')
-    }
-  }, [])
 
   return (
     <div>

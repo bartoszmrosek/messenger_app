@@ -14,6 +14,7 @@ interface userTypes {
 }
 
 interface userMessagesTypes {
+  message_id: number;
   username: string;
   message: string;
   sender_user_id: number;
@@ -32,7 +33,8 @@ interface exportUserContextTypes {
   userInformations?: userInformationsInterface;
   handleNewInformations?: userTypes;
   userMessages?: userMessagesTypes[];
-  handleNewMessage?: (messages: any[]) => void;
+  getAndSetMessagesFromHistory?: (newMessage: any) => void;
+  handleNewMessage?: (messages: unknown) => void;
 }
 
 const UserContext = createContext({});
@@ -43,18 +45,26 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   const [userInformations, setUserInformations] =
     useState<userInformationsInterface>();
   const [userMessages, setUserMessages] = useState<userMessagesTypes[]>([]);
+
   const handleNewInformations: userTypes = (user_id, username, email) => {
     setUserInformations({ user_id, username, email });
   };
-  const handleNewMessage = (messages: any) => {
+
+  const getAndSetMessagesFromHistory = (messages: any) => {
     setUserMessages(messages);
   };
+
+  const handleNewMessage = (newMessage: any) => {
+    setUserMessages(prevList => [...prevList, newMessage]);
+  };
+
   return (
     <UserContext.Provider
       value={{
         userInformations,
         handleNewInformations,
         userMessages,
+        getAndSetMessagesFromHistory,
         handleNewMessage,
       }}
     >

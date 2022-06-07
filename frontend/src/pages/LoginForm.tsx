@@ -3,7 +3,7 @@ import { SocketContext } from '../Contexts/SocketContext';
 import { UserContext } from '../Contexts/UserContext';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import dbResponseHandler from '../DatabaseHandlers/dbResponse';
-import type {exportUserContextTypes} from '../Contexts/UserContext'
+import type { exportUserContextTypes } from '../Contexts/UserContext';
 
 interface userInput {
   email: string;
@@ -33,7 +33,7 @@ const LoginForm = () => {
         if (dbResponse.type === 'confirm') {
           setErrorType('');
           const { payload } = dbResponse;
-          if(userSetter.handleNewInformations !== undefined){
+          if (userSetter.handleNewInformations !== undefined) {
             userSetter.handleNewInformations(
               payload.user_id,
               payload.username,

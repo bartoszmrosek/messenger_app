@@ -1,25 +1,24 @@
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { createNewUser, loginUser, searchUser, searchUserMessages } from './dbHandler';
+import {
+  createNewUser,
+  loginUser,
+  searchUser,
+  searchUserMessages,
+  saveNewMessageToDataBase,
+} from './dbHandler';
+import { nanoid } from 'nanoid';
+import type { NewMessage } from './dbHandler';
 
-interface UserDetails{
-  user_id: number,
-  username: string,
-  email: string,
+interface UserDetails {
+  user_id: number;
+  username: string;
+  email: string;
 }
-interface UserIdWithSocket{
-  userId:number,
-  socketId:string
-}
-
-interface NewMessage{
-  user_id: number,
-  message: string,
-  sender: number,
-  reciever: number,
-  isRead: boolean,
-  created_at: string
+interface UserIdWithSocket {
+  userId: number;
+  socketId: string;
 }
 
 const app = express();
@@ -31,16 +30,18 @@ const io = new Server(httpServer, {
 });
 
 let currentlyConnectedUsers: UserIdWithSocket[] = [];
-const checkIsUserConnected = (userId:number): UserIdWithSocket|'Not connected' =>{
-  const isConnected = currentlyConnectedUsers.find((user)=>{
+const checkIsUserConnected = (
+  userId: number,
+): UserIdWithSocket | 'Not connected' => {
+  const isConnected = currentlyConnectedUsers.find(user => {
     return user.userId === userId;
-  })
-  if(isConnected !== undefined){
+  });
+  if (isConnected !== undefined) {
     return isConnected;
-  }else{
-    return 'Not connected'
+  } else {
+    return 'Not connected';
   }
-}
+};
 
 io.on('connection', socket => {
   socket.on('checkOrCreateUser', async (payload, callback) => {
@@ -62,7 +63,10 @@ io.on('connection', socket => {
 
   socket.on('checkUserLoginData', async (payload, callback) => {
     const { data } = payload;
-    const userInformations: [string, string|number] = [data.email, data.password];
+    const userInformations: [string, string | number] = [
+      data.email,
+      data.password,
+    ];
     const callbackInfo: UserDetails = await loginUser(userInformations);
     if (callbackInfo === undefined) {
       callback({
@@ -70,10 +74,10 @@ io.on('connection', socket => {
         payload: null,
       });
     } else {
-       currentlyConnectedUsers.push({
+      currentlyConnectedUsers.push({
         userId: callbackInfo.user_id,
-        socketId: socket.id
-      })
+        socketId: socket.id,
+      });
       callback({
         type: 'confirm',
         payload: callbackInfo,
@@ -81,43 +85,60 @@ io.on('connection', socket => {
     }
   });
 
-  socket.on('searchUser', async(payload, callback)=>{
-    const callbackInfo: any[] | "error" = await searchUser(payload);
-    if(callback!=='error'){
-      callback(callbackInfo)
+  socket.on('searchUser', async (payload, callback) => {
+    const callbackInfo: any[] | 'error' = await searchUser(payload);
+    if (callback !== 'error') {
+      callback(callbackInfo);
     }
-  })
+  });
 
-  socket.on('checkUserHistory', async(payload, callback)=>{
-    const callbackInfo: any | "error" = await searchUserMessages(payload);
-    if(callback!=='error'){
-      callback(callbackInfo)
+  socket.on('checkUserHistory', async (payload, callback) => {
+    const callbackInfo: any | 'error' = await searchUserMessages(payload);
+    if (callback !== 'error') {
+      callback(callbackInfo);
     }
-  })
+  });
 
-  socket.on('newMessageToServer', (payload: NewMessage, callback)=>{
-    const stateOfRecieverUser = checkIsUserConnected(payload.reciever);
-    if(stateOfRecieverUser !== 'Not connected'){
-      try{
-        io.sockets.timeout(10000).to(stateOfRecieverUser.socketId).emit('newMessageToClient',
-        payload
-        )
-        callback('delivered')
-      }catch(error){
-        console.log(error)
-        callback('sent')
+  socket.on('newMessageToServer', (payload: NewMessage, callback) => {
+    const stateOfRecieverUser = checkIsUserConnected(payload.reciever_user_id);
+    const {
+      created_at,
+      is_read,
+      message,
+      reciever_user_id,
+      sender_user_id,
+      username,
+    } = payload;
+    if (stateOfRecieverUser !== 'Not connected') {
+      try {
+        io.sockets
+          .timeout(10000)
+          .to(stateOfRecieverUser.socketId)
+          .emit('newMessageToClient', {
+            username,
+            sender_user_id,
+            reciever_user_id,
+            message,
+            is_read,
+            created_at,
+            message_id: nanoid(),
+          });
+        callback('delivered');
+      } catch (error) {
+        console.log(error);
+        callback('sent');
       }
-    }else{
-      callback('sent')
+    } else {
+      callback('sent');
     }
-  })
+    saveNewMessageToDataBase(payload);
+  });
 
-  socket.on('disconnect',()=>{
-    currentlyConnectedUsers = currentlyConnectedUsers.filter((user)=>{
-      return user.socketId !== socket.id
-    })
-  })
-
+  socket.on('disconnect', () => {
+    currentlyConnectedUsers = currentlyConnectedUsers.filter(user => {
+      return user.socketId !== socket.id;
+    });
+  });
 });
 
 httpServer.listen(8000);
