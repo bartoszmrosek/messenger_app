@@ -1,4 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
+import { nanoid } from 'nanoid';
+import { useLocation } from 'react-router-dom';
 import { SocketContext } from '../Contexts/SocketContext';
 import { UserContext } from '../Contexts/UserContext';
 import type {
@@ -7,7 +9,6 @@ import type {
 } from '../Contexts/UserContext';
 import MessageSection from '../components/MessageSection';
 import UserActiveChats from '../components/UserActiveChats';
-import { nanoid } from 'nanoid';
 
 interface newMessage {
   username: string;
@@ -31,6 +32,7 @@ const Messeges = () => {
     useState<userMessagesTypes[]>();
   const [groupedUsers, setGroupedUsers] = useState<userMessagesTypes[]>();
   const [newMessageValue, setNewMessageValue] = useState<string>('');
+  const { state }: any = useLocation();
 
   useEffect(() => {
     if (userInformations?.user_id !== undefined) {
@@ -47,6 +49,9 @@ const Messeges = () => {
           }
         },
       );
+    }
+    if (state !== null && state.activeChat !== undefined) {
+      setActiveChat(state.activeChat);
     }
   }, []);
 
@@ -121,7 +126,7 @@ const Messeges = () => {
           message: newMessageValue,
           sender_user_id: userInformations?.user_id,
           reciever_user_id: activeChat,
-          isRead: false,
+          is_read: false,
           created_at: `${date.toISOString()}`,
         },
         (ack: string) => {

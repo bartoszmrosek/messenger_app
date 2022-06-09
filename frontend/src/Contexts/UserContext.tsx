@@ -51,11 +51,21 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   };
 
   const getAndSetMessagesFromHistory = (messages: any) => {
-    setUserMessages(messages);
+    const nullMessagesToNewUsers = userMessages.filter(message => {
+      return message.message === null;
+    });
+    setUserMessages([...messages, ...nullMessagesToNewUsers]);
   };
 
   const handleNewMessage = (newMessage: any) => {
-    setUserMessages(prevList => [...prevList, newMessage]);
+    if (
+      !(
+        newMessage.message === null &&
+        userMessages.some(message => message.username === newMessage.username)
+      )
+    ) {
+      setUserMessages(prevList => [...prevList, newMessage]);
+    }
   };
 
   return (

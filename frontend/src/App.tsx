@@ -26,10 +26,9 @@ const App = () => {
   useEffect(() => {
     /* 
       This doesn't explain itself well, so i thought about writing this comment,
-      it reautorizes user if connection is ever to be lost,
-      tries would go on for forever
+      it reautorizes user if connection is estabilished after losing it
     */
-    standardSocket.io.on('reconnect', () => {
+    standardSocket.on('connect', () => {
       if (userInformations !== undefined) {
         standardSocket.emit(
           'checkUserLoginData',
