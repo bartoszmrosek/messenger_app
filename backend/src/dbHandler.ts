@@ -51,6 +51,7 @@ const createNewUser = async (userInformations: string[]) => {
     }
   } catch (err) {
     console.log(err);
+    return err;
   }
 };
 

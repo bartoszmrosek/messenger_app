@@ -54,11 +54,20 @@ io.on('connection', socket => {
       ];
       const informations = await createNewUser(userInformationsArray);
       if (informations === undefined) {
-        callback('usrCreated');
+        callback({
+          type: 'correct',
+          payload: null,
+        });
       } else {
         informations.code === '23505'
-          ? callback('usrAlrInDb')
-          : callback('connectionErr');
+          ? callback({
+              type: 'error',
+              payload: 1,
+            })
+          : callback({
+              type: 'error',
+              payload: 0,
+            });
       }
     });
 

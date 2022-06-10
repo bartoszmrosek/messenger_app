@@ -1,7 +1,9 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import React, { useContext, useState } from 'react';
 import { SocketContext } from '../Contexts/SocketContext';
-import dbResponseHandler from '../DatabaseHandlers/dbResponse';
+import { standardDbResponse } from '../interfaces/dbResponsesInterface';
+import ErrorOverlay from '../components/ErrorOverlay';
+import useErrorType from '../hooks/useErrorType';
 
 interface userInput {
   username: String;
@@ -12,12 +14,25 @@ interface userInput {
 const RegisterUserForm = () => {
   const { standardSocket }: any = useContext(SocketContext);
   const { register, handleSubmit } = useForm<userInput>();
-  const [isSubmitSuccessfull, setIsSubmitSuccessfull] = useState('');
+  const [isSubmitSuccessfull, setIsSubmitSuccessfull] = useState<
+    boolean | null
+  >(null);
+  const [error, setError] = useErrorType();
 
   const onSubmit: SubmitHandler<userInput> = data => {
-    standardSocket.emit('checkOrCreateUser', { data }, (dbResponse: string) => {
-      dbResponseHandler(dbResponse, setIsSubmitSuccessfull);
-    });
+    standardSocket
+      .timeout(10000)
+      .emit(
+        'checkOrCreateUser',
+        { data },
+        (dbResponse: standardDbResponse<null | number>) => {
+          if (dbResponse.type === 'correct') {
+            setIsSubmitSuccessfull(true);
+          } else {
+            setError(dbResponse.payload);
+          }
+        },
+      );
   };
 
   return (
@@ -49,13 +64,8 @@ const RegisterUserForm = () => {
         />
         <button onClick={handleSubmit(onSubmit)}>Submit</button>
       </form>
-      <p>
-        {isSubmitSuccessfull === 'true'
-          ? 'Użytkownik zostaly utworzony'
-          : isSubmitSuccessfull === 'usrAlrInDbError'
-          ? 'Dane użytkownika są obecnie używane'
-          : 'Błąd połączenia z serwerem, spróbuj ponownie'}
-      </p>
+      {isSubmitSuccessfull && <p>Submit succesfull</p>}
+      {error !== null && <ErrorOverlay error={error} />}
     </div>
   );
 };
