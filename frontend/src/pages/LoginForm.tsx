@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { SocketContext } from '../Contexts/SocketContext';
 import { UserContext } from '../Contexts/UserContext';
@@ -31,7 +31,7 @@ const LoginForm = () => {
         }>,
       ) => {
         if (error) {
-          setError(10000);
+          setError(error);
         } else {
           if (dbResponse.type === 'confirm') {
             setError(null);

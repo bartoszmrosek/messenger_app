@@ -2,9 +2,10 @@ import { NavLink, useSearchParams } from 'react-router-dom';
 import React, { useContext, useState } from 'react';
 import { UserContext } from '../Contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
+import { nanoid } from 'nanoid';
 
 const Navbar = () => {
-  const {userInformations}: any = useContext(UserContext);
+  const { userInformations }: any = useContext(UserContext);
   const [searchParameters, setSearchParameters] = useState<string>('');
   const navigate = useNavigate();
 
@@ -16,7 +17,7 @@ const Navbar = () => {
 
   const handleSearchSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
-    navigate('/SearchResults', { state: { searchParameters } });
+    navigate('/SearchResults', { state: { searchParameters, id: nanoid() } });
   };
 
   const shouldRenderUser = () => {

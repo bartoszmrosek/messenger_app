@@ -77,13 +77,30 @@ io.on('connection', socket => {
         data.email,
         data.password,
       ];
-      const callbackInfo: UserDetails = await loginUser(userInformations);
-      console.log(callbackInfo)
-      if (callbackInfo === undefined) {
-        callback({
-          type: 'error',
-          payload: 2,
-        });
+      const callbackInfo: UserDetails | number = await loginUser(
+        userInformations,
+      );
+      if (typeof callbackInfo === 'number') {
+        switch (callbackInfo) {
+          case 2:
+            callback({
+              type: 'error',
+              payload: 2,
+            });
+            break;
+          case 3:
+            callback({
+              type: 'error',
+              payload: 3,
+            });
+            break;
+          default:
+            callback({
+              type: 'error',
+              payload: callbackInfo,
+            });
+            break;
+        }
       } else {
         currentlyConnectedUsers.push({
           userId: callbackInfo.user_id,
@@ -97,9 +114,26 @@ io.on('connection', socket => {
     });
 
     socket.on('searchUser', async (payload, callback) => {
-      const callbackInfo: any[] | 'error' = await searchUser(payload);
-      if (callback !== 'error') {
-        callback(callbackInfo);
+      try {
+        const callbackInfo: any | number | 'unknown' = await searchUser(
+          payload,
+        );
+        if (typeof callbackInfo !== 'number' && callbackInfo !== 'unknown') {
+          callback({
+            type: 'confirm',
+            payload: callbackInfo.rows,
+          });
+        } else {
+          callback({
+            type: 'error',
+            payload: callbackInfo,
+          });
+        }
+      } catch (error) {
+        callback({
+          type: 'error',
+          payload: error,
+        });
       }
     });
 

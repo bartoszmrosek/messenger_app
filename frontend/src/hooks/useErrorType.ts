@@ -4,7 +4,8 @@ import React, { useState } from 'react';
     Error types are as following:
     0 - Error with connection to database
     1 - User already exists in database
-    2 - User informations are wrong
+    2 - Login failed
+    3 - User does not exist or informations are wrong
 */
 
 const useErrorType = () => {
@@ -18,7 +19,10 @@ const useErrorType = () => {
         setErrorType('User already exists');
         break;
       case 2:
-        setErrorType('User login info is wrong');
+        setErrorType('Login failed');
+        break;
+      case 3:
+        setErrorType('User does not exist or informations are wrong');
         break;
       case null:
         setErrorType(null);

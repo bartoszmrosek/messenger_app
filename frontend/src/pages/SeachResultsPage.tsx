@@ -4,8 +4,14 @@ import { nanoid } from 'nanoid';
 import { SocketContext } from '../Contexts/SocketContext';
 import { UserContext } from '../Contexts/UserContext';
 import type { exportUserContextTypes } from '../Contexts/UserContext';
+import useErrorType from '../hooks/useErrorType';
 
 interface foundUserInformations {
+  type: 'confirm' | 'error';
+  payload: [{ user_id: number; username: string }] | number;
+}
+
+interface UserInformations {
   user_id?: number;
   username?: string;
 }
@@ -16,11 +22,12 @@ const SearchResultsPage = () => {
     useContext(UserContext);
   const { state }: any = useLocation();
   const [renderedResults, setRenderedResults] = useState<
-    [] | React.ReactNode
+    string | React.ReactNode
   >();
   const navigate = useNavigate();
+  const [error, setError] = useErrorType();
 
-  const handleClick = (userInfo: foundUserInformations) => {
+  const handleClick = (userInfo: UserInformations) => {
     if (handleNewMessage !== undefined) {
       handleNewMessage({
         message_id: nanoid(),
@@ -36,30 +43,43 @@ const SearchResultsPage = () => {
   };
 
   useEffect(() => {
-    standardSocket.emit(
-      'searchUser',
-      state.searchParameters,
-      (dbResponse: foundUserInformations[]) => {
-        if (dbResponse.length > 0 && userInformations !== undefined) {
-          const listOfMatchingUsers = dbResponse.map(element => {
-            return (
-              <section key={element.user_id}>
-                <h1>{element.username}</h1>
-                {userInformations.user_id !== undefined && (
-                  <button onClick={() => handleClick(element)}>
-                    Send message
-                  </button>
-                )}
-              </section>
-            );
-          });
-          setRenderedResults(listOfMatchingUsers);
-        } else {
-          setRenderedResults(<div>Brak wyszukań</div>);
-        }
-      },
-    );
-  }, [state.searchParameters]);
+    standardSocket
+      .timeout(10000)
+      .emit(
+        'searchUser',
+        state.searchParameters,
+        (resError: unknown, dbResponse: foundUserInformations) => {
+          if (resError || dbResponse.type === 'error') {
+            resError ? setError(resError) : setError(dbResponse.payload);
+          } else {
+            setError(null);
+            if (
+              typeof dbResponse.payload === 'object' &&
+              dbResponse.payload.length > 0
+            ) {
+              const listOfMatchingUsers = dbResponse.payload.map(element => {
+                return (
+                  <section key={element.user_id}>
+                    <h1>{element.username}</h1>
+                    {userInformations !== undefined && (
+                      <button onClick={() => handleClick(element)}>
+                        Send message
+                      </button>
+                    )}
+                  </section>
+                );
+              });
+              setRenderedResults(listOfMatchingUsers);
+            } else {
+              setRenderedResults('Brak wyszukań');
+            }
+          }
+        },
+      );
+  }, [state.id]);
+  useEffect(() => {
+    setRenderedResults(error);
+  }, [error]);
   return <div>{renderedResults}</div>;
 };
 export default SearchResultsPage;

@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import 'dotenv/config';
+import e from 'express';
 
 interface NewMessage {
   username: string;
@@ -47,13 +48,14 @@ const createNewUser = async (userInformations: string[]) => {
       const res = await client.query(insertNewUserQuery, userInformations);
       client.release();
       console.log(res.rows[0]);
-    } catch (err1) {
+    } catch (error2) {
       client.release();
-      return err1;
+      console.error('Query not succesful:', error2);
+      return error2;
     }
-  } catch (err) {
-    console.log(err);
-    return err;
+  } catch (error1) {
+    console.error('Cannot connect to db:', error1);
+    return error1;
   }
 };
 
@@ -66,29 +68,38 @@ const loginUser = async (userInformations: [string, string | number]) => {
         userInformations,
       );
       client.release();
-      return res.rows[0];
-      
-    } catch (error) {
+      if (res.rows.length === 0) {
+        return 3;
+      } else {
+        return res.rows[0];
+      }
+    } catch (error2) {
       client.release();
-      console.log('Login User Failed: ', error);
-      return error;
+      console.error('Login User Failed:', error2);
+      return 2;
     }
-  } catch (err) {
-    console.log("Db connection failed: ", err);
+  } catch (error1) {
+    console.error('Cannot connect to db:', error1);
+    return 0;
   }
 };
 
 const searchUser = async (username: string) => {
-  const client = await pool.connect();
-  const chgToArr = [`%${username}%`];
   try {
-    const res = await client.query(searchUserQuery, chgToArr);
-    client.release();
-    return res.rows;
-  } catch (error) {
-    client.release();
-    console.log(error);
-    return 'error';
+    const client = await pool.connect();
+    const chgToArr = [`%${username}%`];
+    try {
+      const res = await client.query(searchUserQuery, chgToArr);
+      client.release();
+      return res;
+    } catch (error2) {
+      client.release();
+      console.error('Searching user query not succesfull', error2);
+      return 'unknown';
+    }
+  } catch (error1) {
+    console.error('Cannot connect to db:', error1);
+    return 0;
   }
 };
 
