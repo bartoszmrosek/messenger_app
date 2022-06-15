@@ -25,11 +25,17 @@ const RegisterUserForm = () => {
       .emit(
         'checkOrCreateUser',
         { data },
-        (dbResponse: standardDbResponse<null | number>) => {
-          if (dbResponse.type === 'correct') {
-            setIsSubmitSuccessfull(true);
+        (error: unknown, dbResponse: standardDbResponse<null | number>) => {
+          if (error) {
+            setError(error);
           } else {
-            setError(dbResponse.payload);
+            if (dbResponse.type === 'correct') {
+              setError(null);
+              setIsSubmitSuccessfull(true);
+            } else {
+              setIsSubmitSuccessfull(false);
+              setError(dbResponse.payload);
+            }
           }
         },
       );

@@ -3,21 +3,12 @@ import RegisterUserForm from './pages/RegisterUserForm';
 import Navbar from './components/Navbar';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginForm from './pages/LoginForm';
-import Messeges from './pages/Messeges';
+import Messeges from './pages/Messages';
 import SearchResultsPage from './pages/SeachResultsPage';
 import { UserContext } from './Contexts/UserContext';
 import { SocketContext } from './Contexts/SocketContext';
 import type { exportUserContextTypes } from './Contexts/UserContext';
-
-interface dbResponse {
-  type: string;
-  payload: {
-    user_id: number;
-    username: string;
-    email: string;
-    password: string;
-  };
-}
+import type { standardDbResponse } from './interfaces/dbResponsesInterface';
 
 const App = () => {
   const { userInformations, handleNewInformations }: exportUserContextTypes =
@@ -38,7 +29,14 @@ const App = () => {
               password: userInformations.user_id,
             },
           },
-          (dbResponse: dbResponse) => {
+          (
+            dbResponse: standardDbResponse<{
+              user_id: number;
+              username: string;
+              email: string;
+              password: string;
+            }>,
+          ) => {
             if (dbResponse.type === 'confirm') {
               const { payload } = dbResponse;
               if (handleNewInformations !== undefined) {

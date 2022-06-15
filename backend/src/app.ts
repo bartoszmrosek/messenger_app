@@ -78,10 +78,11 @@ io.on('connection', socket => {
         data.password,
       ];
       const callbackInfo: UserDetails = await loginUser(userInformations);
+      console.log(callbackInfo)
       if (callbackInfo === undefined) {
         callback({
-          type: 'usrInfoWrong',
-          payload: null,
+          type: 'error',
+          payload: 2,
         });
       } else {
         currentlyConnectedUsers.push({

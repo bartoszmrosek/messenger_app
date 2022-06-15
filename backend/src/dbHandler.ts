@@ -30,7 +30,9 @@ const searchUserMessageQuery = `SELECT
     user_messages.created_at,
     user_messages.message_id
   FROM user_accounts, user_messages
-  WHERE (user_messages.reciever_user_id = $1 AND user_messages.sender_user_id = user_accounts.user_id) OR
+  WHERE
+  (user_messages.reciever_user_id = $1 AND user_messages.sender_user_id = user_accounts.user_id)
+  OR
   (user_messages.sender_user_id = $1 AND user_messages.reciever_user_id = user_accounts.user_id)
   ORDER BY user_messages.created_at ASC`;
 const saveNewMessageQuery = `
@@ -65,13 +67,14 @@ const loginUser = async (userInformations: [string, string | number]) => {
       );
       client.release();
       return res.rows[0];
+      
     } catch (error) {
       client.release();
       console.log('Login User Failed: ', error);
       return error;
     }
   } catch (err) {
-    console.log(err);
+    console.log("Db connection failed: ", err);
   }
 };
 
