@@ -21,7 +21,7 @@ const UserActiveChats = ({
       ) : (
         groupedUsers.map(userNode => {
           return (
-            <section key={userNode.created_at}>
+            <section key={userNode.message_id}>
               <div>
                 <h3>{userNode.username}</h3>
                 <button

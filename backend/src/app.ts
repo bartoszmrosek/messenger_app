@@ -5,7 +5,7 @@ import {
   createNewUser,
   loginUser,
   searchUser,
-  searchUserMessages,
+  searchHistory,
   saveNewMessageToDataBase,
 } from './dbHandler';
 import { nanoid } from 'nanoid';
@@ -55,7 +55,7 @@ io.on('connection', socket => {
       const informations = await createNewUser(userInformationsArray);
       if (informations === undefined) {
         callback({
-          type: 'correct',
+          type: 'confirm',
           payload: null,
         });
       } else {
@@ -138,9 +138,26 @@ io.on('connection', socket => {
     });
 
     socket.on('checkUserHistory', async (payload, callback) => {
-      const callbackInfo: any | 'error' = await searchUserMessages(payload);
-      if (callback !== 'error') {
-        callback(callbackInfo);
+      try {
+        const callbackInfo: any[] | 'unknown' | 0 = await searchHistory(
+          payload,
+        );
+        if (callbackInfo !== 'unknown' && callbackInfo !== 0) {
+          callback({
+            type: 'confirm',
+            payload: callbackInfo,
+          });
+        } else {
+          callback({
+            type: 'error',
+            payload: callbackInfo,
+          });
+        }
+      } catch (error) {
+        callback({
+          type: 'error',
+          payload: error,
+        });
       }
     });
 

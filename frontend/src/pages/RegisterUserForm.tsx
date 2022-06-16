@@ -29,7 +29,7 @@ const RegisterUserForm = () => {
           if (error) {
             setError(error);
           } else {
-            if (dbResponse.type === 'correct') {
+            if (dbResponse.type === 'confirm') {
               setError(null);
               setIsSubmitSuccessfull(true);
             } else {

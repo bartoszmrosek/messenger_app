@@ -1,7 +1,5 @@
 import { Pool } from 'pg';
 import 'dotenv/config';
-import e from 'express';
-
 interface NewMessage {
   username: string;
   message: string;
@@ -41,17 +39,22 @@ const saveNewMessageQuery = `
   VALUES ( $1, $2, $3, $4 );`;
 
 const pool = new Pool();
+pool.on('error', error => {
+  console.log('unexpected error');
+  console.log(error);
+  process.exit(-1);
+});
 const createNewUser = async (userInformations: string[]) => {
   try {
     const client = await pool.connect();
     try {
       const res = await client.query(insertNewUserQuery, userInformations);
-      client.release();
       console.log(res.rows[0]);
     } catch (error2) {
-      client.release();
       console.error('Query not succesful:', error2);
       return error2;
+    } finally {
+      client.release();
     }
   } catch (error1) {
     console.error('Cannot connect to db:', error1);
@@ -67,16 +70,16 @@ const loginUser = async (userInformations: [string, string | number]) => {
         checkUser(typeof userInformations[1] === 'number'),
         userInformations,
       );
-      client.release();
       if (res.rows.length === 0) {
         return 3;
       } else {
         return res.rows[0];
       }
     } catch (error2) {
-      client.release();
       console.error('Login User Failed:', error2);
       return 2;
+    } finally {
+      client.release();
     }
   } catch (error1) {
     console.error('Cannot connect to db:', error1);
@@ -90,12 +93,12 @@ const searchUser = async (username: string) => {
     const chgToArr = [`%${username}%`];
     try {
       const res = await client.query(searchUserQuery, chgToArr);
-      client.release();
       return res;
     } catch (error2) {
-      client.release();
       console.error('Searching user query not succesfull', error2);
       return 'unknown';
+    } finally {
+      client.release();
     }
   } catch (error1) {
     console.error('Cannot connect to db:', error1);
@@ -103,16 +106,21 @@ const searchUser = async (username: string) => {
   }
 };
 
-const searchUserMessages = async (userId: number) => {
-  const client = await pool.connect();
+const searchHistory = async (userId: number) => {
   try {
-    const res = await client.query(searchUserMessageQuery, [userId]);
-    client.release();
-    return res.rows;
-  } catch (error) {
-    client.release();
-    console.log(error);
-    return 'error';
+    const client = await pool.connect();
+    try {
+      const res = await client.query(searchUserMessageQuery, [userId]);
+      return res.rows;
+    } catch (error2) {
+      console.error('Searching for user history failed:', error2);
+      return 'unknown';
+    } finally {
+      client.release();
+    }
+  } catch (error1) {
+    console.error('Cannot connect to db:', error1);
+    return 0;
   }
 };
 
@@ -138,7 +146,7 @@ export {
   createNewUser,
   loginUser,
   searchUser,
-  searchUserMessages,
+  searchHistory,
   saveNewMessageToDataBase,
 };
 export type { NewMessage };

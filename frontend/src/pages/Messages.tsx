@@ -9,6 +9,8 @@ import type {
 } from '../Contexts/UserContext';
 import MessageSection from '../components/MessageSection';
 import UserActiveChats from '../components/UserActiveChats';
+import useErrorType from '../hooks/useErrorType';
+import type { standardDbResponse } from '../interfaces/dbResponsesInterface';
 
 interface newMessage {
   username: string;
@@ -32,23 +34,34 @@ const Messeges = () => {
     useState<userMessagesTypes[]>();
   const [groupedUsers, setGroupedUsers] = useState<userMessagesTypes[]>();
   const [newMessageValue, setNewMessageValue] = useState<string>('');
+  const [error, setError] = useErrorType();
   const { state }: any = useLocation();
 
   useEffect(() => {
     if (userInformations?.user_id !== undefined) {
-      standardSocket.emit(
-        'checkUserHistory',
-        userInformations.user_id,
-        (response: any[] | 'error') => {
-          if (response === 'error') {
-            console.log(response);
-          } else {
-            if (getAndSetMessagesFromHistory !== undefined) {
-              getAndSetMessagesFromHistory(response);
+      standardSocket
+        .timeout(10000)
+        .emit(
+          'checkUserHistory',
+          userInformations.user_id,
+          (
+            connectionError: unknown,
+            response: standardDbResponse<any[] | unknown>,
+          ) => {
+            if (connectionError) {
+              setError(connectionError);
+            } else {
+              if (response.type === 'error') {
+                setError(response.payload);
+              } else {
+                setError(null);
+                if (getAndSetMessagesFromHistory !== undefined) {
+                  getAndSetMessagesFromHistory(response.payload);
+                }
+              }
             }
-          }
-        },
-      );
+          },
+        );
     }
     if (state !== null && state.activeChat !== undefined) {
       setActiveChat(state.activeChat);
@@ -173,6 +186,7 @@ const Messeges = () => {
           sendNewMessage={sendNewMessage}
         />
       )}
+      {error}
     </div>
   );
 };

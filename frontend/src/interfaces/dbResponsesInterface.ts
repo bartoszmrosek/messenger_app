@@ -1,5 +1,5 @@
 interface standardDbResponse<Type> {
-  type: string;
+  type: 'confirm' | 'error';
   payload: Type;
 }
 

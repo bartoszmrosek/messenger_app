@@ -3,13 +3,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { nanoid } from 'nanoid';
 import { SocketContext } from '../Contexts/SocketContext';
 import { UserContext } from '../Contexts/UserContext';
-import type { exportUserContextTypes } from '../Contexts/UserContext';
 import useErrorType from '../hooks/useErrorType';
-
-interface foundUserInformations {
-  type: 'confirm' | 'error';
-  payload: [{ user_id: number; username: string }] | number;
-}
+import type { exportUserContextTypes } from '../Contexts/UserContext';
+import type { standardDbResponse } from '../interfaces/dbResponsesInterface';
 
 interface UserInformations {
   user_id?: number;
@@ -48,7 +44,12 @@ const SearchResultsPage = () => {
       .emit(
         'searchUser',
         state.searchParameters,
-        (resError: unknown, dbResponse: foundUserInformations) => {
+        (
+          resError: unknown,
+          dbResponse: standardDbResponse<
+            [{ user_id: number; username: string }] | number
+          >,
+        ) => {
           if (resError || dbResponse.type === 'error') {
             resError ? setError(resError) : setError(dbResponse.payload);
           } else {
