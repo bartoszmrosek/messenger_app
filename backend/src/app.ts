@@ -9,16 +9,13 @@ import {
   saveNewMessageToDataBase,
 } from './dbHandler';
 import { nanoid } from 'nanoid';
+import { checkIsUserConnected, connectUser, disconnectUser } from './users';
 import type { NewMessage } from './dbHandler';
 
 interface UserDetails {
   user_id: number;
   username: string;
   email: string;
-}
-interface UserIdWithSocket {
-  userId: number;
-  socketId: string;
 }
 
 const app = express();
@@ -28,20 +25,6 @@ const io = new Server(httpServer, {
     origin: '*',
   },
 });
-
-let currentlyConnectedUsers: UserIdWithSocket[] = [];
-const checkIsUserConnected = (
-  userId: number,
-): UserIdWithSocket | 'Not connected' => {
-  const isConnected = currentlyConnectedUsers.find(user => {
-    return user.userId === userId;
-  });
-  if (isConnected !== undefined) {
-    return isConnected;
-  } else {
-    return 'Not connected';
-  }
-};
 
 io.on('connection', socket => {
   try {
@@ -102,10 +85,7 @@ io.on('connection', socket => {
             break;
         }
       } else {
-        currentlyConnectedUsers.push({
-          userId: callbackInfo.user_id,
-          socketId: socket.id,
-        });
+        connectUser(callbackInfo.user_id, socket.id);
         callback({
           type: 'confirm',
           payload: callbackInfo,
@@ -224,9 +204,7 @@ io.on('connection', socket => {
     });
 
     socket.on('disconnect', () => {
-      currentlyConnectedUsers = currentlyConnectedUsers.filter(user => {
-        return user.socketId !== socket.id;
-      });
+      disconnectUser(socket.id);
     });
   } catch (error) {
     console.log('Uncaught error: ', error);
