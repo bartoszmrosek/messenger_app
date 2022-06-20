@@ -173,12 +173,21 @@ io.on('connection', socket => {
         sender_user_id,
         username,
       } = payload;
+      try {
+        await saveNewMessageToDataBase(payload);
+      } catch (error) {
+        callback({
+          type: 'error',
+          payload: error,
+        });
+      }
       if (stateOfRecieverUser !== 'Not connected') {
-        try {
-          io.sockets
-            .timeout(10000)
-            .to(stateOfRecieverUser.socketId)
-            .emit('newMessageToClient', {
+        io.sockets
+          .timeout(10000)
+          .to(stateOfRecieverUser.socketId)
+          .emit(
+            'newMessageToClient',
+            {
               username,
               sender_user_id,
               reciever_user_id,
@@ -186,16 +195,32 @@ io.on('connection', socket => {
               is_read,
               created_at,
               message_id: nanoid(),
-            });
-          callback('delivered');
-        } catch (error) {
-          console.log(error);
-          callback('sent');
-        }
+            },
+            (error: unknown, isRecieved: boolean) => {
+              if (error) {
+                callback({
+                  type: 'confirm',
+                  payload: 'sent',
+                });
+              } else {
+                isRecieved
+                  ? callback({
+                      type: 'confirm',
+                      payload: 'delivered',
+                    })
+                  : callback({
+                      type: 'confirm',
+                      payload: 'sent',
+                    });
+              }
+            },
+          );
       } else {
-        callback('sent');
+        callback({
+          type: 'confirm',
+          payload: 'sent',
+        });
       }
-      await saveNewMessageToDataBase(payload);
     });
 
     socket.on('disconnect', () => {

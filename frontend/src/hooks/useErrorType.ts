@@ -6,6 +6,8 @@ import React, { useState } from 'react';
     1 - User already exists in database
     2 - Login failed
     3 - User does not exist or informations are wrong
+    4 - Server couldn't save message to database, 
+    although it still can process informations in real time
 */
 
 const useErrorType = () => {
@@ -23,6 +25,11 @@ const useErrorType = () => {
         break;
       case 3:
         setErrorType('User does not exist or informations are wrong');
+        break;
+      case 4:
+        setErrorType(
+          'User message cannot be saved, you still can communicate in real time',
+        );
         break;
       case null:
         setErrorType(null);

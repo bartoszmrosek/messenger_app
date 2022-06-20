@@ -125,20 +125,25 @@ const searchHistory = async (userId: number) => {
 };
 
 const saveNewMessageToDataBase = async (message: NewMessage) => {
-  const client = await pool.connect();
-  const convertToArrayOfMessageParams = [
-    message.sender_user_id,
-    message.reciever_user_id,
-    message.message,
-    message.is_read,
-  ];
   try {
-    await client.query(saveNewMessageQuery, convertToArrayOfMessageParams);
-    client.release();
-  } catch (error) {
-    client.release();
-    console.log(error);
-    return 'no i chuj';
+    const client = await pool.connect();
+    const convertToArrayOfMessageParams = [
+      message.sender_user_id,
+      message.reciever_user_id,
+      message.message,
+      message.is_read,
+    ];
+    try {
+      await client.query(saveNewMessageQuery, convertToArrayOfMessageParams);
+    } catch (error2) {
+      console.error('Cannot save message to db:', error2);
+      return 4;
+    } finally {
+      client.release();
+    }
+  } catch (error1) {
+    console.error('Cannot connect to db:', error1);
+    return 0;
   }
 };
 

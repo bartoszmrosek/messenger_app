@@ -94,11 +94,15 @@ const Messeges = () => {
   }, [userMessages]);
 
   useEffect(() => {
-    standardSocket.on('newMessageToClient', (newMessage: newMessage) => {
-      if (handleNewMessage !== undefined) {
-        handleNewMessage(newMessage);
-      }
-    });
+    standardSocket.on(
+      'newMessageToClient',
+      (newMessage: newMessage, callback: any) => {
+        if (handleNewMessage !== undefined) {
+          callback(true);
+          handleNewMessage(newMessage);
+        }
+      },
+    );
     return () => {
       standardSocket.off('newMessageToClient');
     };
@@ -131,7 +135,7 @@ const Messeges = () => {
   const date = new Date();
   const sendNewMessage = () => {
     if (newMessageValue.length > 0) {
-      standardSocket.emit(
+      standardSocket.timeout(10000).emit(
         'newMessageToServer',
         {
           user_id: userInformations?.user_id,
@@ -142,8 +146,23 @@ const Messeges = () => {
           is_read: false,
           created_at: `${date.toISOString()}`,
         },
-        (ack: string) => {
-          setNewMessageValue(ack);
+        (
+          error: unknown,
+          messageStatus: standardDbResponse<string | number>,
+        ) => {
+          if (error) {
+            setError(error);
+          } else {
+            if (
+              messageStatus.type === 'error' ||
+              typeof messageStatus.payload === 'number'
+            ) {
+              setError(messageStatus.payload);
+            } else {
+              setError(null);
+              setNewMessageValue(messageStatus.payload);
+            }
+          }
         },
       );
       if (handleNewMessage !== undefined) {
