@@ -16,3 +16,4 @@ while also beeing nice to look at and great with usability.
 ### Others:
 - Typescript
 - Socket.io
+- nanoid
