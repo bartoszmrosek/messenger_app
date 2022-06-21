@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 import 'dotenv/config';
 interface NewMessage {
+  user_id: number;
   username: string;
   message: string;
   sender_user_id: number;

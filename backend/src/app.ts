@@ -2,7 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
-import { disconnectUser } from './users';
+import { isUserAuthorized, disconnectUser } from './users';
 
 import checkOrCreateUser from './utils/checkOrCreateUser';
 import checkUserLoginData from './utils/checkUserLoginData';
@@ -37,11 +37,23 @@ io.on('connection', socket => {
     });
 
     socket.on('checkUserHistory', async (payload, callback) => {
-      checkUserHistory(payload, callback);
+      if (isUserAuthorized(payload, socket.id)) {
+        checkUserHistory(payload, callback);
+      } else
+        callback({
+          type: 'error',
+          payload: 5,
+        });
     });
 
     socket.on('newMessageToServer', (payload: NewMessage, callback) => {
-      handleNewMessage(io, payload, callback);
+      if (isUserAuthorized(payload.user_id, socket.id)) {
+        handleNewMessage(io, payload, callback);
+      } else
+        callback({
+          type: 'error',
+          payload: 5,
+        });
     });
 
     socket.on('disconnect', () => {

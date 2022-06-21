@@ -1,21 +1,29 @@
-interface UserAuthorizationSpecs {
+interface ConnectedUsersSpecs {
   userId: number;
   socketId: string;
 }
 
-let currentlyConnectedUsers: UserAuthorizationSpecs[] = [];
+let currentlyConnectedUsers: ConnectedUsersSpecs[] = [];
 
 const connectUser = (userId: number, socketId: string) => {
   currentlyConnectedUsers.push({
     userId,
     socketId,
   });
-  console.log(currentlyConnectedUsers);
+};
+
+const isUserAuthorized = (userId: unknown, socketId: string): boolean => {
+  const check = currentlyConnectedUsers.some(connectedUser => {
+    return (
+      connectedUser.userId === userId && connectedUser.socketId === socketId
+    );
+  });
+  return check;
 };
 
 const checkIsUserConnected = (
   userId: number,
-): UserAuthorizationSpecs | 'Not connected' => {
+): ConnectedUsersSpecs | 'Not connected' => {
   const isConnected = currentlyConnectedUsers.find(user => {
     return user.userId === userId;
   });
@@ -24,14 +32,12 @@ const checkIsUserConnected = (
   } else {
     return 'Not connected';
   }
-  console.log(currentlyConnectedUsers);
 };
 
 const disconnectUser = (socketId: string) => {
   currentlyConnectedUsers = currentlyConnectedUsers.filter(user => {
     return user.socketId !== socketId;
   });
-  console.log(currentlyConnectedUsers);
 };
 
-export { connectUser, checkIsUserConnected, disconnectUser };
+export { connectUser, isUserAuthorized, checkIsUserConnected, disconnectUser };

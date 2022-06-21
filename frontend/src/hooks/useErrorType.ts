@@ -8,6 +8,7 @@ import React, { useState } from 'react';
     3 - User does not exist or informations are wrong
     4 - Server couldn't save message to database, 
     although it still can process informations in real time
+    5 - User doesn't have authorization for this action
 */
 
 const useErrorType = () => {
@@ -30,6 +31,9 @@ const useErrorType = () => {
         setErrorType(
           'User message cannot be saved, you still can communicate in real time',
         );
+        break;
+      case 5:
+        setErrorType('No authorization for given event');
         break;
       case null:
         setErrorType(null);
