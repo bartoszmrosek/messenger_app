@@ -5,6 +5,12 @@ import { standardDbResponse } from '../interfaces/dbResponsesInterface';
 import ErrorOverlay from '../components/ErrorOverlay';
 import useErrorType from '../hooks/useErrorType';
 
+import type { Socket } from 'socket.io-client';
+import type {
+  ServerToClientEvents,
+  ClientToServerEvents,
+} from '../interfaces/socketContextInterfaces';
+
 interface userInput {
   username: String;
   email: String;
@@ -12,7 +18,8 @@ interface userInput {
 }
 
 const RegisterUserForm = () => {
-  const { standardSocket }: any = useContext(SocketContext);
+  const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
+    useContext(SocketContext);
   const { register, handleSubmit } = useForm<userInput>();
   const [isSubmitSuccessfull, setIsSubmitSuccessfull] = useState<
     boolean | null

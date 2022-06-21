@@ -6,6 +6,11 @@ import useErrorType from '../hooks/useErrorType';
 import ErrorOverlay from '../components/ErrorOverlay';
 import type { exportUserContextTypes } from '../Contexts/UserContext';
 import type { standardDbResponse } from '../interfaces/dbResponsesInterface';
+import type { Socket } from 'socket.io-client';
+import type {
+  ServerToClientEvents,
+  ClientToServerEvents,
+} from '../interfaces/socketContextInterfaces';
 
 interface userInput {
   email: string;
@@ -13,7 +18,8 @@ interface userInput {
 }
 
 const LoginForm = () => {
-  const { standardSocket }: any = useContext(SocketContext);
+  const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
+    useContext(SocketContext);
   const userSetter: exportUserContextTypes = useContext(UserContext);
   const { register, handleSubmit } = useForm<userInput>();
   const [error, setError] = useErrorType();

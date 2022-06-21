@@ -1,11 +1,18 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { nanoid } from 'nanoid';
+
 import { SocketContext } from '../Contexts/SocketContext';
 import { UserContext } from '../Contexts/UserContext';
 import useErrorType from '../hooks/useErrorType';
+
 import type { exportUserContextTypes } from '../Contexts/UserContext';
 import type { standardDbResponse } from '../interfaces/dbResponsesInterface';
+import type { Socket } from 'socket.io-client';
+import type {
+  ServerToClientEvents,
+  ClientToServerEvents,
+} from '../interfaces/socketContextInterfaces';
 
 interface UserInformations {
   user_id?: number;
@@ -13,7 +20,8 @@ interface UserInformations {
 }
 
 const SearchResultsPage = () => {
-  const { standardSocket }: any = useContext(SocketContext);
+  const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
+    useContext(SocketContext);
   const { userInformations, handleNewMessage }: exportUserContextTypes =
     useContext(UserContext);
   const { state }: any = useLocation();

@@ -1,16 +1,24 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { useLocation } from 'react-router-dom';
+
 import { SocketContext } from '../Contexts/SocketContext';
 import { UserContext } from '../Contexts/UserContext';
+
+import MessageSection from '../components/MessageSection';
+import UserActiveChats from '../components/UserActiveChats';
+import useErrorType from '../hooks/useErrorType';
+
+import type { standardDbResponse } from '../interfaces/dbResponsesInterface';
+import type { Socket } from 'socket.io-client';
+import type {
+  ServerToClientEvents,
+  ClientToServerEvents,
+} from '../interfaces/socketContextInterfaces';
 import type {
   userMessagesTypes,
   exportUserContextTypes,
 } from '../Contexts/UserContext';
-import MessageSection from '../components/MessageSection';
-import UserActiveChats from '../components/UserActiveChats';
-import useErrorType from '../hooks/useErrorType';
-import type { standardDbResponse } from '../interfaces/dbResponsesInterface';
 
 interface newMessage {
   username: string;
@@ -28,7 +36,8 @@ const Messeges = () => {
     getAndSetMessagesFromHistory,
     handleNewMessage,
   }: exportUserContextTypes = useContext(UserContext);
-  const { standardSocket }: any = useContext(SocketContext);
+  const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
+    useContext(SocketContext);
   const [activeChat, setActiveChat] = useState<number>();
   const [filteredMessages, setFilteredMessages] =
     useState<userMessagesTypes[]>();
