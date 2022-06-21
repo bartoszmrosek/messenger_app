@@ -150,7 +150,7 @@ const saveNewMessageToDataBase = async (message: NewMessage) => {
 export {
   createNewUser,
   loginUser,
-  searchUser,
+  searchUser as searchUserInDb,
   searchHistory,
   saveNewMessageToDataBase,
 };
