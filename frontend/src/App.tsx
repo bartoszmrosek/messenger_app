@@ -13,7 +13,7 @@ import type { standardDbResponse } from './interfaces/dbResponsesInterface';
 const App = () => {
   const { userInformations, handleNewInformations }: exportUserContextTypes =
     useContext(UserContext);
-  const { standardSocket }: any = useContext(SocketContext);
+  const standardSocket: any = useContext(SocketContext);
   useEffect(() => {
     /* 
       This doesn't explain itself well, so i thought about writing this comment,

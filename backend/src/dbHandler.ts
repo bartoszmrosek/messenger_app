@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import mysql from 'mysql2'
 import 'dotenv/config';
 interface NewMessage {
   user_id: number;
@@ -38,6 +39,8 @@ const searchUserMessageQuery = `SELECT
 const saveNewMessageQuery = `
   INSERT INTO user_messages (sender_user_id, reciever_user_id, message, is_read)
   VALUES ( $1, $2, $3, $4 );`;
+
+const serverConnection = mysql.createConnection(process.env.DATABASE_URL)
 
 const pool = new Pool();
 pool.on('error', error => {
