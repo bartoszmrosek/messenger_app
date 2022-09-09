@@ -1,5 +1,6 @@
 import mysql from 'mysql2';
 import 'dotenv/config';
+/* eslint-disable */
 interface NewMessage {
   user_id: number;
   username: string;

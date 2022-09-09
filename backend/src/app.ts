@@ -1,4 +1,5 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 
 import express from 'express';
 import { createServer } from 'http';
@@ -24,23 +25,34 @@ const io = new Server(httpServer, {
 
 io.on('connection', socket => {
   try {
-    socket.on('checkOrCreateUser', async (payload, callback) => {
-      const { data } = payload;
-      await checkOrCreateUser(data, callback);
-    });
+    socket.on(
+      'checkOrCreateUser',
+      async (
+        payload: {
+          data: { password: string; username: string; email: string };
+        },
+        callback,
+      ) => {
+        const { data } = payload;
+        await checkOrCreateUser(data, callback);
+      },
+    );
 
-    socket.on('checkUserLoginData', (payload, callback) => {
-      const { data } = payload;
-      checkUserLoginData(data, callback, socket.id);
-    });
+    socket.on(
+      'checkUserLoginData',
+      async (payload: { data: unknown }, callback) => {
+        const { data } = payload;
+        await checkUserLoginData(data, callback, socket.id);
+      },
+    );
 
     socket.on('searchUser', async (payload, callback) => {
-      searchUser(payload, callback);
+      await searchUser(payload, callback);
     });
 
-    socket.on('checkUserHistory', async (payload, callback) => {
+    socket.on('checkUserHistory', async (payload, callback: any) => {
       if (isUserAuthorized(payload, socket.id)) {
-        checkUserHistory(payload, callback);
+        await checkUserHistory(payload, callback);
       } else
         callback({
           type: 'error',
@@ -48,15 +60,19 @@ io.on('connection', socket => {
         });
     });
 
-    socket.on('newMessageToServer', (payload: NewMessage, callback) => {
-      if (isUserAuthorized(payload.user_id, socket.id)) {
-        handleNewMessage(io, payload, callback);
-      } else
-        callback({
-          type: 'error',
-          payload: 5,
-        });
-    });
+    socket.on(
+      'newMessageToServer',
+      async (payload: NewMessage, callback: any) => {
+        if (isUserAuthorized(payload.user_id, socket.id)) {
+          /* eslint-disable-next-line @typescript-eslint/no-unsafe-argument*/
+          await handleNewMessage(io, payload, callback);
+        } else
+          callback({
+            type: 'error',
+            payload: 5,
+          });
+      },
+    );
 
     socket.on('disconnect', () => {
       disconnectUser(socket.id);

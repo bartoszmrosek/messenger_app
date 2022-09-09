@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { nanoid } from 'nanoid';
 
 import { checkIsUserConnected } from '../users';

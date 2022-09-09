@@ -1,3 +1,4 @@
+/* eslint-disable */
 interface ConnectedUsersSpecs {
   userId: number;
   socketId: string;

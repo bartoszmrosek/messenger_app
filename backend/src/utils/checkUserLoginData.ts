@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { connectUser } from '../users';
 import { loginUser } from '../dbHandler';
 

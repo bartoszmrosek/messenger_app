@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { searchUserInDb } from '../dbHandler';
 
 const searchUser = async (data: any, callback: any) => {

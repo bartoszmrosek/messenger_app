@@ -1,6 +1,13 @@
 import { createNewUser } from '../dbHandler';
+/* eslint-disable */
 
-const checkOrCreateUser = async (data: any, callback: any) => {
+interface dataPassedFromSocket {
+  username: string;
+  email: string;
+  password: string;
+}
+
+const checkOrCreateUser = async (data: dataPassedFromSocket, callback: any) => {
   const userInformationsArray: string[] = [
     data.username,
     data.email,

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { searchHistory } from '../dbHandler';
 
 const checkUserHistory = async (data: any, callback: any) => {
