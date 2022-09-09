@@ -1,3 +1,5 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -22,9 +24,9 @@ const io = new Server(httpServer, {
 
 io.on('connection', socket => {
   try {
-    socket.on('checkOrCreateUser', (payload, callback) => {
+    socket.on('checkOrCreateUser', async (payload, callback) => {
       const { data } = payload;
-      checkOrCreateUser(data, callback);
+      await checkOrCreateUser(data, callback);
     });
 
     socket.on('checkUserLoginData', (payload, callback) => {

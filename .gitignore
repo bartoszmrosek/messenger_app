@@ -3,3 +3,4 @@
 *.log
 **/dist
 *.eslintrc.json
+*.eslintrc.js
