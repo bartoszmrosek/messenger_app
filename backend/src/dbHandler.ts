@@ -52,6 +52,12 @@ const dbConnection = mysql.createPool({
   },
 });
 
+dbConnection.getConnection((error, conenction) => {
+  if (error) throw error;
+  console.log('connected');
+  conenction.release();
+});
+
 const createNewUser = async (userInformations: string[]) => {
   try {
     // const res = await client.query(insertNewUserQuery, userInformations);
@@ -59,14 +65,18 @@ const createNewUser = async (userInformations: string[]) => {
       insertNewUserQuery,
       userInformations,
       (error, results, fields) => {
-        if (error) throw error;
-        console.log(results);
-        console.table(fields);
+        try {
+          if (error) throw error;
+          console.log(results);
+          console.table(fields);
+        } catch (error) {
+          console.log(error);
+        }
       },
     );
-  } catch (error1) {
-    console.error('Cannot connect to db:', error1);
-    return error1;
+  } catch (error) {
+    console.error('Cannot connect to db:', error);
+    return error;
   }
 };
 
@@ -154,6 +164,27 @@ const createNewUser = async (userInformations: string[]) => {
 //     return 0;
 //   }
 // };
-
-export { createNewUser };
+const loginUser = (...[args]: unknown[]): null => {
+  console.log(args);
+  return null;
+};
+const searchUser = (...[args]: unknown[]): null => {
+  console.log(args);
+  return null;
+};
+const searchHistory = (...[args]: unknown[]): null => {
+  console.log(args);
+  return null;
+};
+const saveNewMessageToDataBase = (...[args]: unknown[]): null => {
+  console.log(args);
+  return null;
+};
+export {
+  createNewUser,
+  loginUser,
+  searchUser as searchUserInDb,
+  searchHistory,
+  saveNewMessageToDataBase,
+};
 export type { NewMessage };
