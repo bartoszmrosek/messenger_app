@@ -5,7 +5,7 @@ import type {
   ServerToClientEvents,
   ClientToServerEvents,
 } from '../interfaces/socketContextInterfaces';
-interface SocketChildrenProps {
+interface SocketChildrenInterface {
   children?: React.ReactNode;
 }
 
@@ -14,7 +14,7 @@ const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 );
 
 const SocketContext = createContext(standardSocket);
-const SocketContextProvider: FunctionComponent<SocketChildrenProps> = ({
+const SocketContextProvider: FunctionComponent<SocketChildrenInterface> = ({
   children,
 }) => {
   return (

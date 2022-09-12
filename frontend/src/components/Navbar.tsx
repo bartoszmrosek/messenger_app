@@ -1,11 +1,13 @@
-import { NavLink, useSearchParams } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import React, { useContext, useState } from 'react';
 import { UserContext } from '../Contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { nanoid } from 'nanoid';
 
+import type { exportUserContextTypes } from '../Contexts/UserContext';
+
 const Navbar = () => {
-  const { userInformations }: any = useContext(UserContext);
+  const { userInformations }: exportUserContextTypes = useContext(UserContext);
   const [searchParameters, setSearchParameters] = useState<string>('');
   const navigate = useNavigate();
 

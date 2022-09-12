@@ -16,7 +16,7 @@ const UserActiveChats = ({
     <>
       {groupedUsers.length === 0 ? (
         <div>
-          It's seems that you don't have any conversations yet, make some!
+          It seems that you don{'&apos'}t have any conversations yet, make some!
         </div>
       ) : (
         groupedUsers.map(userNode => {

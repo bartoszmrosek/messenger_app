@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any*/
+
 interface ServerToClientEvents {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: any) => void;

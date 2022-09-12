@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Message = ({message, isRecieved}: {message: string, isRecieved: boolean})=>{
+const Message = ({message}: {message: string, isRecieved: boolean})=>{
     return(
         <div>
             {message}

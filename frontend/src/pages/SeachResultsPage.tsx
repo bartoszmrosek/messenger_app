@@ -24,6 +24,7 @@ const SearchResultsPage = () => {
     useContext(SocketContext);
   const { userInformations, handleNewMessage }: exportUserContextTypes =
     useContext(UserContext);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
   const [renderedResults, setRenderedResults] = useState<
     string | React.ReactNode

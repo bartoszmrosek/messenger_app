@@ -44,7 +44,9 @@ const Messeges = () => {
   const [groupedUsers, setGroupedUsers] = useState<userMessagesTypes[]>();
   const [newMessageValue, setNewMessageValue] = useState<string>('');
   const [error, setError] = useErrorType();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
+  
 
   useEffect(() => {
     if (userInformations?.user_id !== undefined) {
@@ -55,7 +57,7 @@ const Messeges = () => {
           userInformations.user_id,
           (
             connectionError: unknown,
-            response: standardDbResponse<any[] | unknown>,
+            response: standardDbResponse<userMessagesTypes[]>,
           ) => {
             if (connectionError) {
               setError(connectionError);
@@ -86,7 +88,7 @@ const Messeges = () => {
   }, [activeChat, userMessages]);
 
   useEffect(() => {
-    const uniqueUser: any[] = [];
+    const uniqueUser: string[] = [];
     if (userMessages !== undefined) {
       const uniqueUsers = userMessages.filter(element => {
         const isDuplicate = uniqueUser.includes(element.username);
@@ -105,6 +107,7 @@ const Messeges = () => {
   useEffect(() => {
     standardSocket.on(
       'newMessageToClient',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (newMessage: newMessage, callback: any) => {
         if (handleNewMessage !== undefined) {
           callback(true);

@@ -12,9 +12,9 @@ import type {
 } from '../interfaces/socketContextInterfaces';
 
 interface userInput {
-  username: String;
-  email: String;
-  password: String;
+  username: string;
+  email: string;
+  password: string;
 }
 
 const RegisterUserForm = () => {

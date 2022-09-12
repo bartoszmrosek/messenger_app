@@ -7,11 +7,11 @@ interface UserContextChildren {
   children?: React.ReactNode;
 }
 
-interface userTypes {
+interface userPropertiesInterface {
   (user_id: number, username: string, email: string, password?: string): void;
 }
 
-interface userMessagesTypes {
+interface userMessageInterface {
   message_id: number;
   username: string;
   message: string;
@@ -29,9 +29,9 @@ interface userInformationsInterface {
 
 interface exportUserContextTypes {
   userInformations?: userInformationsInterface;
-  handleNewInformations?: userTypes;
-  userMessages?: userMessagesTypes[];
-  getAndSetMessagesFromHistory?: (newMessage: any) => void;
+  handleNewInformations?: userPropertiesInterface;
+  userMessages?: userMessageInterface[];
+  getAndSetMessagesFromHistory?: (newMessage: userMessageInterface[]) => void;
   handleNewMessage?: (messages: unknown) => void;
 }
 
@@ -42,20 +42,20 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
 }) => {
   const [userInformations, setUserInformations] =
     useState<userInformationsInterface>();
-  const [userMessages, setUserMessages] = useState<userMessagesTypes[]>([]);
+  const [userMessages, setUserMessages] = useState<userMessageInterface[]>([]);
 
-  const handleNewInformations: userTypes = (user_id, username, email) => {
+  const handleNewInformations: userPropertiesInterface = (user_id, username, email) => {
     setUserInformations({ user_id, username, email });
   };
 
-  const getAndSetMessagesFromHistory = (messages: any) => {
+  const getAndSetMessagesFromHistory = (messages: userMessageInterface[]) => {
     const nullMessagesToNewUsers = userMessages.filter(message => {
       return message.message === null;
     });
     setUserMessages([...messages, ...nullMessagesToNewUsers]);
   };
 
-  const handleNewMessage = (newMessage: any) => {
+  const handleNewMessage = (newMessage: userMessageInterface) => {
     if (
       !(
         newMessage.message === null &&
@@ -81,4 +81,4 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   );
 };
 export { UserContextProvider, UserContext };
-export type { userMessagesTypes, exportUserContextTypes };
+export type { userMessageInterface as userMessagesTypes, exportUserContextTypes };
