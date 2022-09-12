@@ -39,41 +39,42 @@ const searchUserMessageQuery = `SELECT
 const saveNewMessageQuery = `
   INSERT INTO user_messages (sender_user_id, reciever_user_id, message, is_read)
   VALUES ( $1, $2, $3, $4 );`;
+try {
+  const dbConnection = mysql.createPool({
+    host: '',
+    user: '',
+    password: '',
+    database: '',
+    ssl: {
+      rejectUnauthorized: true,
+    },
+    port: 3306,
+    connectTimeout: 30000,
+  });
 
-const dbConnection = mysql.createPool({
-  host: process.env.HOST,
-  user: process.env.USER,
-  database: process.env.DATABASE,
-  password: process.env.PASSWORD,
-  waitForConnections: true,
-  connectionLimit: 60,
-  ssl: {
-    rejectUnauthorized: true,
-  },
-});
-
-dbConnection.getConnection((error, conenction) => {
-  if (error) throw error;
-  console.log('connected');
-  conenction.release();
-});
+  dbConnection.query('SELECT * FROM user_accounts', err => {
+    console.log(err);
+  });
+} catch (error) {
+  console.log(error);
+}
 
 const createNewUser = async (userInformations: string[]) => {
   try {
     // const res = await client.query(insertNewUserQuery, userInformations);
-    dbConnection.execute(
-      insertNewUserQuery,
-      userInformations,
-      (error, results, fields) => {
-        try {
-          if (error) throw error;
-          console.log(results);
-          console.table(fields);
-        } catch (error) {
-          console.log(error);
-        }
-      },
-    );
+    // dbConnection.execute(
+    //   insertNewUserQuery,
+    //   userInformations,
+    //   (error, results, fields) => {
+    //     try {
+    //       if (error) throw error;
+    //       console.log(results);
+    //       console.table(fields);
+    //     } catch (error) {
+    //       console.log(error);
+    //     }
+    //   },
+    // );
   } catch (error) {
     console.error('Cannot connect to db:', error);
     return error;
