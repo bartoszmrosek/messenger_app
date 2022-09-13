@@ -10,12 +10,16 @@ import { SocketContext } from './Contexts/SocketContext';
 import type { exportUserContextTypes } from './Contexts/UserContext';
 import type { standardDbResponse } from './interfaces/dbResponsesInterface';
 import type { Socket } from 'socket.io-client';
-import type { ServerToClientEvents, ClientToServerEvents } from './interfaces/socketContextInterfaces';
+import type {
+  ServerToClientEvents,
+  ClientToServerEvents,
+} from './interfaces/socketContextInterfaces';
 
 const App = () => {
   const { userInformations, handleNewInformations }: exportUserContextTypes =
     useContext(UserContext);
-  const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> = useContext(SocketContext);
+  const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
+    useContext(SocketContext);
   useEffect(() => {
     /* 
       This doesn't explain itself well, so i thought about writing this comment,
