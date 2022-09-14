@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import RegisterUserForm from './pages/RegisterUserForm';
-import Navbar from './components/Navbar';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import Navbar from './components/Navbar';
 import LoginForm from './pages/LoginForm';
 import Messeges from './pages/Messages';
 import SearchResultsPage from './pages/SeachResultsPage';
@@ -14,6 +14,8 @@ import type {
   ServerToClientEvents,
   ClientToServerEvents,
 } from './interfaces/socketContextInterfaces';
+import LandingPage from './pages/LandingPage';
+import AnimatedBackground from './components/LandingPageComponents/AnimatedBackground';
 
 const App = () => {
   const { userInformations, handleNewInformations }: exportUserContextTypes =
@@ -65,7 +67,8 @@ const App = () => {
   }, []);
 
   return (
-    <div>
+    <div className="h-screen relative">
+      <AnimatedBackground />
       <Navbar />
       <Routes>
         <Route path="/Register" element={<RegisterUserForm />} />
@@ -75,7 +78,7 @@ const App = () => {
         )}
         <Route path="/SearchResults" element={<SearchResultsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
-        <Route path="/" element={<div>Nice</div>} />
+        <Route path="/" element={<LandingPage />} />
       </Routes>
     </div>
   );

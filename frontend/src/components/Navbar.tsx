@@ -46,31 +46,29 @@ const Navbar = () => {
   };
 
   return (
-    <div>
-      <nav>
-        <ul>
-          <li>
-            <NavLink to="Register">Register</NavLink>
-          </li>
-          <li>
-            <NavLink to="Login">Login</NavLink>
-          </li>
-          {shouldRenderNewListItems()}
-          <li>
-            <form onSubmit={handleSearchSubmit}>
-              <input
-                type="text"
-                name="search-params"
-                value={searchParameters}
-                onChange={handleChange}
-              />
-              <button>Wyszukaj</button>
-            </form>
-          </li>
-        </ul>
-      </nav>
+    <nav className="hidden sm:block z-50">
+      <ul>
+        <li>
+          <NavLink to="Register">Register</NavLink>
+        </li>
+        <li>
+          <NavLink to="Login">Login</NavLink>
+        </li>
+        {shouldRenderNewListItems()}
+        <li>
+          <form onSubmit={handleSearchSubmit}>
+            <input
+              type="text"
+              name="search-params"
+              value={searchParameters}
+              onChange={handleChange}
+            />
+            <button>Wyszukaj</button>
+          </form>
+        </li>
+      </ul>
       {shouldRenderUser()}
-    </div>
+    </nav>
   );
 };
 
