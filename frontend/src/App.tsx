@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import RegisterUserForm from './pages/RegisterUserForm';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
@@ -15,7 +15,11 @@ import type {
   ClientToServerEvents,
 } from './interfaces/socketContextInterfaces';
 import LandingPage from './pages/LandingPage';
-import AnimatedBackground from './components/LandingPageComponents/AnimatedBackground';
+
+interface mousePositionInterface {
+  x: number | null;
+  y: number | null;
+}
 
 const App = () => {
   const { userInformations, handleNewInformations }: exportUserContextTypes =
@@ -66,9 +70,20 @@ const App = () => {
     };
   }, []);
 
+  const [mousePosition, setMousePosition] = useState<mousePositionInterface>({
+    x: null,
+    y: null,
+  });
+
+  const handleWindowMouseMove = (event: MouseEvent) => {
+    setMousePosition({
+      x: event.screenX,
+      y: event.screenY,
+    });
+  };
+
   return (
-    <div className="h-screen relative">
-      <AnimatedBackground />
+    <div className="h-screen relative" onMouseMove={handleWindowMouseMove}>
       <Navbar />
       <Routes>
         <Route path="/Register" element={<RegisterUserForm />} />
@@ -78,7 +93,10 @@ const App = () => {
         )}
         <Route path="/SearchResults" element={<SearchResultsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
-        <Route path="/" element={<LandingPage />} />
+        <Route
+          path="/"
+          element={<LandingPage mousePosition={mousePosition} />}
+        />
       </Routes>
     </div>
   );
