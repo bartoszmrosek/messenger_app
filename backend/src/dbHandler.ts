@@ -1,7 +1,18 @@
-import mysql from 'mysql2';
+import mysql, { RowDataPacket } from 'mysql2';
 import 'dotenv/config';
+import { off } from 'process';
 /* eslint-disable */
 
+/* 
+    Error types are as following:
+    0 - Error with connection to database
+    1 - User already exists in database
+    2 - Login failed
+    3 - User does not exist or informations are wrong
+    4 - Server couldn't save message to database, 
+    although it still can process informations in real time
+    5 - User doesn't have authorization for this action
+*/
 interface NewMessage {
   user_id: number;
   username: string;
@@ -12,13 +23,19 @@ interface NewMessage {
   created_at: string;
 }
 
+export interface userData extends RowDataPacket {
+  user_id: number;
+  username: string;
+  email: string;
+}
+
 const insertNewUserQuery =
   'INSERT INTO user_accounts(username, email, password) VALUES(?, ?, ?)';
 const checkUser = (shouldUseUserId: boolean) => {
   if (shouldUseUserId) {
-    return `SELECT user_id, username, email FROM user_accounts WHERE email = $1 AND user_id = $2`;
+    return `SELECT user_id, username, email FROM user_accounts WHERE email = ? AND user_id = ?`;
   } else {
-    return `SELECT user_id, username, email FROM user_accounts WHERE email = $1 AND password = $2`;
+    return `SELECT user_id, username, email FROM user_accounts WHERE email = ? AND password = ?`;
   }
 };
 const searchUserQuery =
@@ -41,139 +58,114 @@ const saveNewMessageQuery = `
   INSERT INTO user_messages (sender_user_id, reciever_user_id, message, is_read)
   VALUES ( $1, $2, $3, $4 );`;
 
-const dbConnection = mysql.createPool({
-  host: process.env.HOST,
-  user: process.env.USER,
-  password: process.env.PASSWORD,
-  database: process.env.DATABASE,
-  ssl: {
-    rejectUnauthorized: true,
-  },
-  port: 3306,
-  connectTimeout: 30000,
-});
+let dbConnection: mysql.Pool | null = null;
 
-const createNewUser = async (userInformations: string[]) => {
+try {
+  dbConnection = mysql.createPool({
+    host: process.env.HOST,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE,
+    ssl: {
+      rejectUnauthorized: true,
+    },
+    port: 3306,
+    connectTimeout: 30000,
+  });
+} catch (error) {
+  console.log(error);
+}
+
+const createNewUser = (userInformations: string[]): number | null => {
   try {
-    dbConnection.execute(
-      insertNewUserQuery,
+    dbConnection.execute(insertNewUserQuery, userInformations, error => {
+      if (error) throw error;
+    });
+  } catch (error) {
+    if ((error.errno = 1062)) return 1;
+    return 0;
+  }
+  return null;
+};
+
+const loginUser = (userInformations: [string, string | number]) => {
+  let results: userData[] | null = null;
+  try {
+    dbConnection.execute<userData[]>(
+      checkUser(typeof userInformations[1] === 'number'),
       userInformations,
-      (error, results, fields) => {
-        try {
-          if (error) throw error;
-          console.log(results);
-          console.table(fields);
-        } catch (error) {
-          console.log(error);
-        }
+      (error, data) => {
+        if (error) throw error;
+        results = data;
       },
     );
   } catch (error) {
-    console.error('Cannot connect to db:', error);
     return error;
+  }
+  if (results.length > 0) return results;
+  return 2;
+};
+
+const searchUser = async (username: string) => {
+  try {
+    const client = await pool.connect();
+    const chgToArr = [`%${username}%`];
+    try {
+      const res = await client.query(searchUserQuery, chgToArr);
+      return res;
+    } catch (error2) {
+      console.error('Searching user query not succesfull', error2);
+      return 'unknown';
+    } finally {
+      client.release();
+    }
+  } catch (error1) {
+    console.error('Cannot connect to db:', error1);
+    return 0;
   }
 };
 
-// const loginUser = async (userInformations: [string, string | number]) => {
-//   try {
-//     const client = await pool.connect();
-//     try {
-//       const res = await client.query(
-//         checkUser(typeof userInformations[1] === 'number'),
-//         userInformations,
-//       );
-//       if (res.rows.length === 0) {
-//         return 3;
-//       } else {
-//         return res.rows[0];
-//       }
-//     } catch (error2) {
-//       console.error('Login User Failed:', error2);
-//       return 2;
-//     } finally {
-//       client.release();
-//     }
-//   } catch (error1) {
-//     console.error('Cannot connect to db:', error1);
-//     return 0;
-//   }
-// };
+const searchHistory = async (userId: number) => {
+  try {
+    const client = await pool.connect();
+    try {
+      const res = await client.query(searchUserMessageQuery, [userId]);
+      return res.rows;
+    } catch (error2) {
+      console.error('Searching for user history failed:', error2);
+      return 'unknown';
+    } finally {
+      client.release();
+    }
+  } catch (error1) {
+    console.error('Cannot connect to db:', error1);
+    return 0;
+  }
+};
 
-// const searchUser = async (username: string) => {
-//   try {
-//     const client = await pool.connect();
-//     const chgToArr = [`%${username}%`];
-//     try {
-//       const res = await client.query(searchUserQuery, chgToArr);
-//       return res;
-//     } catch (error2) {
-//       console.error('Searching user query not succesfull', error2);
-//       return 'unknown';
-//     } finally {
-//       client.release();
-//     }
-//   } catch (error1) {
-//     console.error('Cannot connect to db:', error1);
-//     return 0;
-//   }
-// };
+const saveNewMessageToDataBase = async (message: NewMessage) => {
+  try {
+    const client = await pool.connect();
+    const convertToArrayOfMessageParams = [
+      message.sender_user_id,
+      message.reciever_user_id,
+      message.message,
+      message.is_read,
+    ];
+    try {
+      await client.query(saveNewMessageQuery, convertToArrayOfMessageParams);
+    } catch (error2) {
+      console.error('Cannot save message to db:', error2);
+      return 4;
+    } finally {
+      client.release();
+    }
+  } catch (error1) {
+    console.error('Cannot connect to db:', error1);
+    return 0;
+  }
+};
 
-// const searchHistory = async (userId: number) => {
-//   try {
-//     const client = await pool.connect();
-//     try {
-//       const res = await client.query(searchUserMessageQuery, [userId]);
-//       return res.rows;
-//     } catch (error2) {
-//       console.error('Searching for user history failed:', error2);
-//       return 'unknown';
-//     } finally {
-//       client.release();
-//     }
-//   } catch (error1) {
-//     console.error('Cannot connect to db:', error1);
-//     return 0;
-//   }
-// };
-
-// const saveNewMessageToDataBase = async (message: NewMessage) => {
-//   try {
-//     const client = await pool.connect();
-//     const convertToArrayOfMessageParams = [
-//       message.sender_user_id,
-//       message.reciever_user_id,
-//       message.message,
-//       message.is_read,
-//     ];
-//     try {
-//       await client.query(saveNewMessageQuery, convertToArrayOfMessageParams);
-//     } catch (error2) {
-//       console.error('Cannot save message to db:', error2);
-//       return 4;
-//     } finally {
-//       client.release();
-//     }
-//   } catch (error1) {
-//     console.error('Cannot connect to db:', error1);
-//     return 0;
-//   }
-// };
-const loginUser = (...[args]: unknown[]): null => {
-  console.log(args);
-  return null;
-};
-const searchUser = (...[args]: unknown[]): null => {
-  console.log(args);
-  return null;
-};
-const searchHistory = (...[args]: unknown[]): null => {
-  console.log(args);
-  return null;
-};
-const saveNewMessageToDataBase = (...[args]: unknown[]): null => {
-  console.log(args);
-  return null;
-};
 export {
   createNewUser,
   loginUser,

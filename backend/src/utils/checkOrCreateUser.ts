@@ -7,21 +7,21 @@ interface dataPassedFromSocket {
   password: string;
 }
 
-const checkOrCreateUser = async (data: dataPassedFromSocket, callback: any) => {
+const checkOrCreateUser = (data: dataPassedFromSocket, callback: any) => {
   const userInformationsArray: string[] = [
     data.username,
     data.email,
     data.password,
   ];
   try {
-    const informations = await createNewUser(userInformationsArray);
-    if (informations === undefined) {
+    const results = createNewUser(userInformationsArray);
+    if (results === undefined) {
       callback({
         type: 'confirm',
         payload: null,
       });
     } else {
-      informations.code === '23505'
+      results === 1
         ? callback({
             type: 'error',
             payload: 1,

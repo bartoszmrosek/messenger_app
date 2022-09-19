@@ -8,19 +8,13 @@ interface UserDetails {
   email: string;
 }
 
-const checkUserLoginData = async (
-  data: any,
-  callback: any,
-  socketId: string,
-) => {
+const checkUserLoginData = (data: any, callback: any, socketId: string) => {
   const userInformations: [string, string | number] = [
     data.email,
     data.password,
   ];
   try {
-    const callbackInfo: UserDetails | number = await loginUser(
-      userInformations,
-    );
+    const callbackInfo: UserDetails | number = loginUser(userInformations);
     if (typeof callbackInfo === 'number') {
       switch (callbackInfo) {
         case 2:

@@ -27,14 +27,14 @@ io.on('connection', socket => {
   try {
     socket.on(
       'checkOrCreateUser',
-      async (
+      (
         payload: {
           data: { password: string; username: string; email: string };
         },
         callback,
       ) => {
         const { data } = payload;
-        await checkOrCreateUser(data, callback);
+        checkOrCreateUser(data, callback);
       },
     );
 
