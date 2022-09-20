@@ -1,4 +1,4 @@
-import mysql, { RowDataPacket } from 'mysql2';
+import mysql, { OkPacket, QueryError, RowDataPacket } from 'mysql2';
 import 'dotenv/config';
 import { off } from 'process';
 /* eslint-disable */
@@ -72,35 +72,45 @@ try {
     port: 3306,
     connectTimeout: 30000,
   });
-  console.log('MySql pool generated successfully');
+  console.log('[dbHandler] MySql pool generated successfully');
 } catch (error) {
-  console.log(error);
+  console.log('[dbHandler] Cannot estabilish a pool:', error);
 }
 
-const dbQuery = <paramsType, queryType>(
+const dbQuery = <paramsType, queryType extends RowDataPacket>(
   query: string,
-  params: paramsType[],
-): queryType | unknown => {
+  params: paramsType,
+): mysql.QueryError | mysql.Query => {
   try {
-    return dbConnection.execute(query, params, (error, results) => {
-      if (error) throw error;
-      return results;
-    });
+    if (!dbConnection) throw 'Pool was not estabilished!';
+    return dbConnection.execute<OkPacket | queryType[]>(
+      query,
+      params,
+      (error, results) => {
+        if (error) throw error;
+        return results;
+      },
+    );
   } catch (error) {
     return error;
   }
 };
 
 const createNewUser = (userInformations: string[]): number | null => {
-  const queryResult = dbQuery<string>(insertNewUserQuery, userInformations);
-  try {
-    dbConnection.execute(insertNewUserQuery, userInformations, error => {
-      if (error) throw error;
-    });
-  } catch (error) {
-    if ((error.errno = 1062)) return 1;
-    return 0;
-  }
+  // Typescript really hates this library
+  const queryResult = dbQuery<string[], RowDataPacket>(
+    insertNewUserQuery,
+    userInformations,
+  );
+  if ()
+    try {
+      dbConnection.execute(insertNewUserQuery, userInformations, error => {
+        if (error) throw error;
+      });
+    } catch (error) {
+      if ((error.errno = 1062)) return 1;
+      return 0;
+    }
   return null;
 };
 
