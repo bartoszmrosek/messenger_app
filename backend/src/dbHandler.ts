@@ -13,7 +13,7 @@ import { off } from 'process';
     although it still can process informations in real time
     5 - User doesn't have authorization for this action
 */
-interface NewMessage {
+export interface NewMessage {
   user_id: number;
   username: string;
   message: string;
@@ -23,7 +23,7 @@ interface NewMessage {
   created_at: string;
 }
 
-export interface userData extends RowDataPacket {
+export interface userSpecificData extends RowDataPacket {
   user_id: number;
   username: string;
   email: string;
@@ -72,11 +72,27 @@ try {
     port: 3306,
     connectTimeout: 30000,
   });
+  console.log('MySql pool generated successfully');
 } catch (error) {
   console.log(error);
 }
 
+const dbQuery = <paramsType, queryType>(
+  query: string,
+  params: paramsType[],
+): queryType | unknown => {
+  try {
+    return dbConnection.execute(query, params, (error, results) => {
+      if (error) throw error;
+      return results;
+    });
+  } catch (error) {
+    return error;
+  }
+};
+
 const createNewUser = (userInformations: string[]): number | null => {
+  const queryResult = dbQuery<string>(insertNewUserQuery, userInformations);
   try {
     dbConnection.execute(insertNewUserQuery, userInformations, error => {
       if (error) throw error;
@@ -89,9 +105,9 @@ const createNewUser = (userInformations: string[]): number | null => {
 };
 
 const loginUser = (userInformations: [string, string | number]) => {
-  let results: userData[] | null = null;
+  let results: userSpecificData[] | null = null;
   try {
-    dbConnection.execute<userData[]>(
+    dbConnection.execute<userSpecificData[]>(
       checkUser(typeof userInformations[1] === 'number'),
       userInformations,
       (error, data) => {
@@ -99,8 +115,8 @@ const loginUser = (userInformations: [string, string | number]) => {
         results = data;
       },
     );
-  } catch (error) {
-    return error;
+  } catch (err) {
+    return err;
   }
   if (results.length > 0) return results;
   return 2;
@@ -173,4 +189,3 @@ export {
   searchHistory,
   saveNewMessageToDataBase,
 };
-export type { NewMessage };
