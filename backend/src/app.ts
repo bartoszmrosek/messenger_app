@@ -12,6 +12,7 @@ import checkUserLoginData from './utils/checkUserLoginData';
 import searchUser from './utils/searchUser';
 import checkUserHistory from './utils/checkUserHistory';
 import handleNewMessage from './utils/handleNewMessage';
+import { dbQueries, userLoginDetails } from './queries';
 
 import type { NewMessage } from './dbHandler';
 
@@ -22,6 +23,8 @@ const io = new Server(httpServer, {
     origin: '*',
   },
 });
+
+const db = new dbQueries();
 
 io.on('connection', socket => {
   try {
@@ -34,15 +37,15 @@ io.on('connection', socket => {
         callback,
       ) => {
         const { data } = payload;
-        checkOrCreateUser(data, callback);
+        void checkOrCreateUser(data, callback, db);
       },
     );
 
     socket.on(
       'checkUserLoginData',
-      async (payload: { data: unknown }, callback) => {
+      (payload: { data: userLoginDetails }, callback) => {
         const { data } = payload;
-        await checkUserLoginData(data, callback, socket.id);
+        void checkUserLoginData(data, callback, socket.id, db);
       },
     );
 

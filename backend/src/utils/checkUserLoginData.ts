@@ -1,46 +1,35 @@
-/* eslint-disable */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { connectUser } from '../users';
-import { loginUser } from '../dbHandler';
+import { dbQueries, UserDetails, userLoginDetails } from '../queries';
 
-interface UserDetails {
-  user_id: number;
-  username: string;
-  email: string;
-}
-
-const checkUserLoginData = (data: any, callback: any, socketId: string) => {
-  const userInformations: [string, string | number] = [
-    data.email,
-    data.password,
-  ];
+const checkUserLoginData = async (
+  userLoginData: userLoginDetails,
+  callback: any,
+  socketId: string,
+  db: dbQueries,
+) => {
   try {
-    const callbackInfo: UserDetails | number = loginUser(userInformations);
-    if (typeof callbackInfo === 'number') {
-      switch (callbackInfo) {
-        case 2:
-          callback({
-            type: 'error',
-            payload: 2,
-          });
-          break;
-        case 3:
-          callback({
-            type: 'error',
-            payload: 3,
-          });
-          break;
-        default:
-          callback({
-            type: 'error',
-            payload: callbackInfo,
-          });
-          break;
+    const loginTryResult: UserDetails | number = await db.loginUser(
+      userLoginData,
+    );
+    if (typeof loginTryResult === 'number') {
+      if (loginTryResult === 3) {
+        callback({
+          type: 'error',
+          payload: 2,
+        });
+      } else {
+        callback({
+          type: 'error',
+          payload: loginTryResult,
+        });
       }
     } else {
-      connectUser(callbackInfo.user_id, socketId);
+      connectUser(loginTryResult.user_id, socketId);
       callback({
         type: 'confirm',
-        payload: callbackInfo,
+        payload: loginTryResult,
       });
     }
   } catch (error) {

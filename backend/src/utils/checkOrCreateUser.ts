@@ -1,5 +1,5 @@
-import { createNewUser } from '../dbHandler';
-/* eslint-disable */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+import { dbQueries } from '../queries';
 
 interface dataPassedFromSocket {
   username: string;
@@ -7,33 +7,22 @@ interface dataPassedFromSocket {
   password: string;
 }
 
-const checkOrCreateUser = (data: dataPassedFromSocket, callback: any) => {
-  const userInformationsArray: string[] = [
-    data.username,
-    data.email,
-    data.password,
-  ];
+const checkOrCreateUser = async (
+  data: dataPassedFromSocket,
+  callback: any,
+  db: dbQueries,
+) => {
   try {
-    const results = createNewUser(userInformationsArray);
-    if (results === undefined) {
-      callback({
-        type: 'confirm',
-        payload: null,
-      });
+    const queryResults = await db.insertNewUser(data);
+    if (queryResults === null) {
+      callback({ type: 'confirm', payload: null });
     } else {
-      results === 1
-        ? callback({
-            type: 'error',
-            payload: 1,
-          })
-        : callback({
-            type: 'error',
-            payload: 0,
-          });
+      callback({ type: 'error', payload: queryResults });
     }
   } catch (error) {
     callback({
       type: 'error',
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       payload: error,
     });
   }
