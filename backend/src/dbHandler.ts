@@ -1,6 +1,7 @@
 import mysql, { OkPacket, QueryError, RowDataPacket } from 'mysql2';
 import 'dotenv/config';
 import { off } from 'process';
+import { dbQueries, newUser } from './queries';
 /* eslint-disable */
 
 /* 
@@ -96,22 +97,10 @@ const dbQuery = <paramsType, queryType extends RowDataPacket>(
   }
 };
 
-const createNewUser = (userInformations: string[]): number | null => {
-  // Typescript really hates this library
-  const queryResult = dbQuery<string[], RowDataPacket>(
-    insertNewUserQuery,
-    userInformations,
-  );
-  if ()
-    try {
-      dbConnection.execute(insertNewUserQuery, userInformations, error => {
-        if (error) throw error;
-      });
-    } catch (error) {
-      if ((error.errno = 1062)) return 1;
-      return 0;
-    }
-  return null;
+const db = new dbQueries();
+
+const createNewUser = (userInformations: newUser): number | null => {
+  returndb.insertNewUser(userInformations);
 };
 
 const loginUser = (userInformations: [string, string | number]) => {
@@ -198,4 +187,5 @@ export {
   searchUser as searchUserInDb,
   searchHistory,
   saveNewMessageToDataBase,
+  dbConnection,
 };
