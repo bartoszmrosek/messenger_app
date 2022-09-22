@@ -49,13 +49,13 @@ io.on('connection', socket => {
       },
     );
 
-    socket.on('searchUser', async (payload, callback) => {
-      await searchUser(payload, callback);
+    socket.on('searchUser', (payload: string, callback) => {
+      void searchUser(payload, callback, db);
     });
 
-    socket.on('checkUserHistory', async (payload, callback: any) => {
-      if (isUserAuthorized(payload, socket.id)) {
-        await checkUserHistory(payload, callback);
+    socket.on('checkUserHistory', (userId: number, callback: any) => {
+      if (isUserAuthorized(userId, socket.id)) {
+        void checkUserHistory(userId, callback, db);
       } else
         callback({
           type: 'error',

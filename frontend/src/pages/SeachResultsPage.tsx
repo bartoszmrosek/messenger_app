@@ -48,6 +48,7 @@ const SearchResultsPage = () => {
   };
 
   useEffect(() => {
+    console.log(state.searchParameters);
     standardSocket
       .timeout(10000)
       .emit(
@@ -64,7 +65,7 @@ const SearchResultsPage = () => {
           } else {
             setError(null);
             if (
-              typeof dbResponse.payload === 'object' &&
+              Array.isArray(dbResponse.payload) &&
               dbResponse.payload.length > 0
             ) {
               const listOfMatchingUsers = dbResponse.payload.map(element => {

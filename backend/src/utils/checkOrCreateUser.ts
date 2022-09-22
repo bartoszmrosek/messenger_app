@@ -1,14 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { dbQueries } from '../queries';
-
-interface dataPassedFromSocket {
-  username: string;
-  email: string;
-  password: string;
-}
+import { dbQueries, userDetails } from '../queries';
 
 const checkOrCreateUser = async (
-  data: dataPassedFromSocket,
+  data: userDetails,
   callback: any,
   db: dbQueries,
 ) => {

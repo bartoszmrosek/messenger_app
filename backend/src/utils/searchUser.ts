@@ -1,25 +1,12 @@
 /* eslint-disable */
-import { searchUserInDb } from '../dbHandler';
+import { dbQueries } from '../queries';
 
-const searchUser = async (data: any, callback: any) => {
-  try {
-    const callbackInfo: any | number | 'unknown' = await searchUserInDb(data);
-    if (typeof callbackInfo !== 'number' && callbackInfo !== 'unknown') {
-      callback({
-        type: 'confirm',
-        payload: callbackInfo.rows,
-      });
-    } else {
-      callback({
-        type: 'error',
-        payload: callbackInfo,
-      });
-    }
-  } catch (error) {
-    callback({
-      type: 'error',
-      payload: error,
-    });
+const searchUser = async (username: string, callback: any, db: dbQueries) => {
+  const searchResults = await db.searchUser(username);
+  if (Array.isArray(searchResults)) {
+    callback({ type: 'confirm', payload: searchResults });
+  } else {
+    callback({ type: 'error', payload: searchResults });
   }
 };
 
