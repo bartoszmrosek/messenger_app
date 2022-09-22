@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { dbQueries } from '../queries';
 
 const searchUser = async (username: string, callback: any, db: dbQueries) => {

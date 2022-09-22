@@ -1,11 +1,10 @@
-/* eslint-disable */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/naming-convention */
 import { nanoid } from 'nanoid';
 
 import { checkIsUserConnected } from '../users';
-import { saveNewMessageToDataBase } from '../dbHandler';
-
 import type { Server } from 'socket.io';
-import type { NewMessage } from '../dbHandler';
+import { dbQueries, newMessage } from '../queries';
 
 interface ServerToClientEvents {
   noArg: () => void;
@@ -33,8 +32,9 @@ const handleNewMessage = async (
     InterServerEvents,
     SocketData
   >,
-  data: NewMessage,
+  data: newMessage,
   callback: any,
+  db: dbQueries,
 ) => {
   const stateOfRecieverUser = checkIsUserConnected(data.reciever_user_id);
   const {
@@ -45,13 +45,9 @@ const handleNewMessage = async (
     sender_user_id,
     username,
   } = data;
-  try {
-    await saveNewMessageToDataBase(data);
-  } catch (error) {
-    callback({
-      type: 'error',
-      payload: error,
-    });
+  const savingStatus = await db.saveNewMessage(data);
+  if (savingStatus !== null) {
+    callback({ type: 'error', payload: savingStatus });
   }
   if (stateOfRecieverUser !== 'Not connected') {
     io.sockets
@@ -75,15 +71,17 @@ const handleNewMessage = async (
               payload: 'sent',
             });
           } else {
-            isRecieved
-              ? callback({
-                  type: 'confirm',
-                  payload: 'delivered',
-                })
-              : callback({
-                  type: 'confirm',
-                  payload: 'sent',
-                });
+            if (isRecieved) {
+              callback({
+                type: 'confirm',
+                payload: 'delivered',
+              });
+            } else {
+              callback({
+                type: 'confirm',
+                payload: 'sent',
+              });
+            }
           }
         },
       );

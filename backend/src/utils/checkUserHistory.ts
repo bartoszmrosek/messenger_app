@@ -1,6 +1,5 @@
-/* eslint-disable */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { dbQueries } from '../queries';
-import { searchHistory } from '../dbHandler';
 
 const checkUserHistory = async (
   userId: number,

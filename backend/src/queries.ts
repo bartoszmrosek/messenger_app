@@ -24,8 +24,18 @@ export interface messageDetails extends RowDataPacket {
   sender_user_id: number;
   reciever_user_id: number;
   is_read: boolean;
-  created_at: Date;
+  created_at: string;
   message_id: number;
+}
+
+export interface newMessage {
+  user_id: number;
+  username: string;
+  message: string;
+  sender_user_id: number;
+  reciever_user_id: number;
+  is_read: boolean;
+  created_at: string;
 }
 
 let dbConnection: mysql.Pool | null = null;
@@ -117,6 +127,25 @@ export class dbQueries {
         (err, res) => {
           if (err) reject(err);
           resolve(res);
+        },
+      );
+    });
+  }
+  saveNewMessage(message: newMessage): Promise<null> {
+    return new Promise((resolve, reject) => {
+      dbConnection.execute<OkPacket>(
+        `
+  INSERT INTO user_messages (sender_user_id, reciever_user_id, message, is_read)
+  VALUES ( ?, ?, ?, ? );`,
+        [
+          message.sender_user_id,
+          message.reciever_user_id,
+          message.message,
+          message.is_read,
+        ],
+        err => {
+          if (err) reject(err);
+          resolve(null);
         },
       );
     });

@@ -12,9 +12,7 @@ import checkUserLoginData from './utils/checkUserLoginData';
 import searchUser from './utils/searchUser';
 import checkUserHistory from './utils/checkUserHistory';
 import handleNewMessage from './utils/handleNewMessage';
-import { dbQueries, userLoginDetails } from './queries';
-
-import type { NewMessage } from './dbHandler';
+import { dbQueries, newMessage, userLoginDetails } from './queries';
 
 const app = express();
 const httpServer = createServer(app);
@@ -65,10 +63,10 @@ io.on('connection', socket => {
 
     socket.on(
       'newMessageToServer',
-      async (payload: NewMessage, callback: any) => {
+      async (payload: newMessage, callback: any) => {
         if (isUserAuthorized(payload.user_id, socket.id)) {
           /* eslint-disable-next-line @typescript-eslint/no-unsafe-argument*/
-          await handleNewMessage(io, payload, callback);
+          await handleNewMessage(io, payload, callback, db);
         } else
           callback({
             type: 'error',
