@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { dbQueries } from '../queries';
+import { DbQueries } from '../queries';
 
 const checkUserHistory = async (
   userId: number,
   callback: any,
-  db: dbQueries,
+  db: DbQueries,
 ) => {
   const messagesSearchResults = await db.searchUserMessagesHistory(userId);
   if (Array.isArray(messagesSearchResults)) {

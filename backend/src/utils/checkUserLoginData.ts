@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { connectUser } from '../users';
-import { dbQueries, userInfoWithPacket, userLoginDetails } from '../queries';
+import { DbQueries, userInfoWithPacket, userLoginDetails } from '../queries';
 
 const checkUserLoginData = async (
   userLoginData: userLoginDetails,
   callback: any,
   socketId: string,
-  db: dbQueries,
+  db: DbQueries,
 ) => {
   try {
     const loginTryResult: userInfoWithPacket | number = await db.loginUser(

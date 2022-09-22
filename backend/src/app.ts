@@ -12,7 +12,7 @@ import checkUserLoginData from './utils/checkUserLoginData';
 import searchUser from './utils/searchUser';
 import checkUserHistory from './utils/checkUserHistory';
 import handleNewMessage from './utils/handleNewMessage';
-import { dbQueries, newMessage, userLoginDetails } from './queries';
+import { DbQueries, newMessage, userLoginDetails } from './queries';
 
 const app = express();
 const httpServer = createServer(app);
@@ -22,7 +22,7 @@ const io = new Server(httpServer, {
   },
 });
 
-const db = new dbQueries();
+const db = new DbQueries();
 
 io.on('connection', socket => {
   try {

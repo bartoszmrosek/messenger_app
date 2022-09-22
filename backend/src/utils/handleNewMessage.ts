@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid';
 
 import { checkIsUserConnected } from '../users';
 import type { Server } from 'socket.io';
-import { dbQueries, newMessage } from '../queries';
+import { DbQueries, newMessage } from '../queries';
 
 interface ServerToClientEvents {
   noArg: () => void;
@@ -34,7 +34,7 @@ const handleNewMessage = async (
   >,
   data: newMessage,
   callback: any,
-  db: dbQueries,
+  db: DbQueries,
 ) => {
   const stateOfRecieverUser = checkIsUserConnected(data.reciever_user_id);
   const {

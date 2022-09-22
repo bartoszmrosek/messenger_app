@@ -38,26 +38,42 @@ export interface newMessage {
   created_at: string;
 }
 
-let dbConnection: mysql.Pool | null = null;
+const dbConnection = mysql.createPool({
+  host: process.env.HOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: process.env.DATABASE,
+  ssl: {
+    rejectUnauthorized: true,
+  },
+  port: 3306,
+  connectTimeout: 10000,
+});
 
-try {
-  dbConnection = mysql.createPool({
-    host: process.env.HOST,
-    user: process.env.USER,
-    password: process.env.PASSWORD,
-    database: process.env.DATABASE,
-    ssl: {
-      rejectUnauthorized: true,
-    },
-    port: 3306,
-    connectTimeout: 30000,
-  });
-  console.log('[dbHandler] MySql pool generated successfully');
-} catch (error) {
-  console.log('[dbHandler] Cannot estabilish a pool:', error);
-}
+export class DbQueries {
+  async #usePooledConnection<Type>(
+    action: (arg: mysql.PoolConnection) => Promise<Type>,
+  ) {
+    const connection = await new Promise<mysql.PoolConnection>(
+      (resolve, reject) => {
+        dbConnection.getConnection((err, conn) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(conn);
+          }
+        });
+      },
+    );
+    try {
+      return await action(connection);
+    } catch (err) {
+      console.log('[queries.ts][dbQueries] connection error', err);
+    } finally {
+      connection.release();
+    }
+  }
 
-export class dbQueries {
   #checkUser = (shouldUseUserId: boolean) => {
     if (shouldUseUserId) {
       return `SELECT user_id, username, email FROM user_accounts WHERE email = ? AND user_id = ?`;
@@ -66,18 +82,22 @@ export class dbQueries {
     }
   };
 
-  insertNewUser(newUserData: userDetails): Promise<number | null> {
-    return new Promise((resolve, reject) => {
-      dbConnection.execute<OkPacket>(
-        'INSERT INTO user_accounts(username, email, password) VALUES(?, ?, ?)',
-        [newUserData.username, newUserData.email, newUserData.password],
-        err => {
-          if (err.errno === 1062) reject(1);
-          if (err) reject(err);
-          resolve(null);
-        },
-      );
-    });
+  insertNewUser(newUserData: userDetails): Promise<mysql.QueryError | null> {
+    return this.#usePooledConnection<mysql.QueryError | null>(
+      async connection => {
+        return new Promise((resolve, reject) => {
+          connection.query<OkPacket>(
+            'INSERT INTO user_accounts(username, email, password) VALUES(?, ?, ?)',
+            [newUserData.username, newUserData.email, newUserData.password],
+            err => {
+              if (err.errno === 1062) reject(1);
+              if (err) reject(err);
+              resolve(null);
+            },
+          );
+        });
+      },
+    );
   }
   loginUser(
     userLoginData: userLoginDetails,
