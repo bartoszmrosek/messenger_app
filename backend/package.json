@@ -6,7 +6,7 @@
   "scripts": {
     "prebuild": "eslint --ignore-path ../.gitignore .",
     "build": "tsc",
-    "prestart": "npm run build",
+    "prestart": "yarn run build",
     "start": "node .",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "npx nodemon ./app.ts"
