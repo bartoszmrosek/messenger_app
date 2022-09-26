@@ -14,6 +14,7 @@ import checkUserHistory from './utils/checkUserHistory';
 import handleNewMessage from './utils/handleNewMessage';
 import { DbQueries, newMessage, userLoginDetails } from './queries';
 
+const PORT = process.env.PORT || 3030;
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -83,4 +84,4 @@ io.on('connection', socket => {
   }
 });
 
-httpServer.listen(8000);
+httpServer.listen(PORT);
