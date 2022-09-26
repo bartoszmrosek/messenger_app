@@ -14,7 +14,6 @@ import type {
   ServerToClientEvents,
   ClientToServerEvents,
 } from './interfaces/socketContextInterfaces';
-import LandingPage from './pages/LandingPage';
 
 interface mousePositionInterface {
   x: number | null;
@@ -70,20 +69,8 @@ const App = () => {
     };
   }, []);
 
-  const [mousePosition, setMousePosition] = useState<mousePositionInterface>({
-    x: null,
-    y: null,
-  });
-
-  const handleWindowMouseMove = (event: MouseEvent) => {
-    setMousePosition({
-      x: event.screenX,
-      y: event.screenY,
-    });
-  };
-
   return (
-    <div className="h-screen relative" onMouseMove={handleWindowMouseMove}>
+    <div className="h-screen">
       <Navbar />
       <Routes>
         <Route path="/Register" element={<RegisterUserForm />} />
@@ -93,10 +80,7 @@ const App = () => {
         )}
         <Route path="/SearchResults" element={<SearchResultsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
-        <Route
-          path="/"
-          element={<LandingPage mousePosition={mousePosition} />}
-        />
+        <Route path="/" element={<RegisterUserForm />} />
       </Routes>
     </div>
   );

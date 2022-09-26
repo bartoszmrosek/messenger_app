@@ -52,7 +52,7 @@ const dbConnection = mysql.createPool({
 
 export class DbQueries {
   async #usePooledConnection<Type>(
-    action: (arg: mysql.PoolConnection) => Promise<Type>,
+    action: (callback: mysql.PoolConnection) => Promise<Type>,
   ) {
     const connection = await new Promise<mysql.PoolConnection>(
       (resolve, reject) => {
@@ -102,72 +102,82 @@ export class DbQueries {
   loginUser(
     userLoginData: userLoginDetails,
   ): Promise<userInfoWithPacket | number> {
-    return new Promise((resolve, reject) => {
-      dbConnection.execute<userInfoWithPacket[]>(
-        this.#checkUser(typeof userLoginData.securityKey === 'number'),
-        [userLoginData.email, userLoginData.securityKey],
-        (err, res) => {
-          if (err) reject(err);
-          if (!res[0]) reject(3);
-          resolve(res[0]);
-        },
-      );
-    });
+    return this.#usePooledConnection<userInfoWithPacket | number>(
+      async connection => {
+        return new Promise((resolve, reject) => {
+          connection.execute<userInfoWithPacket[]>(
+            this.#checkUser(typeof userLoginData.securityKey === 'number'),
+            [userLoginData.email, userLoginData.securityKey],
+            (err, res) => {
+              if (err) reject(err);
+              if (!res[0]) reject(3);
+              resolve(res[0]);
+            },
+          );
+        });
+      },
+    );
   }
   searchUser(username: string): Promise<userDetails[]> {
-    return new Promise((resolve, reject) => {
-      dbConnection.execute<userInfoWithPacket[]>(
-        'SELECT user_id, username FROM user_accounts WHERE username LIKE ?',
-        username,
-        (err, res) => {
-          if (err) reject(err);
-          resolve(res);
-        },
-      );
+    return this.#usePooledConnection(async connection => {
+      return new Promise((resolve, reject) => {
+        connection.execute<userInfoWithPacket[]>(
+          'SELECT user_id, username FROM user_accounts WHERE username LIKE ?',
+          username,
+          (err, res) => {
+            if (err) reject(err);
+            resolve(res);
+          },
+        );
+      });
     });
   }
   searchUserMessagesHistory(userId: number): Promise<messageDetails[]> {
-    return new Promise((resolve, reject) => {
-      dbConnection.execute<messageDetails[]>(
-        `SELECT
-    user_accounts.username,
-    user_messages.message,
-    user_messages.sender_user_id,
-    user_messages.reciever_user_id,
-    user_messages.is_read,
-    user_messages.created_at,
-    user_messages.message_id
-  FROM user_accounts, user_messages
-  WHERE
-  (user_messages.reciever_user_id = ? AND user_messages.sender_user_id = user_accounts.user_id)
-  OR
-  (user_messages.sender_user_id = ? AND user_messages.reciever_user_id = user_accounts.user_id)
-  ORDER BY user_messages.created_at ASC`,
-        userId,
-        (err, res) => {
-          if (err) reject(err);
-          resolve(res);
-        },
-      );
+    return this.#usePooledConnection(async connection => {
+      return new Promise((resolve, reject) => {
+        connection.execute<messageDetails[]>(
+          `SELECT
+      user_accounts.username,
+      user_messages.message,
+      user_messages.sender_user_id,
+      user_messages.reciever_user_id,
+      user_messages.is_read,
+      user_messages.created_at,
+      user_messages.message_id
+    FROM user_accounts, user_messages
+    WHERE
+    (user_messages.reciever_user_id = ? AND user_messages.sender_user_id = user_accounts.user_id)
+    OR
+    (user_messages.sender_user_id = ? AND user_messages.reciever_user_id = user_accounts.user_id)
+    ORDER BY user_messages.created_at ASC`,
+          userId,
+          (err, res) => {
+            if (err) reject(err);
+            resolve(res);
+          },
+        );
+      });
     });
   }
   saveNewMessage(message: newMessage): Promise<null> {
-    return new Promise((resolve, reject) => {
-      dbConnection.execute<OkPacket>(
-        `
-  INSERT INTO user_messages (sender_user_id, reciever_user_id, message, is_read)
-  VALUES ( ?, ?, ?, ? );`,
-        [
-          message.sender_user_id,
-          message.reciever_user_id,
-          message.message,
-          message.is_read,
-        ],
-        err => {
-          if (err) reject(err);
-          resolve(null);
-        },
-      );
+    return this.#usePooledConnection(async connection => {
+      return new Promise((resolve, reject) => {
+        connection.execute<OkPacket>(
+          `
+    INSERT INTO user_messages (sender_user_id, reciever_user_id, message, is_read)
+    VALUES ( ?, ?, ?, ? );`,
+          [
+            message.sender_user_id,
+            message.reciever_user_id,
+            message.message,
+            message.is_read,
+          ],
+          err => {
+            if (err) reject(err);
+            resolve(null);
+          },
+        );
+      });
     });
   }
 }
