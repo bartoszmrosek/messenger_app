@@ -13,8 +13,6 @@ const checkOrCreateUser = async (
   } catch (error) {
     if (
       typeof error === 'object' &&
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      Object.hasOwn(error, 'errno') &&
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       error.errno === -4078
     ) {

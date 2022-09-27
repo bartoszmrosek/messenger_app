@@ -49,7 +49,7 @@ const RegisterUserForm = () => {
   };
 
   return (
-    <div>
+    <div className=" flex items-center justify-center h-screen">
       <form>
         <label>Username</label>
         <input

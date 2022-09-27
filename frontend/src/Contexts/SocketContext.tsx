@@ -10,7 +10,7 @@ interface SocketChildrenInterface {
 }
 
 const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  'http://localhost:8000/',
+  'https://messanger.onrender.com',
 );
 
 const SocketContext = createContext(standardSocket);
