@@ -56,7 +56,6 @@ const LoginForm = () => {
       },
     );
   };
-
   return (
     <>
       <form>
