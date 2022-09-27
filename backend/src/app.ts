@@ -23,10 +23,6 @@ const io = new Server(httpServer, {
   },
 });
 
-app.listen(PORT, () => {
-  console.log('app started on port:', PORT);
-});
-
 const db = new DbQueries();
 
 io.on('connection', socket => {
@@ -88,4 +84,6 @@ io.on('connection', socket => {
   }
 });
 
-httpServer.listen(PORT);
+httpServer.listen(PORT, () => {
+  console.log(`Server started on port: ${PORT}`);
+});

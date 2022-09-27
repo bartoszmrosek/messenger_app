@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "Express app for handling CRUD operations through WebSockets to PostGreSQL",
+  "description": "Express app for handling CRUD operations through WebSockets to mysql2",
   "main": "dist/app.js",
   "scripts": {
     "prebuild": "eslint --ignore-path ../.gitignore .",
