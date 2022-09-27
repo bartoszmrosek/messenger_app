@@ -6,7 +6,17 @@ module.exports = {
     './src/**/*.{js,ts,jsx,tsx}'
   ],
   theme: {
-    extend: {},
+    extend: {
+      animation:{
+        blob: 'blob 5s ease-in-out infinite'
+      },
+      'keyframes':{
+        'blob':{
+          '0%, 100%': {'fill': 'red'},
+          "50%":{'fill': 'blue'}
+        }
+      }
+    },
   },
   plugins: [],
 }

@@ -4,6 +4,7 @@ import { SocketContext } from '../Contexts/SocketContext';
 import { standardDbResponse } from '../interfaces/dbResponsesInterface';
 import ErrorOverlay from '../components/ErrorOverlay';
 import useErrorType from '../hooks/useErrorType';
+import { motion } from 'framer-motion';
 
 import type { Socket } from 'socket.io-client';
 import type {
@@ -49,43 +50,46 @@ const RegisterUserForm = () => {
   };
 
   return (
-    <div className=" flex items-center justify-center h-screen">
-      <form className="grid text-center gap-2">
+    <motion.div className=" flex items-center justify-center h-screen w-screen absolute inset-0">
+      <form className="grid text-center gap-5">
         <label className="">
           Username
           <input
+            className="grid text-center"
             type="text"
             {...register('username', {
               required: 'username is required',
               minLength: 1,
             })}
             name="username"
-            placeholder="username"
+            placeholder="Username"
           />
         </label>
         <label className="">
           Email
           <input
+            className="grid text-center"
             type="email"
             {...register('email', { required: 'email is required' })}
             name="email"
-            placeholder="email"
+            placeholder="Email"
           />
         </label>
         <label className="">
           Password
           <input
+            className="grid text-center"
             type="password"
             {...register('password', { required: 'password is required' })}
             name="password"
-            placeholder="password"
+            placeholder="Password"
           />
         </label>
         <button onClick={handleSubmit(onSubmit)}>Submit</button>
+        {isSubmitSuccessfull && <p>Submit succesfull</p>}
       </form>
-      {isSubmitSuccessfull && <p>Submit succesfull</p>}
       {error !== null && <ErrorOverlay error={error} />}
-    </div>
+    </motion.div>
   );
 };
 

@@ -67,9 +67,7 @@ export class DbQueries {
     try {
       return await action(connection);
     } catch (err) {
-      if (typeof err === 'number') {
-        return err;
-      }
+      throw err;
     } finally {
       connection.release();
     }
