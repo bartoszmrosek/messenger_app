@@ -46,7 +46,6 @@ const dbConnection = mysql.createPool({
   ssl: {
     rejectUnauthorized: true,
   },
-  port: 3306,
   connectTimeout: 10000,
 });
 
