@@ -44,6 +44,7 @@ io.on('connection', socket => {
       'checkUserLoginData',
       (payload: { data: userLoginDetails }, callback) => {
         const { data } = payload;
+        console.log('function', data);
         void checkUserLoginData(data, callback, socket.id, db);
       },
     );
