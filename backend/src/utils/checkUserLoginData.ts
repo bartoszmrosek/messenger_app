@@ -13,7 +13,6 @@ const checkUserLoginData = async (
     const loginTryResult: userInfoWithPacket | number = await db.loginUser(
       userLoginData,
     );
-    console.log(loginTryResult);
     if (typeof loginTryResult === 'number') {
       if (loginTryResult === 3) {
         callback({

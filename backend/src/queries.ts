@@ -103,6 +103,7 @@ export class DbQueries {
   loginUser(
     userLoginData: userLoginDetails,
   ): Promise<userInfoWithPacket | number> {
+    console.log('It does not work:', userLoginData);
     return this.#usePooledConnection<userInfoWithPacket | number>(
       async connection => {
         return new Promise((resolve, reject) => {
