@@ -15,7 +15,7 @@ export interface userDetails {
 
 export interface userLoginDetails {
   email: string;
-  securityKey: number | string;
+  password: number | string;
 }
 
 export interface messageDetails extends RowDataPacket {
@@ -108,8 +108,8 @@ export class DbQueries {
       async connection => {
         return new Promise((resolve, reject) => {
           connection.execute<userInfoWithPacket[]>(
-            this.#checkUser(typeof userLoginData.securityKey === 'number'),
-            [userLoginData.email, userLoginData.securityKey],
+            this.#checkUser(typeof userLoginData.password === 'number'),
+            [userLoginData.email, userLoginData.password],
             (err, res) => {
               if (err) reject(err);
               if (!res[0]) reject(3);
