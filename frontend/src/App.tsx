@@ -74,16 +74,16 @@ const App = () => {
       <svg
         viewBox="0 0 200 200"
         xmlns="http://www.w3.org/2000/svg"
-        className="z-0 absolute max-h-screen max-w-screen"
+        className=" relative h-screen w-screen flex justify-center items-center origin-center"
       >
         <path
           fill="#8A3FFC"
           d="M47.6,-77.5C59.5,-66.3,65.6,-49.5,70.3,-33.7C75,-17.9,78.4,-3.1,77.1,11.6C75.8,26.2,69.7,40.7,59.7,50.9C49.6,61.2,35.5,67.1,21.6,69.2C7.7,71.3,-6.1,69.5,-19.3,65.7C-32.5,61.8,-45.1,55.9,-58.1,47C-71.1,38.1,-84.5,26.1,-85.6,12.8C-86.8,-0.5,-75.7,-15,-65.4,-26.8C-55.2,-38.5,-45.8,-47.6,-35,-59.3C-24.3,-71,-12.1,-85.4,2.8,-89.8C17.8,-94.2,35.6,-88.7,47.6,-77.5Z"
           transform="translate(100 100)"
-          className="animate-blob"
+          className="animate-blob origin-center"
         />
       </svg>
-      <div className="z-50 absolute inset-0">
+      <div className=" absolute inset-0">
         <Navbar />
         <Routes>
           <Route path="/Register" element={<RegisterUserForm />} />

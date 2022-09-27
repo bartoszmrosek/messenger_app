@@ -46,7 +46,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="hidden sm:block z-52 sticky">
+    <nav className="hidden sm:block z-10 sticky">
       <ul>
         <li>
           <NavLink to="Register">Register</NavLink>
