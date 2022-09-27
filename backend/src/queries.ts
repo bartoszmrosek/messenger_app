@@ -67,7 +67,9 @@ export class DbQueries {
     try {
       return await action(connection);
     } catch (err) {
-      console.log('[queries.ts][dbQueries] connection error', err);
+      if (typeof err === 'number') {
+        return err;
+      }
     } finally {
       connection.release();
     }
@@ -81,7 +83,9 @@ export class DbQueries {
     }
   };
 
-  insertNewUser(newUserData: userDetails): Promise<mysql.QueryError | null> {
+  insertNewUser(
+    newUserData: userDetails,
+  ): Promise<mysql.QueryError | null | number> {
     return this.#usePooledConnection<mysql.QueryError | null>(
       async connection => {
         return new Promise((resolve, reject) => {
@@ -117,7 +121,7 @@ export class DbQueries {
       },
     );
   }
-  searchUser(username: string): Promise<userDetails[]> {
+  searchUser(username: string): Promise<userDetails[] | number> {
     return this.#usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
         connection.execute<userInfoWithPacket[]>(
@@ -131,7 +135,9 @@ export class DbQueries {
       });
     });
   }
-  searchUserMessagesHistory(userId: number): Promise<messageDetails[]> {
+  searchUserMessagesHistory(
+    userId: number,
+  ): Promise<messageDetails[] | number> {
     return this.#usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
         connection.execute<messageDetails[]>(
@@ -158,7 +164,7 @@ export class DbQueries {
       });
     });
   }
-  saveNewMessage(message: newMessage): Promise<null> {
+  saveNewMessage(message: newMessage): Promise<null | number> {
     return this.#usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
         connection.execute<OkPacket>(

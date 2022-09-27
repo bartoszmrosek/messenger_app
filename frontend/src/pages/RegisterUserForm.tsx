@@ -50,31 +50,37 @@ const RegisterUserForm = () => {
 
   return (
     <div className=" flex items-center justify-center h-screen">
-      <form>
-        <label>Username</label>
-        <input
-          type="text"
-          {...register('username', {
-            required: 'username is required',
-            minLength: 1,
-          })}
-          name="username"
-          placeholder="username"
-        />
-        <label>Email</label>
-        <input
-          type="email"
-          {...register('email', { required: 'email is required' })}
-          name="email"
-          placeholder="email"
-        />
-        <label>Email</label>
-        <input
-          type="password"
-          {...register('password', { required: 'password is required' })}
-          name="password"
-          placeholder="password"
-        />
+      <form className="grid text-center gap-2">
+        <label className="">
+          Username
+          <input
+            type="text"
+            {...register('username', {
+              required: 'username is required',
+              minLength: 1,
+            })}
+            name="username"
+            placeholder="username"
+          />
+        </label>
+        <label className="">
+          Email
+          <input
+            type="email"
+            {...register('email', { required: 'email is required' })}
+            name="email"
+            placeholder="email"
+          />
+        </label>
+        <label className="">
+          Password
+          <input
+            type="password"
+            {...register('password', { required: 'password is required' })}
+            name="password"
+            placeholder="password"
+          />
+        </label>
         <button onClick={handleSubmit(onSubmit)}>Submit</button>
       </form>
       {isSubmitSuccessfull && <p>Submit succesfull</p>}
