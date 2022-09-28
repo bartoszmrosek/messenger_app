@@ -45,9 +45,18 @@ const handleNewMessage = async (
     sender_user_id,
     username,
   } = data;
-  const savingStatus = await db.saveNewMessage(data);
-  if (savingStatus !== null) {
-    callback({ type: 'error', payload: savingStatus });
+  try {
+    const savingStatus = await db.saveNewMessage(data);
+    if (savingStatus !== null) {
+      callback({ type: 'error', payload: savingStatus });
+    }
+  } catch (err) {
+    console.log('[utils][handleNewMessage] error: ', err);
+    callback({
+      type: 'error',
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      payload: err,
+    });
   }
   if (stateOfRecieverUser !== 'Not connected') {
     io.sockets

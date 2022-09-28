@@ -18,6 +18,7 @@ const checkOrCreateUser = async (
     ) {
       callback({ type: 'error', payload: 0 });
     } else {
+      console.log('[utils][checkOrCreateUser] error: ', error);
       callback({ type: 'error', payload: error });
     }
   }

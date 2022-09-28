@@ -6,20 +6,29 @@ const checkUserHistory = async (
   callback: any,
   db: DbQueries,
 ) => {
-  const messagesSearchResults = await db.searchUserMessagesHistory(userId);
-  console.log(`[utils][checkUserHistory]: `, messagesSearchResults);
-  if (Array.isArray(messagesSearchResults)) {
-    if (messagesSearchResults.length > 0) {
-      callback({
-        type: 'confirm',
-        payload: messagesSearchResults,
-      });
-    } else {
-      callback({
-        type: 'error',
-        payload: messagesSearchResults,
-      });
+  try {
+    const messagesSearchResults = await db.searchUserMessagesHistory(userId);
+    console.log(`[utils][checkUserHistory]: `, messagesSearchResults);
+    if (Array.isArray(messagesSearchResults)) {
+      if (messagesSearchResults.length > 0) {
+        callback({
+          type: 'confirm',
+          payload: messagesSearchResults,
+        });
+      } else {
+        callback({
+          type: 'confirm',
+          payload: messagesSearchResults,
+        });
+      }
     }
+  } catch (err) {
+    console.log('[utils][checkUserHistory] error: ', err);
+    callback({
+      type: 'error',
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      payload: err,
+    });
   }
 };
 

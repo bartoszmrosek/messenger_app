@@ -33,6 +33,7 @@ const checkUserLoginData = async (
       });
     }
   } catch (error) {
+    console.log('[utils][checkUserLoginData] error: ', error);
     callback({
       type: 'error',
       payload: error,
