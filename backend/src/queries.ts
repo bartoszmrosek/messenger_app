@@ -153,7 +153,7 @@ export class DbQueries {
     OR
     (user_messages.sender_user_id = ? AND user_messages.reciever_user_id = user_accounts.user_id)
     ORDER BY user_messages.created_at ASC`,
-          [userId],
+          [userId, userId],
           (err, res) => {
             if (err) reject(err);
             resolve(res);
