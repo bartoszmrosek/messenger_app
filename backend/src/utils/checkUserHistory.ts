@@ -7,6 +7,7 @@ const checkUserHistory = async (
   db: DbQueries,
 ) => {
   const messagesSearchResults = await db.searchUserMessagesHistory(userId);
+  console.log(`[utils][checkUserHistory]: `, messagesSearchResults);
   if (Array.isArray(messagesSearchResults)) {
     if (messagesSearchResults.length > 0) {
       callback({
