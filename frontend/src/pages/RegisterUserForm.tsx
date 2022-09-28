@@ -74,12 +74,12 @@ const RegisterUserForm = () => {
       <span className="relative h-full w-full overflow-hidden ">
         <div
           className="wobbly rounded-full bg-[#8A3FFC] absolute
-         h-[40rem] w-[40rem] translate-x-[-50%] translate-y-[-50%] animate-wobble0 ease-wobble
+         h-[40rem] w-[40rem] translate-x-[-62%] translate-y-[-62%] lg:translate-x-[-50%] lg:translate-y-[-50%] animate-wobble0 ease-wobble
            duration-4000"
         ></div>
         <div
           className="wobbly rounded-full bg-[#8A3FFC] absolute
-         h-[40rem] w-[40rem] bottom-0 right-0 animate-wobble1 translate-x-[50%] translate-y-[50%] ease-wobble
+         h-[40rem] w-[40rem] bottom-0 right-0 animate-wobble1 translate-x-[62%] translate-y-[62%] lg:translate-x-[50%] lg:translate-y-[50%] ease-wobble
           duration-4000"
         ></div>
       </span>
@@ -119,8 +119,8 @@ const RegisterUserForm = () => {
         </label>
         <button onClick={handleSubmit(onSubmit)}>Submit</button>
         {isSubmitSuccessfull && <p>Submit succesfull</p>}
+        {error !== null && <ErrorOverlay error={error} />}
       </form>
-      {error !== null && <ErrorOverlay error={error} />}
     </div>
   );
 };

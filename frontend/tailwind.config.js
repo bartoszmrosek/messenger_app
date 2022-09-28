@@ -13,12 +13,12 @@ module.exports = {
       },
       keyframes:{
         'wobble0': {
-          '0%': {"transform": 'rotate(0deg) translate-x-[-50%] translate-y-[-50%]'},
-          '100%': {"transform": 'rotate(360deg) translate-x-[-50%] translate-y-[-50%]'}
+          '0%': {"transform": 'rotate(0deg) translate-x-[-0%] translate-y-[0%]'},
+          '100%': {"transform": 'rotate(360deg) translate-x-[--10%] translate-y-[-0%]'}
         },
         'wobble1': {
-          '0%': {"transform": 'rotate(0deg) translate-x-[50%] translate-y-[50%]'},
-          '100%': {"transform": 'rotate(360deg) translate-x-[50%] translate-y-[50%]'}
+          '0%': {"transform": 'rotate(0deg) translate-x-[0%] translate-y-[0%]'},
+          '100%': {"transform": 'rotate(360deg) translate-x-[0%] translate-y-[0%]'}
         }
       },
       transitionDuration:{
