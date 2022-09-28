@@ -124,7 +124,7 @@ export class DbQueries {
       return new Promise((resolve, reject) => {
         connection.execute<userInfoWithPacket[]>(
           'SELECT user_id, username FROM user_accounts WHERE username LIKE ?',
-          [`${username}*`],
+          [`${username}%`],
           (err, res) => {
             if (err) reject(err);
             resolve(res);
