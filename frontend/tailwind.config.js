@@ -8,13 +8,24 @@ module.exports = {
   theme: {
     extend: {
       animation:{
-        blob: 'blob 10s ease-in-out infinite'
+        wobble0: 'wobble0 15s linear infinite',
+          wobble1: 'wobble1 15s linear infinite',        
       },
-      'keyframes':{
-        'blob':{
-          '0%, 100%': {'fill': '#8A3FFC', 'transform': 'translate(35%, 35%) scale(0.75)'},
-          "50%":{'fill': '#4903B2', 'transform': 'translate(50%, 50%) scale(1)'}
+      keyframes:{
+        'wobble0': {
+          '0%': {"transform": 'rotate(0deg) translate-x-[-50%] translate-y-[-50%]'},
+          '100%': {"transform": 'rotate(360deg) translate-x-[-50%] translate-y-[-50%]'}
+        },
+        'wobble1': {
+          '0%': {"transform": 'rotate(0deg) translate-x-[50%] translate-y-[50%]'},
+          '100%': {"transform": 'rotate(360deg) translate-x-[50%] translate-y-[50%]'}
         }
+      },
+      transitionDuration:{
+        '4000': '4000ms'
+      },
+      transitionTimingFunction:{
+        'wobble': '[cubic-bezier(0.455, 0.03, 0.515, 0.955)]'
       }
     },
   },

@@ -9,7 +9,6 @@
     "lint": "eslint --fix --ignore-path ../.gitignore ."
   },
   "dependencies": {
-    "framer-motion": "^7.3.4",
     "nanoid": "^3.3.4",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",

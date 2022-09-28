@@ -1,10 +1,9 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
-import React, { useContext, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { SocketContext } from '../Contexts/SocketContext';
 import { standardDbResponse } from '../interfaces/dbResponsesInterface';
 import ErrorOverlay from '../components/ErrorOverlay';
 import useErrorType from '../hooks/useErrorType';
-import { motion } from 'framer-motion';
 
 import type { Socket } from 'socket.io-client';
 import type {
@@ -49,9 +48,42 @@ const RegisterUserForm = () => {
       );
   };
 
+  useEffect(() => {
+    const wobblyInterval = setInterval(() => {
+      const wobblyElems = document.querySelectorAll<HTMLElement>('.wobbly');
+      let tl, tr, br, bl;
+      let max = 200,
+        min = 350;
+      wobblyElems.forEach(elem => {
+        tl = Math.floor(Math.random() * (max - min) + min);
+        tr = Math.floor(Math.random() * (max - min) + min);
+        br = Math.floor(Math.random() * (max - min) + min);
+        bl = Math.floor(Math.random() * (max - min) + min);
+
+        let borderRadius = `${tl}px ${tr}px ${br}px ${bl}px `;
+        elem.style.borderRadius = borderRadius;
+      });
+    }, 5000);
+    return () => {
+      clearInterval(wobblyInterval);
+    };
+  });
+
   return (
-    <motion.div className=" flex items-center justify-center h-screen w-screen absolute inset-0">
-      <form className="grid text-center gap-5">
+    <div className=" flex items-center justify-center h-screen w-screen absolute inset-0">
+      <span className="relative h-full w-full overflow-hidden ">
+        <div
+          className="wobbly rounded-full bg-[#8A3FFC] absolute
+         h-[40rem] w-[40rem] translate-x-[-50%] translate-y-[-50%] animate-wobble0 ease-wobble
+           duration-4000"
+        ></div>
+        <div
+          className="wobbly rounded-full bg-[#8A3FFC] absolute
+         h-[40rem] w-[40rem] bottom-0 right-0 animate-wobble1 translate-x-[50%] translate-y-[50%] ease-wobble
+          duration-4000"
+        ></div>
+      </span>
+      <form className="grid text-center gap-5 z-0 absolute">
         <label className="">
           Username
           <input
@@ -89,7 +121,7 @@ const RegisterUserForm = () => {
         {isSubmitSuccessfull && <p>Submit succesfull</p>}
       </form>
       {error !== null && <ErrorOverlay error={error} />}
-    </motion.div>
+    </div>
   );
 };
 
