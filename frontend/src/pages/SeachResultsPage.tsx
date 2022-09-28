@@ -48,7 +48,6 @@ const SearchResultsPage = () => {
   };
 
   useEffect(() => {
-    console.log(state.searchParameters);
     standardSocket
       .timeout(10000)
       .emit(
@@ -63,6 +62,7 @@ const SearchResultsPage = () => {
           if (resError || dbResponse.type === 'error') {
             resError ? setError(resError) : setError(dbResponse.payload);
           } else {
+            console.log(dbResponse);
             setError(null);
             if (
               Array.isArray(dbResponse.payload) &&

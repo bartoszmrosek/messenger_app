@@ -126,6 +126,7 @@ export class DbQueries {
           'SELECT user_id, username FROM user_accounts WHERE username LIKE ?',
           [`${username}%`],
           (err, res) => {
+            console.log('[queries][searchUser] results:', res);
             if (err) reject(err);
             resolve(res);
           },
