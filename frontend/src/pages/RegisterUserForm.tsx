@@ -73,12 +73,12 @@ const RegisterUserForm = () => {
     <div className=" flex items-center justify-center h-screen w-screen absolute inset-0">
       <span className="relative h-full w-full overflow-hidden ">
         <div
-          className="wobbly rounded-full bg-[#8A3FFC] absolute
+          className="wobbly rounded-full bg-main-purple absolute
          h-[40rem] w-[40rem] translate-x-[-62%] translate-y-[-62%] lg:translate-x-[-50%] lg:translate-y-[-50%] animate-wobble0 ease-wobble
            duration-4000"
         ></div>
         <div
-          className="wobbly rounded-full bg-[#8A3FFC] absolute
+          className="wobbly rounded-full bg-main-purple absolute
          h-[40rem] w-[40rem] bottom-0 right-0 animate-wobble1 translate-x-[62%] translate-y-[62%] lg:translate-x-[50%] lg:translate-y-[50%] ease-wobble
           duration-4000"
         ></div>

@@ -46,16 +46,26 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="hidden sm:block z-10 sticky">
-      <ul>
+    <nav className="z-10 fixed w-screen">
+      <ul className="flex flex-row justify-evenly m-5 font-semibold text-[#371965]">
         <li>
-          <NavLink to="Register">Register</NavLink>
+          <NavLink
+            to="Register"
+            className="transition duration-1000 p-2 rounded-2xl bg-[#EBECED] border-4 hover:border-green-600"
+          >
+            Register
+          </NavLink>
         </li>
         <li>
-          <NavLink to="Login">Login</NavLink>
+          <NavLink
+            to="Login"
+            className="transition duration-1000 p-2 rounded-2xl border-4 border-[#ad79fd] hover:border-green-600"
+          >
+            Login
+          </NavLink>
         </li>
         {shouldRenderNewListItems()}
-        <li>
+        <li className="hidden md:block">
           <form onSubmit={handleSearchSubmit}>
             <input
               type="text"

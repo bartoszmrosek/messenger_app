@@ -13,7 +13,7 @@ import { useState } from 'react';
 
 const useErrorType = () => {
   const [errorType, setErrorType] = useState<string | null>(null);
-  const setError = (error: number | null | unknown) => {
+  const setError = (error: number | null | unknown | string) => {
     switch (error) {
       case 0:
         setErrorType('Cannot connect to database');

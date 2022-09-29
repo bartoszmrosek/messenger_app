@@ -70,8 +70,8 @@ const App = () => {
   }, []);
 
   return (
-    <div className="h-screen">
-      <div className=" absolute inset-0">
+    <div className="h-screen bg-[#EBECED]">
+      <div className="absolute inset-0">
         <Navbar />
         <Routes>
           <Route path="/Register" element={<RegisterUserForm />} />

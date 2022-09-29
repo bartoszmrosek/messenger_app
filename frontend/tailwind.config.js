@@ -26,6 +26,9 @@ module.exports = {
       },
       transitionTimingFunction:{
         'wobble': '[cubic-bezier(0.455, 0.03, 0.515, 0.955)]'
+      },
+      colors:{
+        'main-purple': '#8A3FFC'
       }
     },
   },
