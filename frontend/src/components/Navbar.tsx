@@ -51,7 +51,7 @@ const Navbar = () => {
         <li>
           <NavLink
             to="Register"
-            className="transition duration-1000 p-2 rounded-2xl bg-[#EBECED] border-4 hover:border-green-600"
+            className="transition duration-1000 p-2 rounded-2xl bg-[#EBECED] border-4 hover:border-green-600 hover:border-4 2xl:bg-main-purple 2xl:text-[#EBECED]"
           >
             Register
           </NavLink>
