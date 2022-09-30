@@ -57,7 +57,7 @@ const Navbar = () => {
       <section className="grid grid-cols-2 grid-rows-2 gap-3 items-center justify-end md:flex md:flex-row m-5 font-semibold text-[#371965] text-center">
         <NavLink
           to="Register"
-          className="transition duration-1000 p-1 md:p-2 h-full rounded-2xl bg-[#EBECED] border-4
+          className="transition duration-1000 p-1 md:p-2 rounded-2xl bg-[#EBECED] border-4
          hover:border-green-400 hover:border-solid hover:border-4 md:bg-main-purple md:text-[#EBECED] w-3/5 md:min-w-[6rem] md:w-[10%] lg:w-[6%] justify-self-center md:order-2"
         >
           Register
@@ -69,7 +69,7 @@ const Navbar = () => {
           Login
         </NavLink>
         <div className="col-span-2">
-          <form onSubmit={handleSearchSubmit} className="group">
+          <form onSubmit={handleSearchSubmit}>
             <input
               className="transition duration-1000 p-2 md:p-3 rounded-full focus:outline-none focus:ring
                focus:ring-main-purple/50 invalid:focus:ring-red-600 border-2 hover:border-main-purple"

@@ -9,7 +9,7 @@ module.exports = {
     extend: {
       animation:{
         wobble0: 'wobble0 15s linear infinite',
-          wobble1: 'wobble1 15s linear infinite',        
+        wobble1: 'wobble1 15s linear infinite',  
       },
       keyframes:{
         'wobble0': {
@@ -19,7 +19,7 @@ module.exports = {
         'wobble1': {
           '0%': {"transform": 'rotate(0deg) translate-x-[0%] translate-y-[0%]'},
           '100%': {"transform": 'rotate(360deg) translate-x-[0%] translate-y-[0%]'}
-        }
+        },
       },
       transitionDuration:{
         '4000': '4000ms'
