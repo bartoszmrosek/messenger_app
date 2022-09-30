@@ -36,36 +36,27 @@ const Navbar = () => {
   const shouldRenderNewListItems = () => {
     if (userInformations !== undefined) {
       return (
-        <>
-          <li>
-            <NavLink to="Messeges">Messeges</NavLink>
-          </li>
-        </>
+        <li>
+          <NavLink to="Messeges">Messeges</NavLink>
+        </li>
       );
     }
   };
 
   return (
     <nav className="z-10 fixed w-screen">
-      <ul className="flex flex-row justify-evenly m-5 font-semibold text-[#371965]">
-        <li>
-          <NavLink
-            to="Register"
-            className="transition duration-1000 p-2 rounded-2xl bg-[#EBECED] border-4 hover:border-green-600 hover:border-4 2xl:bg-main-purple 2xl:text-[#EBECED]"
-          >
-            Register
-          </NavLink>
+      <ul className="grid grid-cols-2 grid-rows-2 gap-5 items-center justify-center md:flex md:flex-row m-5 font-semibold text-[#371965] text-center">
+        <li
+          className="transition duration-1000 p-2 rounded-2xl bg-[#EBECED] border-4
+         hover:border-green-600 hover:border-4 2xl:bg-main-purple 2xl:text-[#EBECED] w-3/5 md:w-auto justify-self-center md:order-2"
+        >
+          <NavLink to="Register">Register</NavLink>
         </li>
-        <li>
-          <NavLink
-            to="Login"
-            className="transition duration-1000 p-2 rounded-2xl border-4 border-[#ad79fd] hover:border-green-600"
-          >
-            Login
-          </NavLink>
+        <li className="transition duration-1000 p-2 rounded-2xl border-4 border-[#ad79fd] hover:border-green-600 w-3/5 md:w-auto justify-self-center md:order-last">
+          <NavLink to="Login">Login</NavLink>
         </li>
         {shouldRenderNewListItems()}
-        <li className="hidden md:block">
+        <li className="col-span-2 grow">
           <form onSubmit={handleSearchSubmit}>
             <input
               type="text"
@@ -73,7 +64,6 @@ const Navbar = () => {
               value={searchParameters}
               onChange={handleChange}
             />
-            <button>Wyszukaj</button>
           </form>
         </li>
       </ul>
