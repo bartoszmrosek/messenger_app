@@ -62,7 +62,6 @@ const SearchResultsPage = () => {
           if (resError || dbResponse.type === 'error') {
             resError ? setError(resError) : setError(dbResponse.payload);
           } else {
-            console.log(dbResponse);
             setError(null);
             if (
               Array.isArray(dbResponse.payload) &&
