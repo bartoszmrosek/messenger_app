@@ -10,6 +10,7 @@ import type {
   ServerToClientEvents,
   ClientToServerEvents,
 } from '../interfaces/socketContextInterfaces';
+import InputForm from '../components/InputForm';
 
 interface userInput {
   username: string;
@@ -89,36 +90,61 @@ const RegisterUserForm = () => {
         ></span>
       </span>
       <form className="grid text-center gap-5 z-0 absolute font-medium">
-        <Controller name='username' control={control} defaultValue='' rules={{required: true}} render={()}/>
-        <label className="block">
-          <input
-            className={`peer transition-all duration-500 p-3 rounded-md ring-offset-1 ring-gray-400/80
-              ring-1 outline-offset-2 outline-3 ${
-                errors.username
-                  ? ' outline-red-600 ring-red-600'
-                  : ' hover:ring-gray-600 focus:outline-main-purple/80'
-              }`}
-            type="text"
-            {...register('username', {
-              required: true,
-              min: 1,
-            })}
-            name="username"
-          />
-          <span
-            className={`transtion-all duration-500 absolute left-3 top-3
-            ${
-              errors.username
-                ? 'text-red-600 translate-x-[-12.5%] translate-y-[-100%] scale-[85%] px-1'
-                : 'text-black/50 peer-focus:text-main-purple'
-            }
-            pointer-events-none
-           peer-focus:scale-[85%] peer-focus:translate-x-[-12.5%] peer-focus:translate-y-[-100%]
-            bg-white rounded-full peer-focus:px-1 `}
-          >
-            {!errors.username ? 'Username' : 'Field is required'}
-          </span>
-        </label>
+        <Controller
+          name="username"
+          control={control}
+          defaultValue=""
+          rules={{ required: true, minLength: 1 }}
+          render={({ field: { value, onChange }, fieldState: { error } }) => {
+            return (
+              <InputForm
+                value={value}
+                onChange={onChange}
+                error={error}
+                type="text"
+                inputName="username"
+              />
+            );
+          }}
+        />
+        <Controller
+          name="email"
+          control={control}
+          defaultValue=""
+          rules={{
+            required: true,
+            minLength: 1,
+            pattern: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+          }}
+          render={({ field: { value, onChange }, fieldState: { error } }) => {
+            return (
+              <InputForm
+                value={value}
+                onChange={onChange}
+                error={error}
+                type="email"
+                inputName="email"
+              />
+            );
+          }}
+        />
+        <Controller
+          name="password"
+          control={control}
+          defaultValue=""
+          rules={{ required: true, minLength: 1 }}
+          render={({ field: { value, onChange }, fieldState: { error } }) => {
+            return (
+              <InputForm
+                value={value}
+                onChange={onChange}
+                error={error}
+                type="password"
+                inputName="password"
+              />
+            );
+          }}
+        />
         <button onClick={handleSubmit(onSubmit)}>Submit</button>
         {isSubmitSuccessfull && <p>Submit succesfull</p>}
         {error !== null && <ErrorOverlay error={error} />}
