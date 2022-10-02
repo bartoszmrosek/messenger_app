@@ -3,7 +3,6 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { SocketContext } from '../Contexts/SocketContext';
 import { UserContext } from '../Contexts/UserContext';
 import useErrorType from '../hooks/useErrorType';
-import ErrorOverlay from '../components/ErrorOverlay';
 import type { exportUserContextTypes } from '../Contexts/UserContext';
 import type { standardDbResponse } from '../interfaces/dbResponsesInterface';
 import type { Socket } from 'socket.io-client';
@@ -75,7 +74,7 @@ const LoginForm = () => {
         />
         <button onClick={handleSubmit(onSubmit)}>Submit</button>
       </form>
-      {error !== null && <ErrorOverlay error={error} />}
+      {error}
     </>
   );
 };

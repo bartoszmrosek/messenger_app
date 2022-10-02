@@ -2,7 +2,6 @@ import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import React, { useContext, useEffect, useState } from 'react';
 import { SocketContext } from '../Contexts/SocketContext';
 import { standardDbResponse } from '../interfaces/dbResponsesInterface';
-import ErrorOverlay from '../components/ErrorOverlay';
 import useErrorType from '../hooks/useErrorType';
 
 import type { Socket } from 'socket.io-client';
@@ -11,6 +10,7 @@ import type {
   ClientToServerEvents,
 } from '../interfaces/socketContextInterfaces';
 import InputForm from '../components/InputForm';
+import AnimatedBlobs from '../components/AnimatedBlobs';
 
 interface userInput {
   username: string;
@@ -76,20 +76,10 @@ const RegisterUserForm = () => {
   });
 
   return (
-    <div className=" flex items-center justify-center h-screen w-screen absolute inset-0">
-      <span className="relative h-full w-full overflow-hidden ">
-        <span
-          className="wobbly rounded-full bg-main-purple absolute
-         h-[40rem] w-[40rem] translate-x-[-62%] translate-y-[-62%] lg:translate-x-[-50%] lg:translate-y-[-50%] animate-wobble0 ease-wobble
-           duration-4000"
-        ></span>
-        <span
-          className="wobbly rounded-full bg-main-purple absolute
-         h-[40rem] w-[40rem] bottom-0 right-0 animate-wobble1 translate-x-[62%] translate-y-[62%] lg:translate-x-[50%] lg:translate-y-[50%] ease-wobble
-          duration-4000"
-        ></span>
-      </span>
-      <form className="grid text-center gap-5 z-0 absolute font-medium">
+    <div className="flex items-center justify-center h-screen w-screen absolute inset-0">
+      <AnimatedBlobs />
+      <form className="grid text-center gap-5 z-0 absolute font-medium px-12 py-8 md:px-16 md:py-12 lg:px-20 lg:py-16 border-2 border-gray-500/50 rounded-2xl">
+        <p className="mb-5 font-bold text-2xl text-center">Registration</p>
         <Controller
           name="username"
           control={control}
@@ -147,7 +137,7 @@ const RegisterUserForm = () => {
         />
         <button onClick={handleSubmit(onSubmit)}>Submit</button>
         {isSubmitSuccessfull && <p>Submit succesfull</p>}
-        {error !== null && <ErrorOverlay error={error} />}
+        {error}
       </form>
     </div>
   );

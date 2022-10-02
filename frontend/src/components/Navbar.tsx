@@ -53,7 +53,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="z-10 fixed w-screen">
+    <nav className="z-10 fixed w-screen mb-5">
       <section className="grid grid-cols-2 grid-rows-2 gap-3 items-center justify-end md:flex md:flex-row m-5 font-semibold text-[#371965] text-center">
         <NavLink
           to="Register"

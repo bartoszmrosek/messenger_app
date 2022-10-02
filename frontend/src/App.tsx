@@ -70,7 +70,7 @@ const App = () => {
   }, []);
 
   return (
-    <div className="h-screen bg-[#EBECED]">
+    <div className="h-screen bg-porcelain min-h-min">
       <div className="absolute inset-0">
         <Navbar />
         <Routes>

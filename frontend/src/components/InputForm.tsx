@@ -16,7 +16,6 @@ const InputForm = memo(
         switch (error.type) {
           case 'required':
             return 'Field is required';
-            break;
           case 'pattern':
             return 'Email is invalid';
         }
