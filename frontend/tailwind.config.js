@@ -8,8 +8,9 @@ module.exports = {
   theme: {
     extend: {
       animation:{
-        wobble0: 'wobble0 15s linear infinite',
-        wobble1: 'wobble1 15s linear infinite',  
+        'wobble0': 'wobble0 15s linear infinite',
+        'wobble1': 'wobble1 15s linear infinite',
+        'appearing-error': 'appearing-error 1s ease-in-out'
       },
       keyframes:{
         'wobble0': {
@@ -20,6 +21,10 @@ module.exports = {
           '0%': {"transform": 'rotate(0deg) translate-x-[0%] translate-y-[0%]'},
           '100%': {"transform": 'rotate(360deg) translate-x-[0%] translate-y-[0%]'}
         },
+        'appearing-error':{
+          '0%': {'opacity': '0'},
+          '100%':{'opacity': '1'}
+        }
       },
       transitionDuration:{
         '4000': '4000ms'

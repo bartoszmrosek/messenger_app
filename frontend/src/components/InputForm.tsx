@@ -11,16 +11,12 @@ export interface InputFormInterface {
 
 const InputForm = memo(
   ({ value, onChange, error, type, inputName }: InputFormInterface) => {
-    const errorMessage = (error: FieldError | undefined) => {
-      if (error !== undefined) {
-        switch (error.type) {
-          case 'required':
-            return 'Field is required';
-          case 'pattern':
-            return 'Email is invalid';
-        }
-      } else {
-        return inputName.charAt(0).toUpperCase() + inputName.slice(1);
+    const errorMessage = (error: FieldError) => {
+      switch (error.type) {
+        case 'required':
+          return 'Field is required';
+        case 'pattern':
+          return 'Email is invalid';
       }
     };
     return (
@@ -53,8 +49,16 @@ const InputForm = memo(
            peer-focus:scale-[85%] peer-focus:translate-x-[-12.5%] peer-focus:translate-y-[-100%]
             bg-white rounded-full peer-focus:px-1 peer-autofill:bg-[#E8F0FE]`}
         >
-          {errorMessage(error)}
+          {inputName.charAt(0).toUpperCase() + inputName.slice(1)}
         </span>
+        {error && (
+          <span
+            className="transition-all duration-500 absolute text-red-600 scale-75
+           -bottom-3 -right-2 bg-white rounded-md animate-appearing-error"
+          >
+            {errorMessage(error)}
+          </span>
+        )}
       </label>
     );
   },
