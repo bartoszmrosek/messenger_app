@@ -12,7 +12,6 @@ while also being nice to look at and great with usability.
 - React router
 - React hook form
 - Tailwind CSS
-- Framer motion
 
 ### Backend:
 
