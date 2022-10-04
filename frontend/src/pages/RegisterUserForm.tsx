@@ -76,11 +76,14 @@ const RegisterUserForm = () => {
   });
 
   useEffect(() => {
-    const resetingFunction = setTimeout(() => {
-      setError(null);
-      setIsSubmitSuccessfull(null);
-      setIsLoading(null);
-    }, 5000);
+    const resetingFunction = setTimeout(
+      () => {
+        setError(null);
+        setIsSubmitSuccessfull(null);
+        setIsLoading(null);
+      },
+      error ? 7500 : 5000,
+    );
     return () => {
       clearTimeout(resetingFunction);
     };

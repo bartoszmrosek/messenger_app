@@ -72,7 +72,7 @@ const Navbar = () => {
           <form onSubmit={handleSearchSubmit}>
             <input
               className="transition duration-1000 p-2 md:p-3 rounded-full focus:outline-none focus:ring
-               focus:ring-main-purple/50 invalid:focus:ring-red-600 border-2 hover:border-main-purple"
+               focus:ring-main-purple/50 invalid:focus:ring-red-600 border-2 hover:border-main-purple invalid:hover:border-red-600"
               type="search"
               name="search-params"
               value={searchParameters}
