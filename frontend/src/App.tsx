@@ -15,11 +15,6 @@ import type {
   ClientToServerEvents,
 } from './interfaces/socketContextInterfaces';
 
-interface mousePositionInterface {
-  x: number | null;
-  y: number | null;
-}
-
 const App = () => {
   const { userInformations, handleNewInformations }: exportUserContextTypes =
     useContext(UserContext);
@@ -72,7 +67,6 @@ const App = () => {
   return (
     <div className="h-screen bg-porcelain min-h-min">
       <div className="absolute inset-0">
-        <Navbar />
         <Routes>
           <Route path="/Register" element={<RegisterUserForm />} />
           <Route path="/Login" element={<LoginForm />} />
@@ -83,6 +77,7 @@ const App = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
           <Route path="/" element={<RegisterUserForm />} />
         </Routes>
+        <Navbar />
       </div>
     </div>
   );
