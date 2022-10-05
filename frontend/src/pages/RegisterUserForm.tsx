@@ -205,9 +205,9 @@ const RegisterUserForm = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen w-screen absolute inset-0">
+    <div className="peer flex items-center justify-center h-screen w-screen absolute inset-0">
       <AnimatedBlobs />
-      <form className="grid text-center gap-5 z-0 absolute font-medium px-10 py-6 md:px-16 md:py-12 lg:px-20 lg:py-16 border-2 border-gray-500/50 rounded-2xl">
+      <form className="grid text-center gap-5 z-0 absolute font-medium px-3 py-6 md:px-16 md:py-12 lg:px-20 lg:py-16 border-2 border-gray-500/50 rounded-2xl">
         <p className="mb-5 font-bold text-2xl text-center text-main-purple">
           Registration
         </p>
