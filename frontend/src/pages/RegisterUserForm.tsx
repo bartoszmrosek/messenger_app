@@ -18,7 +18,11 @@ interface userInput {
   password: string;
 }
 
-const RegisterUserForm = () => {
+const RegisterUserForm = ({
+  setRenderNavOnMobile,
+}: {
+  setRenderNavOnMobile: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
   const { handleSubmit, control } = useForm<userInput>();
@@ -53,27 +57,6 @@ const RegisterUserForm = () => {
         },
       );
   };
-
-  useEffect(() => {
-    const wobblyInterval = setInterval(() => {
-      const wobblyElems = document.querySelectorAll<HTMLElement>('.wobbly');
-      let tl, tr, br, bl;
-      let max = 200,
-        min = 350;
-      wobblyElems.forEach(elem => {
-        tl = Math.floor(Math.random() * (max - min) + min);
-        tr = Math.floor(Math.random() * (max - min) + min);
-        br = Math.floor(Math.random() * (max - min) + min);
-        bl = Math.floor(Math.random() * (max - min) + min);
-
-        let borderRadius = `${tl}px ${tr}px ${br}px ${bl}px `;
-        elem.style.borderRadius = borderRadius;
-      });
-    }, 5000);
-    return () => {
-      clearInterval(wobblyInterval);
-    };
-  });
 
   useEffect(() => {
     const resetingFunction = setTimeout(
@@ -205,7 +188,7 @@ const RegisterUserForm = () => {
   };
 
   return (
-    <div className="peer flex items-center justify-center h-screen w-screen absolute inset-0">
+    <div className="flex items-center justify-center h-screen w-screen absolute inset-0">
       <AnimatedBlobs />
       <form className="grid text-center gap-5 z-0 absolute font-medium px-3 py-6 md:px-16 md:py-12 lg:px-20 lg:py-16 border-2 border-gray-500/50 rounded-2xl">
         <p className="mb-5 font-bold text-2xl text-center text-main-purple">
@@ -224,6 +207,7 @@ const RegisterUserForm = () => {
                 error={error}
                 type="text"
                 inputName="username"
+                setRenderNavOnMobile={setRenderNavOnMobile}
               />
             );
           }}
@@ -245,6 +229,7 @@ const RegisterUserForm = () => {
                 error={error}
                 type="email"
                 inputName="email"
+                setRenderNavOnMobile={setRenderNavOnMobile}
               />
             );
           }}
@@ -262,6 +247,7 @@ const RegisterUserForm = () => {
                 error={error}
                 type="password"
                 inputName="password"
+                setRenderNavOnMobile={setRenderNavOnMobile}
               />
             );
           }}

@@ -6,7 +6,7 @@ import { nanoid } from 'nanoid';
 
 import type { exportUserContextTypes } from '../Contexts/UserContext';
 
-const Navbar = () => {
+const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
   const { userInformations }: exportUserContextTypes = useContext(UserContext);
   const [searchParameters, setSearchParameters] = useState<string>('');
   const navigate = useNavigate();
@@ -53,7 +53,11 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="z-10 fixed w-screen mb-5 peer-focus-within:hidden peer-focus-within:sm:block">
+    <nav
+      className={`z-10 fixed w-screen mb-5 ${
+        !shouldRender && 'hidden md:block'
+      }`}
+    >
       <section className="grid grid-cols-2 grid-rows-2 gap-3 items-center justify-end md:flex md:flex-row m-5 font-semibold text-[#371965] text-center">
         <NavLink
           to="Register"

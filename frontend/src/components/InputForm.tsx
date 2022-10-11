@@ -7,16 +7,34 @@ export interface InputFormInterface {
   error: FieldError | undefined;
   type: 'text' | 'password' | 'email';
   inputName: string;
+  setRenderNavOnMobile?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const InputForm = memo(
-  ({ value, onChange, error, type, inputName }: InputFormInterface) => {
+  ({
+    value,
+    onChange,
+    error,
+    type,
+    inputName,
+    setRenderNavOnMobile,
+  }: InputFormInterface) => {
     const errorMessage = (error: FieldError) => {
       switch (error.type) {
         case 'required':
           return 'Field is required';
         case 'pattern':
           return 'Email is invalid';
+      }
+    };
+    const onFocus = () => {
+      if (setRenderNavOnMobile !== undefined) {
+        setRenderNavOnMobile(false);
+      }
+    };
+    const onBlur = () => {
+      if (setRenderNavOnMobile !== undefined) {
+        setRenderNavOnMobile(true);
       }
     };
     return (
@@ -32,6 +50,8 @@ const InputForm = memo(
           name={inputName}
           onChange={onChange}
           value={value}
+          onFocus={onFocus}
+          onBlur={onBlur}
         />
         <span
           className={`transtion-all duration-500 absolute left-3 top-3

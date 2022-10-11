@@ -1,6 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const AnimatedBlobs = () => {
+  useEffect(() => {
+    const wobblyInterval = setInterval(() => {
+      const wobblyElems = document.querySelectorAll<HTMLElement>('.wobbly');
+      let tl, tr, br, bl;
+      let max = 200,
+        min = 350;
+      wobblyElems.forEach(elem => {
+        tl = Math.floor(Math.random() * (max - min) + min);
+        tr = Math.floor(Math.random() * (max - min) + min);
+        br = Math.floor(Math.random() * (max - min) + min);
+        bl = Math.floor(Math.random() * (max - min) + min);
+
+        let borderRadius = `${tl}px ${tr}px ${br}px ${bl}px `;
+        elem.style.borderRadius = borderRadius;
+      });
+    }, 5000);
+    return () => {
+      clearInterval(wobblyInterval);
+    };
+  });
   return (
     <span className="relative h-full w-full overflow-hidden ">
       <span
