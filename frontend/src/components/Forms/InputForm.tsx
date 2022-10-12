@@ -61,6 +61,7 @@ const InputForm = memo(
                 : 'text-black/50 peer-focus:text-main-purple '
             }
             ${
+              value !== undefined &&
               value.length !== 0 &&
               !error &&
               'scale-[85%] translate-x-[-12.5%] translate-y-[-100%]'

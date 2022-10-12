@@ -10,6 +10,7 @@ import type {
   ServerToClientEvents,
   ClientToServerEvents,
 } from '../interfaces/socketContextInterfaces';
+import AnimatedBlobs from '../components/AnimatedBlobs';
 
 interface userInput {
   email: string;
@@ -56,7 +57,8 @@ const LoginForm = () => {
     );
   };
   return (
-    <>
+    <div className="flex items-center justify-center h-screen w-screen absolute inset-0">
+      <AnimatedBlobs />
       <form>
         <label>Email</label>
         <input
@@ -75,7 +77,7 @@ const LoginForm = () => {
         <button onClick={handleSubmit(onSubmit)}>Submit</button>
       </form>
       {error}
-    </>
+    </div>
   );
 };
 export default LoginForm;
