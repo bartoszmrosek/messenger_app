@@ -7,7 +7,7 @@ import { nanoid } from 'nanoid';
 import type { exportUserContextTypes } from '../Contexts/UserContext';
 
 const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
-  const { userInformations }: exportUserContextTypes = useContext(UserContext);
+  const { user }: exportUserContextTypes = useContext(UserContext);
   const [searchParameters, setSearchParameters] = useState<string>('');
   const navigate = useNavigate();
   const searchRef = useRef<HTMLInputElement>(null);
@@ -32,18 +32,18 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
   };
 
   const shouldRenderUser = () => {
-    if (userInformations !== undefined) {
+    if (user !== undefined) {
       return (
         <li>
-          <h1>Username: {userInformations.username}</h1>
-          <h3>Email: {userInformations.email}</h3>
+          <h1>Username: {user.username}</h1>
+          <h3>Email: {user.email}</h3>
         </li>
       );
     }
   };
 
   const shouldRenderNewListItems = () => {
-    if (userInformations !== undefined) {
+    if (user !== undefined) {
       return (
         <li>
           <NavLink to="Messeges">Messeges</NavLink>

@@ -16,7 +16,7 @@ import type {
 } from './interfaces/socketContextInterfaces';
 
 const App = () => {
-  const { userInformations, handleNewInformations }: exportUserContextTypes =
+  const { user, handleNewInformations }: exportUserContextTypes =
     useContext(UserContext);
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
@@ -27,13 +27,13 @@ const App = () => {
       it reautorizes user if connection is estabilished after losing it
     */
     standardSocket.on('connect', () => {
-      if (userInformations !== undefined) {
+      if (user !== undefined) {
         standardSocket.emit(
           'checkUserLoginData',
           {
             data: {
-              email: userInformations.email,
-              password: userInformations.user_id,
+              email: user.email,
+              password: user.user_id,
             },
           },
           (
@@ -80,7 +80,7 @@ const App = () => {
             path="/Login"
             element={<LoginForm setRenderNavOnMobile={setRenderNavOnMobile} />}
           />
-          {userInformations !== undefined && (
+          {user !== undefined && (
             <Route path="/Messeges" element={<Messeges />} />
           )}
           <Route path="/SearchResults" element={<SearchResultsPage />} />

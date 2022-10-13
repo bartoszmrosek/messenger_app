@@ -38,7 +38,6 @@ const LoginForm = ({
           email: string;
         }>,
       ) => {
-        console.log(error, dbResponse);
         setLoading(true);
         setFormStateResetSwitch(prev => !prev);
         if (error) {

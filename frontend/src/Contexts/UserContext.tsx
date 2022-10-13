@@ -1,8 +1,5 @@
-import React, {
-  FunctionComponent,
-  createContext,
-  useState,
-} from 'react';
+import React, { FunctionComponent, createContext, useState } from 'react';
+import useLocalStorage from '../hooks/useLocalStorage';
 interface UserContextChildren {
   children?: React.ReactNode;
 }
@@ -28,7 +25,7 @@ interface userInformationsInterface {
 }
 
 interface exportUserContextTypes {
-  userInformations?: userInformationsInterface;
+  user?: userInformationsInterface;
   handleNewInformations?: userPropertiesInterface;
   userMessages?: userMessageInterface[];
   getAndSetMessagesFromHistory?: (newMessage: userMessageInterface[]) => void;
@@ -40,12 +37,15 @@ const UserContext = createContext({});
 const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   children,
 }) => {
-  const [userInformations, setUserInformations] =
-    useState<userInformationsInterface>();
   const [userMessages, setUserMessages] = useState<userMessageInterface[]>([]);
+  const [user, setUser] = useLocalStorage('user', null);
 
-  const handleNewInformations: userPropertiesInterface = (user_id, username, email) => {
-    setUserInformations({ user_id, username, email });
+  const handleNewInformations: userPropertiesInterface = (
+    user_id,
+    username,
+    email,
+  ) => {
+    setUser({ user_id, username, email });
   };
 
   const getAndSetMessagesFromHistory = (messages: userMessageInterface[]) => {
@@ -69,7 +69,7 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   return (
     <UserContext.Provider
       value={{
-        userInformations,
+        user,
         handleNewInformations,
         userMessages,
         getAndSetMessagesFromHistory,
@@ -81,4 +81,7 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   );
 };
 export { UserContextProvider, UserContext };
-export type { userMessageInterface as userMessagesTypes, exportUserContextTypes };
+export type {
+  userMessageInterface as userMessagesTypes,
+  exportUserContextTypes,
+};
