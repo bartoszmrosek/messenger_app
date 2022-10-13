@@ -7,7 +7,7 @@ import SvgIcons from '../../components/SvgIcons';
 export interface userInput {
   username: string;
   email: string;
-  password: string;
+  password?: string;
 }
 
 export type mainSubmit = (

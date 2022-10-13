@@ -1,8 +1,6 @@
 import React, { useContext } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
 import { SocketContext } from '../Contexts/SocketContext';
 import { UserContext } from '../Contexts/UserContext';
-import useErrorType from '../hooks/useErrorType';
 import type { exportUserContextTypes } from '../Contexts/UserContext';
 import type { standardDbResponse } from '../interfaces/dbResponsesInterface';
 import type { Socket } from 'socket.io-client';
@@ -11,20 +9,24 @@ import type {
   ClientToServerEvents,
 } from '../interfaces/socketContextInterfaces';
 import AnimatedBlobs from '../components/AnimatedBlobs';
+import FormTemplate, { mainSubmit } from '../components/Forms/FormTemplate';
 
-interface userInput {
-  email: string;
-  password: string;
-}
-
-const LoginForm = () => {
+const LoginForm = ({
+  setRenderNavOnMobile,
+}: {
+  setRenderNavOnMobile: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
   const userSetter: exportUserContextTypes = useContext(UserContext);
-  const { register, handleSubmit } = useForm<userInput>();
-  const [error, setError] = useErrorType();
 
-  const onSubmit: SubmitHandler<userInput> = data => {
+  const onSubmit: mainSubmit = (
+    data,
+    setLoading,
+    setFormStateResetSwitch,
+    setError,
+    setSuccess,
+  ) => {
     standardSocket.timeout(10000).emit(
       'checkUserLoginData',
       { data },
@@ -36,11 +38,17 @@ const LoginForm = () => {
           email: string;
         }>,
       ) => {
+        console.log(error, dbResponse);
+        setLoading(true);
+        setFormStateResetSwitch(prev => !prev);
         if (error) {
+          setLoading(false);
           setError(error);
         } else {
+          setLoading(false);
           if (dbResponse.type === 'confirm') {
             setError(null);
+            setSuccess(true);
             const { payload } = dbResponse;
             if (userSetter.handleNewInformations !== undefined) {
               userSetter.handleNewInformations(
@@ -50,6 +58,7 @@ const LoginForm = () => {
               );
             }
           } else {
+            setSuccess(false);
             setError(dbResponse.payload);
           }
         }
@@ -59,24 +68,27 @@ const LoginForm = () => {
   return (
     <div className="flex items-center justify-center h-screen w-screen absolute inset-0">
       <AnimatedBlobs />
-      <form>
-        <label>Email</label>
-        <input
-          type="email"
-          {...register('email', { required: 'email is required' })}
-          name="email"
-          placeholder="email"
-        />
-        <label>Password:</label>
-        <input
-          type="password"
-          {...register('password', { required: 'password is required' })}
-          name="password"
-          placeholder="password"
-        />
-        <button onClick={handleSubmit(onSubmit)}>Submit</button>
-      </form>
-      {error}
+      <FormTemplate
+        title="Login"
+        setRenderNavOnMobile={setRenderNavOnMobile}
+        mainSubmitHandler={onSubmit}
+        renderedInputs={[
+          {
+            name: 'email',
+            type: 'email',
+            rules: {
+              required: true,
+            },
+          },
+          {
+            name: 'password',
+            type: 'password',
+            rules: {
+              required: true,
+            },
+          },
+        ]}
+      />
     </div>
   );
 };

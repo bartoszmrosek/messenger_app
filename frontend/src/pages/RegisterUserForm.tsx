@@ -1,8 +1,6 @@
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { SocketContext } from '../Contexts/SocketContext';
 import { standardDbResponse } from '../interfaces/dbResponsesInterface';
-import useErrorType from '../hooks/useErrorType';
 
 import type { Socket } from 'socket.io-client';
 import type {
