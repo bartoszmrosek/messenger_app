@@ -27,7 +27,7 @@ const App = () => {
       it reautorizes user if connection is estabilished after losing it
     */
     standardSocket.on('connect', () => {
-      if (user !== undefined) {
+      if (user !== undefined && user !== null) {
         standardSocket.emit(
           'checkUserLoginData',
           {

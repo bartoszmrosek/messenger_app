@@ -32,7 +32,7 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
   };
 
   const shouldRenderUser = () => {
-    if (user !== undefined) {
+    if (user !== undefined && user !== null) {
       return (
         <li>
           <h1>Username: {user.username}</h1>
@@ -43,7 +43,7 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
   };
 
   const shouldRenderNewListItems = () => {
-    if (user !== undefined) {
+    if (user !== undefined && user !== null) {
       return (
         <li>
           <NavLink to="Messeges">Messeges</NavLink>

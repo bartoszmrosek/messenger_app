@@ -27,6 +27,7 @@ const LoginForm = ({
     setError,
     setSuccess,
   ) => {
+    setLoading(true);
     standardSocket.timeout(10000).emit(
       'checkUserLoginData',
       { data },
@@ -38,7 +39,6 @@ const LoginForm = ({
           email: string;
         }>,
       ) => {
-        setLoading(true);
         setFormStateResetSwitch(prev => !prev);
         if (error) {
           setLoading(false);
