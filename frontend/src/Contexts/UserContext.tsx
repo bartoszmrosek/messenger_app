@@ -8,7 +8,7 @@ interface userPropertiesInterface {
   (user_id: number, username: string, email: string, password?: string): void;
 }
 
-interface userMessageInterface {
+export interface userMessageInterface {
   message_id: number;
   username: string;
   message: string;
@@ -24,9 +24,10 @@ interface userInformationsInterface {
   email: string;
 }
 
-interface exportUserContextTypes {
+export interface UserContextExports {
   user?: userInformationsInterface;
-  handleNewInformations?: userPropertiesInterface;
+  removeUser?: () => void;
+  loginUser?: userPropertiesInterface;
   userMessages?: userMessageInterface[];
   getAndSetMessagesFromHistory?: (newMessage: userMessageInterface[]) => void;
   handleNewMessage?: (messages: unknown) => void;
@@ -38,13 +39,9 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   children,
 }) => {
   const [userMessages, setUserMessages] = useState<userMessageInterface[]>([]);
-  const [user, setUser] = useLocalStorage('user', null);
+  const [user, setUser, removeUser] = useLocalStorage('user', null);
 
-  const handleNewInformations: userPropertiesInterface = (
-    user_id,
-    username,
-    email,
-  ) => {
+  const loginUser: userPropertiesInterface = (user_id, username, email) => {
     setUser({ user_id, username, email });
   };
 
@@ -70,7 +67,8 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
     <UserContext.Provider
       value={{
         user,
-        handleNewInformations,
+        removeUser,
+        loginUser,
         userMessages,
         getAndSetMessagesFromHistory,
         handleNewMessage,
@@ -81,7 +79,3 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   );
 };
 export { UserContextProvider, UserContext };
-export type {
-  userMessageInterface as userMessagesTypes,
-  exportUserContextTypes,
-};

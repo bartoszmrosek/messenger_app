@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { SocketContext } from '../Contexts/SocketContext';
 import { UserContext } from '../Contexts/UserContext';
-import type { exportUserContextTypes } from '../Contexts/UserContext';
+import { UserContextExports } from '../Contexts/UserContext';
 import type { standardDbResponse } from '../interfaces/dbResponsesInterface';
 import type { Socket } from 'socket.io-client';
 import type {
@@ -18,7 +18,7 @@ const LoginForm = ({
 }) => {
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
-  const userSetter: exportUserContextTypes = useContext(UserContext);
+  const userSetter: UserContextExports = useContext(UserContext);
 
   const onSubmit: mainSubmit = (
     data,
@@ -49,8 +49,8 @@ const LoginForm = ({
             setError(null);
             setSuccess(true);
             const { payload } = dbResponse;
-            if (userSetter.handleNewInformations !== undefined) {
-              userSetter.handleNewInformations(
+            if (userSetter.loginUser !== undefined) {
+              userSetter.loginUser(
                 payload.user_id,
                 payload.username,
                 payload.email,
