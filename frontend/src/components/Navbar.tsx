@@ -58,7 +58,11 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
         !shouldRender && 'hidden md:block'
       }`}
     >
-      <section className="grid grid-cols-2 grid-rows-2 gap-3 items-center justify-end md:flex md:flex-row m-5 font-semibold text-[#371965] text-center">
+      <section
+        className="grid grid-cols-2 grid-rows-2 gap-3 items-center
+       justify-end md:flex md:flex-row m-5 font-semibold text-[#371965]
+        text-center"
+      >
         <NavLink
           to="Register"
           className="transition duration-1000 p-1 md:p-2 rounded-2xl bg-[#EBECED] border-4
@@ -87,8 +91,8 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
           </form>
         </div>
       </section>
-      {shouldRenderNewListItems()}
       {shouldRenderUser()}
+      {shouldRenderNewListItems()}
     </nav>
   );
 };
