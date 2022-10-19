@@ -1,13 +1,19 @@
 import { NavLink } from 'react-router-dom';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { UserContext } from '../Contexts/UserContext';
+import { UserContext, UserContextExports } from '../Contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { nanoid } from 'nanoid';
-
-import type { exportUserContextTypes } from '../Contexts/UserContext';
+import { SocketContext } from '../Contexts/SocketContext';
+import { Socket } from 'socket.io-client';
+import {
+  ServerToClientEvents,
+  ClientToServerEvents,
+} from '../interfaces/socketContextInterfaces';
 
 const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
-  const { userInformations }: exportUserContextTypes = useContext(UserContext);
+  const { user, removeUser }: UserContextExports = useContext(UserContext);
+  const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
+    useContext(SocketContext);
   const [searchParameters, setSearchParameters] = useState<string>('');
   const navigate = useNavigate();
   const searchRef = useRef<HTMLInputElement>(null);
@@ -32,23 +38,30 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
   };
 
   const shouldRenderUser = () => {
-    if (userInformations !== undefined) {
+    if (user !== undefined && user !== null) {
       return (
         <li>
-          <h1>Username: {userInformations.username}</h1>
-          <h3>Email: {userInformations.email}</h3>
+          <h1>Username: {user.username}</h1>
+          <h3>Email: {user.email}</h3>
         </li>
       );
     }
   };
 
   const shouldRenderNewListItems = () => {
-    if (userInformations !== undefined) {
+    if (user !== undefined && user !== null) {
       return (
         <li>
           <NavLink to="Messeges">Messeges</NavLink>
         </li>
       );
+    }
+  };
+
+  const logoutUser = () => {
+    if (user !== null && standardSocket.id !== null) {
+      standardSocket.emit('logoutUser', { userId: user?.user_id });
+      if (removeUser !== undefined) removeUser();
     }
   };
 
@@ -58,7 +71,11 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
         !shouldRender && 'hidden md:block'
       }`}
     >
-      <section className="grid grid-cols-2 grid-rows-2 gap-3 items-center justify-end md:flex md:flex-row m-5 font-semibold text-[#371965] text-center">
+      <section
+        className="grid grid-cols-2 grid-rows-2 gap-3 items-center
+       justify-end md:flex md:flex-row m-5 font-semibold text-[#371965]
+        text-center"
+      >
         <NavLink
           to="Register"
           className="transition duration-1000 p-1 md:p-2 rounded-2xl bg-[#EBECED] border-4
@@ -66,12 +83,21 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
         >
           Register
         </NavLink>
-        <NavLink
-          to="Login"
-          className="transition duration-1000 p-1 md:p-2 rounded-2xl border-4 border-[#ad79fd] hover:border-green-400 w-3/5 md:min-w-[6rem] md:w-[10%] lg:w-[6%] justify-self-center md:order-last"
-        >
-          Login
-        </NavLink>
+        {!user ? (
+          <NavLink
+            to="Login"
+            className="transition duration-1000 p-1 md:p-2 rounded-2xl border-4 border-[#ad79fd] hover:border-green-400 w-3/5 md:min-w-[6rem] md:w-[10%] lg:w-[6%] justify-self-center md:order-last"
+          >
+            Login
+          </NavLink>
+        ) : (
+          <button
+            className="transition duration-1000 p-1 md:p-2 rounded-2xl border-4 border-[#ad79fd] hover:border-green-400 w-3/5 md:min-w-[6rem] md:w-[10%] lg:w-[6%] justify-self-center md:order-last"
+            onClick={logoutUser}
+          >
+            Logout
+          </button>
+        )}
         <div className="col-span-2">
           <form onSubmit={handleSearchSubmit}>
             <input
@@ -87,8 +113,8 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
           </form>
         </div>
       </section>
-      {shouldRenderNewListItems()}
       {shouldRenderUser()}
+      {shouldRenderNewListItems()}
     </nav>
   );
 };

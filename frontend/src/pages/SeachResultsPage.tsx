@@ -22,7 +22,7 @@ interface UserInformations {
 const SearchResultsPage = () => {
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
-  const { userInformations, handleNewMessage }: exportUserContextTypes =
+  const { user, handleNewMessage }: exportUserContextTypes =
     useContext(UserContext);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
@@ -33,12 +33,12 @@ const SearchResultsPage = () => {
   const [error, setError] = useErrorType();
 
   const handleClick = (userInfo: UserInformations) => {
-    if (handleNewMessage !== undefined) {
+    if (handleNewMessage !== undefined && user !== null) {
       handleNewMessage({
         message_id: nanoid(),
         username: userInfo.username,
         message: null,
-        sender_user_id: userInformations?.user_id,
+        sender_user_id: user?.user_id,
         reciever_user_id: userInfo.user_id,
         is_read: null,
         created_at: null,
@@ -71,7 +71,7 @@ const SearchResultsPage = () => {
                 return (
                   <section key={element.user_id}>
                     <h1>{element.username}</h1>
-                    {userInformations !== undefined && (
+                    {user !== undefined && user !== null && (
                       <button onClick={() => handleClick(element)}>
                         Send message
                       </button>

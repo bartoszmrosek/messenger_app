@@ -35,10 +35,22 @@ const checkIsUserConnected = (
   }
 };
 
+const logoutUser = (userId: number, socketId: string) => {
+  currentlyConnectedUsers = currentlyConnectedUsers.filter(user => {
+    return user.socketId !== socketId && user.userId !== userId;
+  });
+};
+
 const disconnectUser = (socketId: string) => {
   currentlyConnectedUsers = currentlyConnectedUsers.filter(user => {
     return user.socketId !== socketId;
   });
 };
 
-export { connectUser, isUserAuthorized, checkIsUserConnected, disconnectUser };
+export {
+  connectUser,
+  isUserAuthorized,
+  checkIsUserConnected,
+  logoutUser,
+  disconnectUser,
+};

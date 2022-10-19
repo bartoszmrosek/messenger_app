@@ -5,7 +5,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
-import { isUserAuthorized, disconnectUser } from './users';
+import { isUserAuthorized, disconnectUser, logoutUser } from './users';
 
 import checkOrCreateUser from './utils/checkOrCreateUser';
 import checkUserLoginData from './utils/checkUserLoginData';
@@ -76,6 +76,10 @@ io.on('connection', socket => {
           });
       },
     );
+
+    socket.on('logoutUser', (userId: number) => {
+      logoutUser(userId, socket.id);
+    });
 
     socket.on('disconnect', () => {
       disconnectUser(socket.id);

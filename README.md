@@ -1,4 +1,3 @@
-# DISCLAIMER THIS IS PRODUCTION BRANCH
 # Real-time chat app
 
 The purpose of this application is simply to learn and create better fullstack applications.

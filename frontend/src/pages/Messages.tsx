@@ -31,7 +31,7 @@ interface newMessage {
 
 const Messeges = () => {
   const {
-    userInformations,
+    user,
     userMessages,
     getAndSetMessagesFromHistory,
     handleNewMessage,
@@ -46,15 +46,14 @@ const Messeges = () => {
   const [error, setError] = useErrorType();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
-  
 
   useEffect(() => {
-    if (userInformations?.user_id !== undefined) {
+    if (user?.user_id !== undefined) {
       standardSocket
         .timeout(10000)
         .emit(
           'checkUserHistory',
-          userInformations.user_id,
+          user.user_id,
           (
             connectionError: unknown,
             response: standardDbResponse<userMessagesTypes[]>,
@@ -92,7 +91,7 @@ const Messeges = () => {
     if (userMessages !== undefined) {
       const uniqueUsers = userMessages.filter(element => {
         const isDuplicate = uniqueUser.includes(element.username);
-        if (userInformations?.username !== element.username) {
+        if (user?.username !== element.username) {
           if (!isDuplicate) {
             uniqueUser.push(element.username);
             return true;
@@ -131,9 +130,9 @@ const Messeges = () => {
     return messages.filter(message => {
       if (
         (activeChat === message.sender_user_id &&
-          userInformations?.user_id === message.reciever_user_id) ||
+          user?.user_id === message.reciever_user_id) ||
         (activeChat === message.reciever_user_id &&
-          userInformations?.user_id === message.sender_user_id)
+          user?.user_id === message.sender_user_id)
       ) {
         return message;
       }
@@ -150,10 +149,10 @@ const Messeges = () => {
       standardSocket.timeout(10000).emit(
         'newMessageToServer',
         {
-          user_id: userInformations?.user_id,
-          username: userInformations?.username,
+          user_id: user?.user_id,
+          username: user?.username,
           message: newMessageValue,
-          sender_user_id: userInformations?.user_id,
+          sender_user_id: user?.user_id,
           reciever_user_id: activeChat,
           is_read: false,
           created_at: `${date.toISOString()}`,
@@ -179,10 +178,10 @@ const Messeges = () => {
       );
       if (handleNewMessage !== undefined) {
         handleNewMessage({
-          user_id: userInformations?.user_id,
-          username: userInformations?.username,
+          user_id: user?.user_id,
+          username: user?.username,
           message: newMessageValue,
-          sender_user_id: userInformations?.user_id,
+          sender_user_id: user?.user_id,
           reciever_user_id: activeChat,
           isRead: false,
           created_at: `${date.toISOString()}`,
@@ -193,7 +192,7 @@ const Messeges = () => {
   };
 
   const userToSendMessageTo = (userNode: userMessagesTypes): number => {
-    if (userInformations?.user_id === userNode.reciever_user_id) {
+    if (user?.user_id === userNode.reciever_user_id) {
       return userNode.sender_user_id;
     } else {
       return userNode.reciever_user_id;

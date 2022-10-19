@@ -1,8 +1,5 @@
-import React, {
-  FunctionComponent,
-  createContext,
-  useState,
-} from 'react';
+import React, { FunctionComponent, createContext, useState } from 'react';
+import useLocalStorage from '../hooks/useLocalStorage';
 interface UserContextChildren {
   children?: React.ReactNode;
 }
@@ -11,7 +8,7 @@ interface userPropertiesInterface {
   (user_id: number, username: string, email: string, password?: string): void;
 }
 
-interface userMessageInterface {
+export interface userMessageInterface {
   message_id: number;
   username: string;
   message: string;
@@ -27,9 +24,10 @@ interface userInformationsInterface {
   email: string;
 }
 
-interface exportUserContextTypes {
-  userInformations?: userInformationsInterface;
-  handleNewInformations?: userPropertiesInterface;
+export interface UserContextExports {
+  user?: userInformationsInterface;
+  removeUser?: () => void;
+  loginUser?: userPropertiesInterface;
   userMessages?: userMessageInterface[];
   getAndSetMessagesFromHistory?: (newMessage: userMessageInterface[]) => void;
   handleNewMessage?: (messages: unknown) => void;
@@ -40,12 +38,11 @@ const UserContext = createContext({});
 const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   children,
 }) => {
-  const [userInformations, setUserInformations] =
-    useState<userInformationsInterface>();
   const [userMessages, setUserMessages] = useState<userMessageInterface[]>([]);
+  const [user, setUser, removeUser] = useLocalStorage('user', null);
 
-  const handleNewInformations: userPropertiesInterface = (user_id, username, email) => {
-    setUserInformations({ user_id, username, email });
+  const loginUser: userPropertiesInterface = (user_id, username, email) => {
+    setUser({ user_id, username, email });
   };
 
   const getAndSetMessagesFromHistory = (messages: userMessageInterface[]) => {
@@ -69,8 +66,9 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   return (
     <UserContext.Provider
       value={{
-        userInformations,
-        handleNewInformations,
+        user,
+        removeUser,
+        loginUser,
         userMessages,
         getAndSetMessagesFromHistory,
         handleNewMessage,
@@ -81,4 +79,3 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   );
 };
 export { UserContextProvider, UserContext };
-export type { userMessageInterface as userMessagesTypes, exportUserContextTypes };

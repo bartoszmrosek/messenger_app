@@ -16,24 +16,24 @@ import type {
 } from './interfaces/socketContextInterfaces';
 
 const App = () => {
-  const { userInformations, handleNewInformations }: exportUserContextTypes =
+  const { user, handleNewInformations }: exportUserContextTypes =
     useContext(UserContext);
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
-    const [renderNavOnMobile, setRenderNavOnMobile] = useState<boolean>(true);
+  const [renderNavOnMobile, setRenderNavOnMobile] = useState<boolean>(true);
   useEffect(() => {
     /* 
       This doesn't explain itself well, so i thought about writing this comment,
       it reautorizes user if connection is estabilished after losing it
     */
     standardSocket.on('connect', () => {
-      if (userInformations !== undefined) {
+      if (user !== undefined && user !== null) {
         standardSocket.emit(
           'checkUserLoginData',
           {
             data: {
-              email: userInformations.email,
-              password: userInformations.user_id,
+              email: user.email,
+              password: user.user_id,
             },
           },
           (
@@ -68,16 +68,29 @@ const App = () => {
   return (
     <div className="h-screen bg-porcelain min-h-min">
       <div className="absolute inset-0">
-        <Navbar shouldRender={renderNavOnMobile}/>
+        <Navbar shouldRender={renderNavOnMobile} />
         <Routes>
-          <Route path="/Register" element={<RegisterUserForm setRenderNavOnMobile={setRenderNavOnMobile}/>} />
-          <Route path="/Login" element={<LoginForm />} />
-          {userInformations !== undefined && (
+          <Route
+            path="/Register"
+            element={
+              <RegisterUserForm setRenderNavOnMobile={setRenderNavOnMobile} />
+            }
+          />
+          <Route
+            path="/Login"
+            element={<LoginForm setRenderNavOnMobile={setRenderNavOnMobile} />}
+          />
+          {user !== undefined && (
             <Route path="/Messeges" element={<Messeges />} />
           )}
           <Route path="/SearchResults" element={<SearchResultsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
-          <Route path="/" element={<RegisterUserForm setRenderNavOnMobile={setRenderNavOnMobile} />} />
+          <Route
+            path="/"
+            element={
+              <RegisterUserForm setRenderNavOnMobile={setRenderNavOnMobile} />
+            }
+          />
         </Routes>
       </div>
     </div>
