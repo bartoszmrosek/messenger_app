@@ -91,7 +91,7 @@ export class DbQueries {
             'INSERT INTO user_accounts(username, email, password) VALUES(?, ?, ?)',
             [newUserData.username, newUserData.email, newUserData.password],
             err => {
-              if (err.errno === 1062) reject(1);
+              if (err !== null && err.errno === 1062) reject(1);
               if (err) reject(err);
               resolve(null);
             },

@@ -56,6 +56,7 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
     if (user !== null && standardSocket.id !== null) {
       standardSocket.emit('logoutUser', { userId: user?.user_id });
       if (removeUser !== undefined) removeUser();
+      setIsRenderedMobileSearch(null);
       navigate('/Login');
     }
   };
