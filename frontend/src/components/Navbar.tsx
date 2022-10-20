@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation, useSearchParams } from 'react-router-dom';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { UserContext, UserContextExports } from '../Contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
@@ -17,8 +17,9 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
   const { user, removeUser }: UserContextExports = useContext(UserContext);
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
-  const [searchParameters, setSearchParameters] = useState<string>('');
+  const [searchInput, setSearchInput] = useState<string>('');
   const navigate = useNavigate();
+  const location = useLocation();
   const searchRef = useRef<HTMLInputElement>(null);
   const media = useMedia();
   const [isRenderedMobileSearch, setIsRenderedMobileSearch] = useState<
@@ -27,23 +28,25 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
 
   useEffect(() => {
     searchRef.current?.setCustomValidity('');
-  }, [searchParameters]);
+  }, [searchInput]);
 
   useEffect(() => {
     setIsRenderedMobileSearch(null);
   }, [media]);
 
-  const handleChange = (
+  const handleSearchChange = (
     inputValue: React.FormEvent<HTMLInputElement>,
   ): void => {
-    setSearchParameters(inputValue.currentTarget.value);
+    setSearchInput(inputValue.currentTarget.value);
   };
 
   const handleSearchSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
     setIsRenderedMobileSearch(false);
-    if (searchParameters.length > 0) {
-      navigate('/SearchResults', { state: { searchParameters, id: nanoid() } });
+    if (searchInput.length > 0) {
+      navigate(`/SearchResults/?username=${encodeURIComponent(searchInput)}`, {
+        state: { searchInput, id: nanoid() },
+      });
     } else {
       searchRef.current?.setCustomValidity('Cannot be empty');
     }
@@ -59,9 +62,11 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
 
   const shouldRenderUser = () => {
     if (user !== undefined && user !== null && media !== 'sm') {
+      const fillingColor =
+        location.pathname === '/SearchResults/' ? 'main-purple' : 'porcelain';
       return (
-        <section className="flex flex-row lg:text-porcelain">
-          <SvgIcons type="user" className="w-20 h-20 fill-porcelain" />
+        <section className={`flex flex-row text-${fillingColor}`}>
+          <SvgIcons type="user" className={`w-20 h-20 fill-${fillingColor}`} />
           <section className="flex flex-col justify-center items-start">
             <h1>{user.username}</h1>
             <h3>{user.email}</h3>
@@ -139,8 +144,8 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
                focus:ring-main-purple/50 invalid:focus:ring-red-600 border-2 hover:border-main-purple invalid:hover:border-red-600"
                     type="search"
                     name="search-params"
-                    value={searchParameters}
-                    onChange={handleChange}
+                    value={searchInput}
+                    onChange={handleSearchChange}
                     placeholder="Search"
                     ref={searchRef}
                   />
@@ -177,8 +182,8 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
       </div>
       {media === 'sm' && (
         <SearchOverlay
-          handleChange={handleChange}
-          searchParameters={searchParameters}
+          handleChange={handleSearchChange}
+          searchParameters={searchInput}
           searchRef={searchRef}
           handleSearchSubmit={handleSearchSubmit}
           isRenderedMobile={isRenderedMobileSearch}

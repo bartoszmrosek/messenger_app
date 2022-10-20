@@ -40,9 +40,9 @@ const RegisterUserForm = ({
           } else {
             if (dbResponse.type === 'confirm') {
               setError(null);
-              setSuccess(true);
+              setSuccess('Registered!');
             } else {
-              setSuccess(false);
+              setSuccess(null);
               setError(dbResponse.payload);
             }
           }

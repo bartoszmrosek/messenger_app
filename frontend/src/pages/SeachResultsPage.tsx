@@ -1,15 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { nanoid } from 'nanoid';
 
 import { SocketContext } from '../Contexts/SocketContext';
 import { UserContext } from '../Contexts/UserContext';
 import useErrorType from '../hooks/useErrorType';
 
-import type { exportUserContextTypes } from '../Contexts/UserContext';
-import type { standardDbResponse } from '../interfaces/dbResponsesInterface';
-import type { Socket } from 'socket.io-client';
-import type {
+import { UserContextExports } from '../Contexts/UserContext';
+import { standardDbResponse } from '../interfaces/dbResponsesInterface';
+import { Socket } from 'socket.io-client';
+import {
   ServerToClientEvents,
   ClientToServerEvents,
 } from '../interfaces/socketContextInterfaces';
@@ -22,11 +22,11 @@ interface UserInformations {
 const SearchResultsPage = () => {
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
-  const { user, handleNewMessage }: exportUserContextTypes =
+  const { user, handleNewMessage }: UserContextExports =
     useContext(UserContext);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { state }: any = useLocation();
-  const [renderedResults, setRenderedResults] = useState<
+  const [searchParams] = useSearchParams();
+  const [renderedUsers, setRenderedUsers] = useState<
     string | React.ReactNode
   >();
   const navigate = useNavigate();
@@ -48,48 +48,53 @@ const SearchResultsPage = () => {
   };
 
   useEffect(() => {
-    standardSocket
-      .timeout(10000)
-      .emit(
-        'searchUser',
-        state.searchParameters,
-        (
-          resError: unknown,
-          dbResponse: standardDbResponse<
-            [{ user_id: number; username: string }] | number
-          >,
-        ) => {
-          if (resError || dbResponse.type === 'error') {
-            resError ? setError(resError) : setError(dbResponse.payload);
-          } else {
-            setError(null);
-            if (
-              Array.isArray(dbResponse.payload) &&
-              dbResponse.payload.length > 0
-            ) {
-              const listOfMatchingUsers = dbResponse.payload.map(element => {
-                return (
-                  <section key={element.user_id}>
-                    <h1>{element.username}</h1>
-                    {user !== undefined && user !== null && (
-                      <button onClick={() => handleClick(element)}>
-                        Send message
-                      </button>
-                    )}
-                  </section>
-                );
-              });
-              setRenderedResults(listOfMatchingUsers);
+    const username = searchParams.get('username');
+    if (user && username && username.length > 0) {
+      standardSocket
+        .timeout(10000)
+        .emit(
+          'searchUser',
+          username,
+          (
+            resError: unknown,
+            dbResponse: standardDbResponse<
+              [{ user_id: number; username: string }] | number
+            >,
+          ) => {
+            if (resError || dbResponse.type === 'error') {
+              resError ? setError(resError) : setError(dbResponse.payload);
             } else {
-              setRenderedResults('Brak wyszukań');
+              setError(null);
+              if (
+                Array.isArray(dbResponse.payload) &&
+                dbResponse.payload.length > 0
+              ) {
+                const listOfMatchingUsers = dbResponse.payload.map(element => {
+                  if (element.username !== user?.username) {
+                    return (
+                      <section key={element.user_id}>
+                        <h1>{element.username}</h1>
+                        {user !== undefined && user !== null && (
+                          <button onClick={() => handleClick(element)}>
+                            Send message
+                          </button>
+                        )}
+                      </section>
+                    );
+                  }
+                });
+                setRenderedUsers(listOfMatchingUsers);
+              } else {
+                setRenderedUsers('Brak wyszukań');
+              }
             }
-          }
-        },
-      );
-  }, [state.id]);
+          },
+        );
+    }
+  }, [searchParams.get('username')]);
   useEffect(() => {
-    setRenderedResults(error);
+    setRenderedUsers(error);
   }, [error]);
-  return <div>{renderedResults}</div>;
+  return <div>{renderedUsers}</div>;
 };
 export default SearchResultsPage;

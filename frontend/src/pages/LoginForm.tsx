@@ -10,7 +10,6 @@ import type {
 } from '../interfaces/socketContextInterfaces';
 import AnimatedBlobs from '../components/AnimatedBlobs';
 import FormTemplate, { mainSubmit } from '../components/Forms/FormTemplate';
-import { useNavigate } from 'react-router-dom';
 
 const LoginForm = ({
   setRenderNavOnMobile,
@@ -48,7 +47,7 @@ const LoginForm = ({
           setLoading(false);
           if (dbResponse.type === 'confirm') {
             setError(null);
-            setSuccess(true);
+            setSuccess('Login successful!');
             const { payload } = dbResponse;
             if (userSetter.loginUser !== undefined) {
               userSetter.loginUser(
@@ -58,7 +57,7 @@ const LoginForm = ({
               );
             }
           } else {
-            setSuccess(false);
+            setSuccess(null);
             setError(dbResponse.payload);
           }
         }
