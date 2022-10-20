@@ -26,6 +26,10 @@ const SearchOverlay = ({
       return 'animate-search-fade-out';
     }
   };
+  const onBlurHandler = () => {
+    setIsRenderedMobile(false);
+    searchRef.current?.blur();
+  };
   return (
     <div
       className={`h-screen w-screen bg-black/30 absolute left-0 bottom-0 flex justify-center items-center translate-y-[-100%] ${shouldAnimate()}`}
@@ -45,7 +49,7 @@ const SearchOverlay = ({
           ref={searchRef}
           //Check for null, js treats null as object
           autoFocus={typeof isRenderedMobile !== 'object'}
-          onBlur={() => setIsRenderedMobile(false)}
+          onBlur={onBlurHandler}
         />
         <button className="w-fit h-full flex justify-center items-center p-2 border-4 rounded-full border-main-purple">
           <SvgIcons type="search" className="fill-main-purple h-6 w-6" />
