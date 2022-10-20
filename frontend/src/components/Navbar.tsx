@@ -40,91 +40,105 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
     }
   };
 
-  const shouldRenderUser = () => {
-    if (user !== undefined && user !== null && media !== 'sm') {
-      return (
-        <li>
-          <h1>Username: {user.username}</h1>
-          <h3>Email: {user.email}</h3>
-        </li>
-      );
-    }
-  };
-
   const logoutUser = () => {
     if (user !== null && standardSocket.id !== null) {
       standardSocket.emit('logoutUser', { userId: user?.user_id });
       if (removeUser !== undefined) removeUser();
+      navigate('/Login');
+    }
+  };
+
+  const shouldRenderUser = () => {
+    if (user !== undefined && user !== null && media !== 'sm') {
+      return (
+        <section className="flex flex-row">
+          <SvgIcons type="user" />
+          <section className="flex flex-col justify-center items-start">
+            <h1>{user.username}</h1>
+            <h3>{user.email}</h3>
+          </section>
+        </section>
+      );
     }
   };
 
   return (
     <nav
-      className={`z-10 fixed bottom-0 md:top-0 w-screen h-fit md:first-letter:mb-5 bg-main-purple md:bg-transparent ${
+      className={`z-10 fixed bottom-0 md:top-0 w-screen h-fit bg-main-purple md:bg-transparent ${
         !shouldRender && 'hidden md:block'
       }`}
     >
       <div
-        className={`grid ${
-          !user ? 'grid-cols-2' : 'grid-cols-3'
-        } grid-rows-1 gap-3 items-center
-       justify-end md:flex md:flex-row m-3 md:m-5 font-semibold text-[#371965]
-        text-center`}
+        className={`gap-3 items-center
+        justify-end ${
+          user && 'md:justify-between'
+        } md:flex md:flex-row text-center`}
       >
-        {!user ? (
-          <>
-            <NavLink
-              to="Register"
-              className="transition duration-1000 p-1 md:p-2 rounded-2xl border-4
-         hover:border-green-400 hover:border-solid hover:border-4 bg-main-purple text-[#EBECED] w-3/5 md:min-w-[6rem] md:w-[10%] lg:w-[6%] justify-self-center md:order-2"
-            >
-              Register
-            </NavLink>
-            <NavLink
-              to="Login"
-              className="transition duration-1000 p-1 md:p-2 rounded-2xl border-4 border-[#ad79fd] bg-porcelain hover:border-green-400 w-3/5 md:min-w-[6rem] md:w-[10%] lg:w-[6%] justify-self-center md:order-last"
-            >
-              Login
-            </NavLink>
-          </>
-        ) : (
-          <>
-            <button
-              className={`${
-                media !== 'sm'
-                  ? 'transition duration-1000 p-1 md:p-2 rounded-2xl border-4 border-[#ad79fd] hover:border-green-400 w-3/5 md:min-w-[6rem] md:w-[10%] lg:w-[6%] justify-self-center md:order-last'
-                  : 'justify-self-center align-middle order-last'
-              }`}
-              onClick={logoutUser}
-            >
-              {media === 'sm' ? <SvgIcons type="logout" /> : 'Logout'}
-            </button>
-            {media !== 'sm' ? (
-              <form onSubmit={handleSearchSubmit}>
-                <input
-                  className="transition duration-1000 p-2 md:p-3 rounded-full focus:outline-none focus:ring
-               focus:ring-main-purple/50 invalid:focus:ring-red-600 border-2 hover:border-main-purple invalid:hover:border-red-600"
-                  type="search"
-                  name="search-params"
-                  value={searchParameters}
-                  onChange={handleChange}
-                  placeholder={'Search'}
-                  ref={searchRef}
-                />
-              </form>
-            ) : (
-              <SvgIcons type="search" />
-            )}
-          </>
-        )}
-        {user &&
-          (media !== 'sm' ? (
-            <NavLink to="Messeges">Messeges</NavLink>
+        {shouldRenderUser()}
+        <section
+          className={`grid ${
+            !user ? 'grid-cols-2' : 'grid-cols-3'
+          } grid-rows-1 gap-5 items-center
+        justify-end md:flex md:flex-row m-3 md:m-5 font-semibold text-[#371965]
+        text-center`}
+        >
+          {!user ? (
+            <>
+              <NavLink
+                to="Register"
+                className="transition duration-1000 p-1 md:p-2 rounded-2xl border-4
+         hover:border-green-400 hover:border-solid hover:border-4 bg-main-purple text-porcelain w-3/5 md:min-w-[6rem] md:w-[10%] lg:w-[6%] justify-self-center md:order-2"
+              >
+                Register
+              </NavLink>
+              <NavLink
+                to="Login"
+                className="transition duration-1000 p-1 md:p-2 rounded-2xl border-4 border-[#ad79fd] bg-porcelain hover:border-green-400 w-3/5 md:min-w-[6rem] md:w-[10%] lg:w-[6%] justify-self-center md:order-last"
+              >
+                Login
+              </NavLink>
+            </>
           ) : (
-            <SvgIcons type="messages" />
-          ))}
+            <>
+              <button
+                className={`${
+                  media !== 'sm'
+                    ? 'transition duration-1000 p-1 md:p-2 rounded-2xl border-4 border-[#ad79fd] hover:border-green-400 w-3/5 md:min-w-[6rem] md:w-[10%] lg:w-[6%] justify-self-center md:order-last'
+                    : 'justify-self-center align-middle order-last flex justify-center items-center w-full h-full'
+                }`}
+                onClick={logoutUser}
+                title="Logout"
+              >
+                {media === 'sm' ? <SvgIcons type="logout" /> : 'Logout'}
+              </button>
+              {media !== 'sm' ? (
+                <form onSubmit={handleSearchSubmit}>
+                  <input
+                    className="transition duration-1000 p-2 md:p-3 rounded-full focus:outline-none focus:ring
+               focus:ring-main-purple/50 invalid:focus:ring-red-600 border-2 hover:border-main-purple invalid:hover:border-red-600"
+                    type="search"
+                    name="search-params"
+                    value={searchParameters}
+                    onChange={handleChange}
+                    placeholder={'Search'}
+                    ref={searchRef}
+                  />
+                </form>
+              ) : (
+                <SvgIcons type="search" />
+              )}
+            </>
+          )}
+          {user && (
+            <NavLink
+              to="Messeges"
+              className="align-middle justify-self-center flex justify-center items-center md:block"
+            >
+              {media !== 'sm' ? 'Messages' : <SvgIcons type="messages" />}
+            </NavLink>
+          )}
+        </section>
       </div>
-      {shouldRenderUser()}
     </nav>
   );
 };
