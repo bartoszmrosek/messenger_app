@@ -10,6 +10,10 @@ interface ServerToClientEvents {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: Buffer) => void;
   withAck: (d: string, callback: (e: number) => void) => void;
+  newMessageToClient: (
+    d: any,
+    callback: (error: unknown, isRecieved: boolean) => void,
+  ) => void;
 }
 
 interface ClientToServerEvents {
