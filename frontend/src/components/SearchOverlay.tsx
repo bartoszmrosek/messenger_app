@@ -1,4 +1,5 @@
 import React from 'react';
+import SvgIcons from './SvgIcons';
 
 interface SearchOverlayProps {
   handleSearchSubmit: (event: React.SyntheticEvent) => void;
@@ -29,9 +30,12 @@ const SearchOverlay = ({
     <div
       className={`h-screen w-screen bg-black/30 absolute left-0 bottom-0 flex justify-center items-center translate-y-[-100%] ${shouldAnimate()}`}
     >
-      <form onSubmit={handleSearchSubmit}>
+      <form
+        onSubmit={handleSearchSubmit}
+        className="flex flex-row gap-3 justify-center items-center"
+      >
         <input
-          className="p-2 md:p-3 rounded-full focus:outline-none focus:ring
+          className="p-2 md:p-3 rounded-full focus:outline-none focus:ring h-12
                focus:ring-main-purple/50 invalid:focus:ring-red-600 border-2 hover:border-main-purple invalid:hover:border-red-600"
           type="search"
           name="search-params"
@@ -39,9 +43,13 @@ const SearchOverlay = ({
           onChange={handleChange}
           placeholder="Search"
           ref={searchRef}
+          //Check for null, js treats null as object
           autoFocus={typeof isRenderedMobile !== 'object'}
           onBlur={() => setIsRenderedMobile(false)}
         />
+        <button className="w-fit h-full flex justify-center items-center p-2 border-4 rounded-full border-main-purple">
+          <SvgIcons type="search" className="fill-main-purple h-6 w-6" />
+        </button>
       </form>
     </div>
   );

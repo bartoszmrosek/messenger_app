@@ -60,8 +60,8 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
   const shouldRenderUser = () => {
     if (user !== undefined && user !== null && media !== 'sm') {
       return (
-        <section className="flex flex-row">
-          <SvgIcons type="user" />
+        <section className="flex flex-row lg:text-porcelain">
+          <SvgIcons type="user" className="w-20 h-20 fill-porcelain" />
           <section className="flex flex-col justify-center items-start">
             <h1>{user.username}</h1>
             <h3>{user.email}</h3>
@@ -123,7 +123,14 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
                 onClick={logoutUser}
                 title="Logout"
               >
-                {media === 'sm' ? <SvgIcons type="logout" /> : 'Logout'}
+                {media === 'sm' ? (
+                  <SvgIcons
+                    type="logout"
+                    className="w-6 h-6 fill-porcelain overflow-hidden align-middle"
+                  />
+                ) : (
+                  'Logout'
+                )}
               </button>
               {media !== 'sm' ? (
                 <form onSubmit={handleSearchSubmit}>
@@ -143,7 +150,10 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
                   className="justify-self-center w-full h-full flex justify-center items-center"
                   onClick={handleMobileSearch}
                 >
-                  <SvgIcons type="search" />
+                  <SvgIcons
+                    type="search"
+                    className="w-6 h-6 fill-porcelain overflow-hidden align-middle justify-self-center"
+                  />
                 </button>
               )}
             </>
@@ -153,7 +163,14 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
               to="Messeges"
               className="align-middle justify-self-center flex justify-center items-center md:block w-full h-full"
             >
-              {media !== 'sm' ? 'Messages' : <SvgIcons type="messages" />}
+              {media !== 'sm' ? (
+                'Messages'
+              ) : (
+                <SvgIcons
+                  type="messages"
+                  className="w-12 h-12 fill-porcelain overflow-hidden align-middle justify-self-center"
+                />
+              )}
             </NavLink>
           )}
         </section>
