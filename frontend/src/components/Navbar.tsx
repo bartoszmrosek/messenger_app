@@ -21,10 +21,17 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
   const navigate = useNavigate();
   const searchRef = useRef<HTMLInputElement>(null);
   const media = useMedia();
+  const [isRenderedMobileSearch, setIsRenderedMobileSearch] = useState<
+    boolean | null
+  >(null);
 
   useEffect(() => {
     searchRef.current?.setCustomValidity('');
   }, [searchParameters]);
+
+  useEffect(() => {
+    setIsRenderedMobileSearch(null);
+  }, [media]);
 
   const handleChange = (
     inputValue: React.FormEvent<HTMLInputElement>,
@@ -34,6 +41,7 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
 
   const handleSearchSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
+    setIsRenderedMobileSearch(false);
     if (searchParameters.length > 0) {
       navigate('/SearchResults', { state: { searchParameters, id: nanoid() } });
     } else {
@@ -63,7 +71,10 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
     }
   };
 
-  const handleMobileSearch = () => {};
+  const handleMobileSearch = () => {
+    setIsRenderedMobileSearch(true);
+    searchRef.current?.focus();
+  };
 
   return (
     <nav
@@ -147,7 +158,16 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
           )}
         </section>
       </div>
-      {media === 'sm' && <SearchOverlay media={media} />}
+      {media === 'sm' && (
+        <SearchOverlay
+          handleChange={handleChange}
+          searchParameters={searchParameters}
+          searchRef={searchRef}
+          handleSearchSubmit={handleSearchSubmit}
+          isRenderedMobile={isRenderedMobileSearch}
+          setIsRenderedMobile={setIsRenderedMobileSearch}
+        />
+      )}
     </nav>
   );
 };

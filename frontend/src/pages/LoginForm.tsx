@@ -10,6 +10,7 @@ import type {
 } from '../interfaces/socketContextInterfaces';
 import AnimatedBlobs from '../components/AnimatedBlobs';
 import FormTemplate, { mainSubmit } from '../components/Forms/FormTemplate';
+import { useNavigate } from 'react-router-dom';
 
 const LoginForm = ({
   setRenderNavOnMobile,

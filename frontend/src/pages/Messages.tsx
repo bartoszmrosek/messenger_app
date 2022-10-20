@@ -15,9 +15,9 @@ import type {
   ServerToClientEvents,
   ClientToServerEvents,
 } from '../interfaces/socketContextInterfaces';
-import type {
-  userMessagesTypes,
-  exportUserContextTypes,
+import {
+  userMessageInterface,
+  UserContextExports,
 } from '../Contexts/UserContext';
 
 interface newMessage {
@@ -35,13 +35,13 @@ const Messeges = () => {
     userMessages,
     getAndSetMessagesFromHistory,
     handleNewMessage,
-  }: exportUserContextTypes = useContext(UserContext);
+  }: UserContextExports = useContext(UserContext);
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
   const [activeChat, setActiveChat] = useState<number>();
   const [filteredMessages, setFilteredMessages] =
-    useState<userMessagesTypes[]>();
-  const [groupedUsers, setGroupedUsers] = useState<userMessagesTypes[]>();
+    useState<userMessageInterface[]>();
+  const [groupedUsers, setGroupedUsers] = useState<userMessageInterface[]>();
   const [newMessageValue, setNewMessageValue] = useState<string>('');
   const [error, setError] = useErrorType();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -56,7 +56,7 @@ const Messeges = () => {
           user.user_id,
           (
             connectionError: unknown,
-            response: standardDbResponse<userMessagesTypes[]>,
+            response: standardDbResponse<userMessageInterface[]>,
           ) => {
             if (connectionError) {
               setError(connectionError);
@@ -124,7 +124,7 @@ const Messeges = () => {
   };
 
   const filterMessages = (
-    messages: userMessagesTypes[],
+    messages: userMessageInterface[],
     activeChat: number,
   ) => {
     return messages.filter(message => {
@@ -191,7 +191,7 @@ const Messeges = () => {
     }
   };
 
-  const userToSendMessageTo = (userNode: userMessagesTypes): number => {
+  const userToSendMessageTo = (userNode: userMessageInterface): number => {
     if (user?.user_id === userNode.reciever_user_id) {
       return userNode.sender_user_id;
     } else {
