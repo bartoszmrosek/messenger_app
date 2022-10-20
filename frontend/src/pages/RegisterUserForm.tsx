@@ -2,8 +2,8 @@ import React, { useContext } from 'react';
 import { SocketContext } from '../Contexts/SocketContext';
 import { standardDbResponse } from '../interfaces/dbResponsesInterface';
 
-import type { Socket } from 'socket.io-client';
-import type {
+import { Socket } from 'socket.io-client';
+import {
   ServerToClientEvents,
   ClientToServerEvents,
 } from '../interfaces/socketContextInterfaces';

@@ -137,7 +137,8 @@ const FormTemplate = ({
           );
         })}
         className={`${
-          error === null || isSubmitSuccessfull === null
+          //prettier-ignore
+          (error === null || isSubmitSuccessfull === null)
             ? 'bg-main-purple text-porcelain p-3'
             : 'cursor-not-allowed'
         } max-w-fit justify-self-center rounded-full justify-center items-center flex flex-row`}
