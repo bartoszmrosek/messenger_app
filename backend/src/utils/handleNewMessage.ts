@@ -59,8 +59,7 @@ const handleNewMessage = async (
     });
   }
   if (stateOfRecieverUser !== 'Not connected') {
-    io.sockets
-      .timeout(10000)
+    io.timeout(10000)
       .to(stateOfRecieverUser.socketId)
       .emit(
         'newMessageToClient',
