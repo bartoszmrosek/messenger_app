@@ -13,6 +13,7 @@ import {
   ServerToClientEvents,
   ClientToServerEvents,
 } from '../interfaces/socketContextInterfaces';
+import SvgIcons from '../components/SvgIcons';
 
 interface UserInformations {
   user_id?: number;
@@ -26,9 +27,7 @@ const SearchResultsPage = () => {
     useContext(UserContext);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [searchParams] = useSearchParams();
-  const [renderedUsers, setRenderedUsers] = useState<
-    string | React.ReactNode
-  >();
+  const [renderedUsers, setRenderedUsers] = useState<JSX.Element>(<></>);
   const navigate = useNavigate();
   const [error, setError] = useErrorType();
 
@@ -72,10 +71,21 @@ const SearchResultsPage = () => {
                 const listOfMatchingUsers = dbResponse.payload.map(element => {
                   if (element.username !== user?.username) {
                     return (
-                      <section key={element.user_id}>
-                        <h1>{element.username}</h1>
-                        {user !== undefined && user !== null && (
-                          <button onClick={() => handleClick(element)}>
+                      <section
+                        key={element.user_id}
+                        className="last-of-type:mb-28 flex flex-row justify-between items-center w-full border px-3"
+                      >
+                        <span className="flex flex-row items-center justify-start gap-2">
+                          <SvgIcons type="user" className="h-16 w-16" />
+                          <h1 className="font-semibold capitalize">
+                            {element.username}
+                          </h1>
+                        </span>
+                        {user && (
+                          <button
+                            onClick={() => handleClick(element)}
+                            className="rounded-3xl p-2 bg-main-purple text-porcelain"
+                          >
                             Send message
                           </button>
                         )}
@@ -83,9 +93,16 @@ const SearchResultsPage = () => {
                     );
                   }
                 });
-                setRenderedUsers(listOfMatchingUsers);
+                setRenderedUsers(
+                  <div className="mx-8 mt-12 flex flex-col gap-5 items-center">
+                    <h1 className="font-bold text-2xl text-main-purple">
+                      Matched users:
+                    </h1>
+                    {listOfMatchingUsers}
+                  </div>,
+                );
               } else {
-                setRenderedUsers('Brak wyszukań');
+                setRenderedUsers(<div>'No matches'</div>);
               }
             }
           },
@@ -93,8 +110,8 @@ const SearchResultsPage = () => {
     }
   }, [searchParams.get('username')]);
   useEffect(() => {
-    setRenderedUsers(error);
+    setRenderedUsers(<div>{error}</div>);
   }, [error]);
-  return <div>{renderedUsers}</div>;
+  return renderedUsers;
 };
 export default SearchResultsPage;

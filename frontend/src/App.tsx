@@ -8,9 +8,9 @@ import SearchResultsPage from './pages/SeachResultsPage';
 import { UserContext } from './Contexts/UserContext';
 import { SocketContext } from './Contexts/SocketContext';
 import { UserContextExports } from './Contexts/UserContext';
-import type { standardDbResponse } from './interfaces/dbResponsesInterface';
-import type { Socket } from 'socket.io-client';
-import type {
+import { standardDbResponse } from './interfaces/dbResponsesInterface';
+import { Socket } from 'socket.io-client';
+import {
   ServerToClientEvents,
   ClientToServerEvents,
 } from './interfaces/socketContextInterfaces';
@@ -62,7 +62,7 @@ const App = () => {
   }, []);
 
   return (
-    <div className="h-screen bg-porcelain min-h-min">
+    <div className="h-full bg-porcelain min-h-min">
       <div className="absolute inset-0">
         <Navbar shouldRender={renderNavOnMobile} />
         <Routes>
