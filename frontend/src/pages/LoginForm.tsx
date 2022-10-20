@@ -47,7 +47,7 @@ const LoginForm = ({
           setLoading(false);
           if (dbResponse.type === 'confirm') {
             setError(null);
-            setSuccess(true);
+            setSuccess('Login successful!');
             const { payload } = dbResponse;
             if (userSetter.loginUser !== undefined) {
               userSetter.loginUser(
@@ -57,7 +57,7 @@ const LoginForm = ({
               );
             }
           } else {
-            setSuccess(false);
+            setSuccess(null);
             setError(dbResponse.payload);
           }
         }

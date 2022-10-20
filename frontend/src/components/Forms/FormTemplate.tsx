@@ -15,7 +15,7 @@ export type mainSubmit = (
   setLoading: React.Dispatch<React.SetStateAction<boolean | null>>,
   setFormStateResetSwitch: React.Dispatch<React.SetStateAction<boolean>>,
   setError: (error: unknown) => void,
-  setSuccess: React.Dispatch<React.SetStateAction<boolean | null>>,
+  setSuccess: React.Dispatch<React.SetStateAction<string | null>>,
 ) => void;
 
 export interface FormTemplateProps {
@@ -40,9 +40,9 @@ const FormTemplate = ({
   setRenderNavOnMobile,
 }: FormTemplateProps) => {
   const { handleSubmit, control } = useForm<userInput>();
-  const [isSubmitSuccessfull, setIsSubmitSuccessfull] = useState<
-    boolean | null
-  >(null);
+  const [isSubmitSuccessfull, setIsSubmitSuccessfull] = useState<string | null>(
+    null,
+  );
   const [error, setError] = useErrorType();
   const [isLoading, setIsLoading] = useState<boolean | null>(null);
   const [formStateResetSwitch, setFormStateResetSwitch] = useState(false);
@@ -54,7 +54,7 @@ const FormTemplate = ({
         setIsSubmitSuccessfull(null);
         setIsLoading(null);
       },
-      error ? 7500 : 5000,
+      error ? 5000 : 2500,
     );
     return () => {
       clearTimeout(resetingFunction);
@@ -83,7 +83,7 @@ const FormTemplate = ({
         return (
           <>
             <SvgIcons type="success" />
-            Submit Succesfull
+            {isSubmitSuccessfull}
           </>
         );
       }
@@ -142,7 +142,7 @@ const FormTemplate = ({
             ? 'bg-main-purple text-porcelain p-3'
             : 'cursor-not-allowed'
         } max-w-fit justify-self-center rounded-full justify-center items-center flex flex-row`}
-        disabled={error !== null || isSubmitSuccessfull === true}
+        disabled={error !== null || typeof isSubmitSuccessfull === 'string'}
       >
         {renderResults()}
       </button>

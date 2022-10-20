@@ -1,7 +1,7 @@
 {
   "name": "frontend",
   "private": true,
-  "version": "0.8.0",
+  "version": "0.8.5",
   "scripts": {
     "dev": "vite --host",
     "build": "tsc && vite build",

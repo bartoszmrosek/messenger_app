@@ -91,7 +91,7 @@ export class DbQueries {
             'INSERT INTO user_accounts(username, email, password) VALUES(?, ?, ?)',
             [newUserData.username, newUserData.email, newUserData.password],
             err => {
-              if (err.errno === 1062) reject(1);
+              if (err !== null && err.errno === 1062) reject(1);
               if (err) reject(err);
               resolve(null);
             },
@@ -126,7 +126,6 @@ export class DbQueries {
           'SELECT user_id, username FROM user_accounts WHERE username LIKE ?',
           [`${username}%`],
           (err, res) => {
-            console.log('[queries][searchUser] results:', res);
             if (err) reject(err);
             resolve(res);
           },
