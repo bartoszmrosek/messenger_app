@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import RegisterUserForm from './pages/RegisterUserForm';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import LoginForm from './pages/LoginForm';
 import Messeges from './pages/Messages';
 import SearchResultsPage from './pages/SeachResultsPage';
 import { UserContext } from './Contexts/UserContext';
 import { SocketContext } from './Contexts/SocketContext';
-import type { exportUserContextTypes } from './Contexts/UserContext';
+import { UserContextExports } from './Contexts/UserContext';
 import type { standardDbResponse } from './interfaces/dbResponsesInterface';
 import type { Socket } from 'socket.io-client';
 import type {
@@ -16,11 +16,11 @@ import type {
 } from './interfaces/socketContextInterfaces';
 
 const App = () => {
-  const { user, handleNewInformations }: exportUserContextTypes =
-    useContext(UserContext);
+  const { user, loginUser }: UserContextExports = useContext(UserContext);
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
   const [renderNavOnMobile, setRenderNavOnMobile] = useState<boolean>(true);
+  const navigate = useNavigate();
   useEffect(() => {
     /* 
       This doesn't explain itself well, so i thought about writing this comment,
@@ -46,15 +46,11 @@ const App = () => {
           ) => {
             if (dbResponse.type === 'confirm') {
               const { payload } = dbResponse;
-              if (handleNewInformations !== undefined) {
-                handleNewInformations(
-                  payload.user_id,
-                  payload.username,
-                  payload.email,
-                );
+              if (loginUser !== undefined) {
+                loginUser(payload.user_id, payload.username, payload.email);
               }
             } else {
-              console.log(dbResponse.type);
+              navigate('/Login');
             }
           },
         );

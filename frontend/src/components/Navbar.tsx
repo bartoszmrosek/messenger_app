@@ -11,6 +11,7 @@ import {
 } from '../interfaces/socketContextInterfaces';
 import useMedia from '../hooks/useMedia';
 import SvgIcons from './SvgIcons';
+import SearchOverlay from './SearchOverlay';
 
 const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
   const { user, removeUser }: UserContextExports = useContext(UserContext);
@@ -61,6 +62,8 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
       );
     }
   };
+
+  const handleMobileSearch = () => {};
 
   return (
     <nav
@@ -120,25 +123,31 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
                     name="search-params"
                     value={searchParameters}
                     onChange={handleChange}
-                    placeholder={'Search'}
+                    placeholder="Search"
                     ref={searchRef}
                   />
                 </form>
               ) : (
-                <SvgIcons type="search" />
+                <button
+                  className="justify-self-center w-full h-full flex justify-center items-center"
+                  onClick={handleMobileSearch}
+                >
+                  <SvgIcons type="search" />
+                </button>
               )}
             </>
           )}
           {user && (
             <NavLink
               to="Messeges"
-              className="align-middle justify-self-center flex justify-center items-center md:block"
+              className="align-middle justify-self-center flex justify-center items-center md:block w-full h-full"
             >
               {media !== 'sm' ? 'Messages' : <SvgIcons type="messages" />}
             </NavLink>
           )}
         </section>
       </div>
+      {media === 'sm' && <SearchOverlay media={media} />}
     </nav>
   );
 };
