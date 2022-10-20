@@ -1,10 +1,10 @@
 import React from 'react';
-import type { userMessagesTypes } from '../Contexts/UserContext';
+import { userMessageInterface } from '../Contexts/UserContext';
 
 interface UserActiveChatsInterface {
-  groupedUsers: userMessagesTypes[];
+  groupedUsers: userMessageInterface[];
   handleChatChange: (user_id: number) => void;
-  userToSendMessageTo: (userNode: userMessagesTypes) => number;
+  userToSendMessageTo: (userNode: userMessageInterface) => number;
 }
 
 const UserActiveChats = ({

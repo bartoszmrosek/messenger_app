@@ -1,9 +1,9 @@
 import React from 'react';
 import Message from './Message';
-import type { userMessagesTypes } from '../Contexts/UserContext';
+import { userMessageInterface } from '../Contexts/UserContext';
 
 interface MessageSectionInterface {
-  filteredMessages: userMessagesTypes[];
+  filteredMessages: userMessageInterface[];
   handleInput: (inputValue: React.FormEvent<HTMLInputElement>) => void;
   newMessageValue: string;
   sendNewMessage: () => void;
