@@ -31,7 +31,7 @@ interface newMessage {
 
 const Messeges = () => {
   const {
-    user,
+    loggedUser,
     userMessages,
     getAndSetMessagesFromHistory,
     handleNewMessage,
@@ -48,12 +48,12 @@ const Messeges = () => {
   const { state }: any = useLocation();
 
   useEffect(() => {
-    if (user?.user_id !== undefined) {
+    if (loggedUser?.user_id !== undefined) {
       standardSocket
         .timeout(10000)
         .emit(
           'checkUserHistory',
-          user.user_id,
+          loggedUser.user_id,
           (
             connectionError: unknown,
             response: standardDbResponse<userMessageInterface[]>,
@@ -91,7 +91,7 @@ const Messeges = () => {
     if (userMessages !== undefined) {
       const uniqueUsers = userMessages.filter(element => {
         const isDuplicate = uniqueUser.includes(element.username);
-        if (user?.username !== element.username) {
+        if (loggedUser?.username !== element.username) {
           if (!isDuplicate) {
             uniqueUser.push(element.username);
             return true;
@@ -130,9 +130,9 @@ const Messeges = () => {
     return messages.filter(message => {
       if (
         (activeChat === message.sender_user_id &&
-          user?.user_id === message.reciever_user_id) ||
+          loggedUser?.user_id === message.reciever_user_id) ||
         (activeChat === message.reciever_user_id &&
-          user?.user_id === message.sender_user_id)
+          loggedUser?.user_id === message.sender_user_id)
       ) {
         return message;
       }
@@ -149,10 +149,10 @@ const Messeges = () => {
       standardSocket.timeout(10000).emit(
         'newMessageToServer',
         {
-          user_id: user?.user_id,
-          username: user?.username,
+          user_id: loggedUser?.user_id,
+          username: loggedUser?.username,
           message: newMessageValue,
-          sender_user_id: user?.user_id,
+          sender_user_id: loggedUser?.user_id,
           reciever_user_id: activeChat,
           is_read: false,
           created_at: `${date.toISOString()}`,
@@ -178,10 +178,10 @@ const Messeges = () => {
       );
       if (handleNewMessage !== undefined) {
         handleNewMessage({
-          user_id: user?.user_id,
-          username: user?.username,
+          user_id: loggedUser?.user_id,
+          username: loggedUser?.username,
           message: newMessageValue,
-          sender_user_id: user?.user_id,
+          sender_user_id: loggedUser?.user_id,
           reciever_user_id: activeChat,
           isRead: false,
           created_at: `${date.toISOString()}`,
@@ -192,7 +192,7 @@ const Messeges = () => {
   };
 
   const userToSendMessageTo = (userNode: userMessageInterface): number => {
-    if (user?.user_id === userNode.reciever_user_id) {
+    if (loggedUser?.user_id === userNode.reciever_user_id) {
       return userNode.sender_user_id;
     } else {
       return userNode.reciever_user_id;

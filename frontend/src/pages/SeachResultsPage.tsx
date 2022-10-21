@@ -14,6 +14,8 @@ import {
   ClientToServerEvents,
 } from '../interfaces/socketContextInterfaces';
 import SvgIcons from '../components/SvgIcons';
+import FoundUserSection from '../components/SearchComponents/FoundUserSection';
+import ErrorDisplayer from '../components/ErrorDisplayer';
 
 interface UserInformations {
   user_id?: number;
@@ -23,32 +25,35 @@ interface UserInformations {
 const SearchResultsPage = () => {
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
-  const { user, handleNewMessage }: UserContextExports =
+  const { loggedUser, handleNewMessage }: UserContextExports =
     useContext(UserContext);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [searchParams] = useSearchParams();
-  const [renderedUsers, setRenderedUsers] = useState<JSX.Element>(<></>);
   const navigate = useNavigate();
   const [error, setError] = useErrorType();
+  const [renderedUsers, setRenderedUsers] = useState<JSX.Element>(<></>);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [retrySwitch, setRetrySwitch] = useState<boolean>(false);
 
-  const handleClick = (userInfo: UserInformations) => {
-    if (handleNewMessage !== undefined && user !== null) {
+  const makeNewMessage = (userId: number, username: string) => {
+    if (handleNewMessage !== undefined && loggedUser !== null) {
       handleNewMessage({
         message_id: nanoid(),
-        username: userInfo.username,
+        username: username,
         message: null,
-        sender_user_id: user?.user_id,
-        reciever_user_id: userInfo.user_id,
+        sender_user_id: loggedUser?.user_id,
+        reciever_user_id: userId,
         is_read: null,
         created_at: null,
       });
-      navigate('/Messeges', { state: { activeChat: userInfo.user_id } });
+      navigate('/Messeges', { state: { activeChat: userId } });
     }
   };
 
   useEffect(() => {
     const username = searchParams.get('username');
-    if (user && username && username.length > 0) {
+    if (loggedUser && username && username.length > 0) {
+      setIsLoading(true);
       standardSocket
         .timeout(10000)
         .emit(
@@ -60,36 +65,26 @@ const SearchResultsPage = () => {
               [{ user_id: number; username: string }] | number
             >,
           ) => {
-            if (resError || dbResponse.type === 'error') {
-              resError ? setError(resError) : setError(dbResponse.payload);
-            } else {
+            try {
+              if (resError || dbResponse.type === 'error') {
+                throw resError
+                  ? setError(resError)
+                  : setError(dbResponse.payload);
+              }
               setError(null);
               if (
                 Array.isArray(dbResponse.payload) &&
                 dbResponse.payload.length > 0
               ) {
                 const listOfMatchingUsers = dbResponse.payload.map(element => {
-                  if (element.username !== user?.username) {
+                  if (element.username !== loggedUser?.username) {
                     return (
-                      <section
+                      <FoundUserSection
                         key={element.user_id}
-                        className="last-of-type:mb-28 flex flex-row justify-between items-center w-full border px-3"
-                      >
-                        <span className="flex flex-row items-center justify-start gap-2">
-                          <SvgIcons type="user" className="h-16 w-16" />
-                          <h1 className="font-semibold capitalize">
-                            {element.username}
-                          </h1>
-                        </span>
-                        {user && (
-                          <button
-                            onClick={() => handleClick(element)}
-                            className="rounded-3xl p-2 bg-main-purple text-porcelain"
-                          >
-                            Send message
-                          </button>
-                        )}
-                      </section>
+                        userId={element.user_id}
+                        username={element.username}
+                        handleClick={makeNewMessage}
+                      />
                     );
                   }
                 });
@@ -104,14 +99,23 @@ const SearchResultsPage = () => {
               } else {
                 setRenderedUsers(<div>'No matches'</div>);
               }
+            } catch (error) {
+              setError(error);
+            } finally {
+              setIsLoading(false);
             }
           },
         );
     }
-  }, [searchParams.get('username')]);
-  useEffect(() => {
-    setRenderedUsers(<div>{error}</div>);
-  }, [error]);
-  return renderedUsers;
+  }, [searchParams.get('username'), retrySwitch]);
+  return (
+    <>
+      {!isLoading && error && (
+        <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />
+      )}
+      {isLoading && <div>Loading</div>}
+      {!error && !isLoading && renderedUsers}
+    </>
+  );
 };
 export default SearchResultsPage;

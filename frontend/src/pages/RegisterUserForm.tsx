@@ -8,8 +8,8 @@ import {
   ClientToServerEvents,
 } from '../interfaces/socketContextInterfaces';
 import AnimatedBlobs from '../components/AnimatedBlobs';
-import FormTemplate from '../components/Forms/FormTemplate';
-import { mainSubmit } from '../components/Forms/FormTemplate';
+import FormTemplate from '../components/FormsComponents/FormTemplate';
+import { mainSubmit } from '../components/FormsComponents/FormTemplate';
 
 const RegisterUserForm = ({
   setRenderNavOnMobile,

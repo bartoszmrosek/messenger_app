@@ -9,7 +9,9 @@ import type {
   ClientToServerEvents,
 } from '../interfaces/socketContextInterfaces';
 import AnimatedBlobs from '../components/AnimatedBlobs';
-import FormTemplate, { mainSubmit } from '../components/Forms/FormTemplate';
+import FormTemplate, {
+  mainSubmit,
+} from '../components/FormsComponents/FormTemplate';
 
 const LoginForm = ({
   setRenderNavOnMobile,

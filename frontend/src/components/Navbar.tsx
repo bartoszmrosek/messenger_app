@@ -11,10 +11,16 @@ import {
 } from '../interfaces/socketContextInterfaces';
 import useMedia from '../hooks/useMedia';
 import SvgIcons from './SvgIcons';
-import SearchOverlay from './SearchOverlay';
+import SearchOverlay from './SearchComponents/SearchOverlay';
 
-const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
-  const { user, removeUser }: UserContextExports = useContext(UserContext);
+interface NavbarProps {
+  shouldRender: boolean;
+  setSearchOverlayOpened: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
+  const { loggedUser, removeLoggedUser }: UserContextExports =
+    useContext(UserContext);
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
   const [searchInput, setSearchInput] = useState<string>('');
@@ -43,34 +49,37 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
   const handleSearchSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
     setIsRenderedMobileSearch(false);
+    setSearchOverlayOpened(false);
+    searchRef.current?.blur();
     if (searchInput.length > 0) {
       navigate(`/SearchResults/?username=${encodeURIComponent(searchInput)}`, {
         state: { searchInput, id: nanoid() },
       });
+      setSearchInput('');
     } else {
       searchRef.current?.setCustomValidity('Cannot be empty');
     }
   };
 
   const logoutUser = () => {
-    if (user !== null && standardSocket.id !== null) {
-      standardSocket.emit('logoutUser', { userId: user?.user_id });
-      if (removeUser !== undefined) removeUser();
+    if (loggedUser !== null && standardSocket.id !== null) {
+      standardSocket.emit('logoutUser', { userId: loggedUser?.user_id });
+      if (removeLoggedUser !== undefined) removeLoggedUser();
       setIsRenderedMobileSearch(null);
       navigate('/Login');
     }
   };
 
   const shouldRenderUser = () => {
-    if (user !== undefined && user !== null && media !== 'sm') {
+    if (loggedUser !== undefined && loggedUser !== null && media !== 'sm') {
       const fillingColor =
         location.pathname === '/SearchResults/' ? 'main-purple' : 'porcelain';
       return (
         <section className={`flex flex-row text-${fillingColor}`}>
           <SvgIcons type="user" className={`w-20 h-20 fill-${fillingColor}`} />
           <section className="flex flex-col justify-center items-start">
-            <h1>{user.username}</h1>
-            <h3>{user.email}</h3>
+            <h1>{loggedUser.username}</h1>
+            <h3>{loggedUser.email}</h3>
           </section>
         </section>
       );
@@ -91,18 +100,18 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
       <div
         className={`gap-3 items-center
         justify-end ${
-          user && 'md:justify-between'
+          loggedUser && 'md:justify-between'
         } md:flex md:flex-row text-center`}
       >
         {shouldRenderUser()}
         <section
           className={`grid ${
-            !user ? 'grid-cols-2' : 'grid-cols-3'
+            !loggedUser ? 'grid-cols-2' : 'grid-cols-3'
           } grid-rows-1 gap-5 items-center
         justify-end md:flex md:flex-row m-3 md:m-5 font-semibold text-[#371965]
         text-center`}
         >
-          {!user ? (
+          {!loggedUser ? (
             <>
               <NavLink
                 to="Register"
@@ -164,7 +173,7 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
               )}
             </>
           )}
-          {user && (
+          {loggedUser && (
             <NavLink
               to="Messeges"
               className="align-middle justify-self-center flex justify-center items-center md:block w-full h-full"
@@ -183,6 +192,7 @@ const Navbar = ({ shouldRender }: { shouldRender: boolean }) => {
       </div>
       {media === 'sm' && (
         <SearchOverlay
+          setSearchOverlayOpened={setSearchOverlayOpened}
           handleChange={handleSearchChange}
           searchParameters={searchInput}
           searchRef={searchRef}

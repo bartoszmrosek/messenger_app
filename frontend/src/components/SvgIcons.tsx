@@ -18,7 +18,7 @@ const SvgIcons = ({ type, className }: SvgIconsProps) => {
       case 'loading':
         return (
           <svg
-            className="animate-spin mr-3 h-5 w-5 text-white"
+            className={className}
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -44,7 +44,9 @@ const SvgIcons = ({ type, className }: SvgIconsProps) => {
             xmlns="http://www.w3.org/2000/svg"
             version="1.1"
             viewBox="0 0 256 256"
-            className="h-8 w-8 mx-3 text-white animate-pulse"
+            className={`${
+              className ? className : 'h-8 w-8 mx-3'
+            } text-white animate-pulse`}
           >
             <defs></defs>
             <g transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
