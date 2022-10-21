@@ -16,8 +16,9 @@ import {
 } from './interfaces/socketContextInterfaces';
 
 const App = () => {
-  const { loggedUser, loginUser, removeLoggedUser }: UserContextExports =
-    useContext(UserContext);
+  const { loggedUser, loginUser, logoutUser } = useContext(
+    UserContext,
+  ) as UserContextExports;
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
   const [renderNavOnMobile, setRenderNavOnMobile] = useState<boolean>(true);
@@ -50,7 +51,7 @@ const App = () => {
           ) => {
             console.log(error);
             if (error || dbResponse.type === 'error') {
-              if (removeLoggedUser) removeLoggedUser();
+              if (logoutUser) logoutUser();
               navigate('/Login');
             } else {
               const { payload } = dbResponse;

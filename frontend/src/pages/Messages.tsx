@@ -20,25 +20,16 @@ import {
   UserContextExports,
 } from '../Contexts/UserContext';
 
-interface newMessage {
-  username: string;
-  message: string;
-  sender_user_id: number;
-  reciever_user_id: number;
-  is_read: boolean;
-  created_at: string;
-}
-
 const Messeges = () => {
   const {
     loggedUser,
     userMessages,
     getAndSetMessagesFromHistory,
     handleNewMessage,
-  }: UserContextExports = useContext(UserContext);
+  } = useContext(UserContext) as UserContextExports;
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
-  const [activeChat, setActiveChat] = useState<number>();
+  const [activeChat, setActiveChat] = useState<number | null>(null);
   const [filteredMessages, setFilteredMessages] =
     useState<userMessageInterface[]>();
   const [groupedUsers, setGroupedUsers] = useState<userMessageInterface[]>();
@@ -79,7 +70,7 @@ const Messeges = () => {
   }, []);
 
   useEffect(() => {
-    if (activeChat !== undefined) {
+    if (activeChat) {
       if (userMessages !== undefined) {
         setFilteredMessages(filterMessages(userMessages, activeChat));
       }
@@ -107,7 +98,7 @@ const Messeges = () => {
     standardSocket.on(
       'newMessageToClient',
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (newMessage: newMessage, callback: any) => {
+      (newMessage: userMessageInterface, callback: any) => {
         if (handleNewMessage !== undefined) {
           callback(true);
           handleNewMessage(newMessage);
@@ -176,7 +167,7 @@ const Messeges = () => {
           }
         },
       );
-      if (handleNewMessage !== undefined) {
+      if (handleNewMessage !== undefined && loggedUser && activeChat) {
         handleNewMessage({
           user_id: loggedUser?.user_id,
           username: loggedUser?.username,

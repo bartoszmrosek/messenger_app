@@ -9,13 +9,14 @@ interface userPropertiesInterface {
 }
 
 export interface userMessageInterface {
-  message_id: number;
+  user_id?: number;
+  message_id: number | string;
   username: string;
-  message: string;
+  message: string | null;
   sender_user_id: number;
   reciever_user_id: number;
-  isRead: boolean;
-  created_at: string;
+  isRead: boolean | null;
+  created_at: string | null;
 }
 
 export interface userInformationsInterface {
@@ -26,14 +27,14 @@ export interface userInformationsInterface {
 
 export interface UserContextExports {
   loggedUser?: userInformationsInterface;
-  removeLoggedUser?: () => void;
   loginUser?: userPropertiesInterface;
   userMessages?: userMessageInterface[];
   getAndSetMessagesFromHistory?: (newMessage: userMessageInterface[]) => void;
-  handleNewMessage?: (messages: unknown) => void;
+  handleNewMessage?: (messages: userMessageInterface) => void;
+  logoutUser: () => void;
 }
 
-const UserContext = createContext({});
+const UserContext = createContext<UserContextExports | null>(null);
 
 const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   children,
@@ -43,6 +44,11 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
     'user',
     null,
   );
+
+  const logoutUser = () => {
+    removeLoggedUser();
+    setUserMessages([]);
+  };
 
   const loginUser: userPropertiesInterface = (user_id, username, email) => {
     setLoggedUser({ user_id, username, email });
@@ -70,11 +76,11 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
     <UserContext.Provider
       value={{
         loggedUser,
-        removeLoggedUser,
-        loginUser,
         userMessages,
         getAndSetMessagesFromHistory,
         handleNewMessage,
+        loginUser,
+        logoutUser,
       }}
     >
       {children}

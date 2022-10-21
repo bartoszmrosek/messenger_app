@@ -20,7 +20,7 @@ const LoginForm = ({
 }) => {
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
-  const userSetter: UserContextExports = useContext(UserContext);
+  const { loginUser } = useContext(UserContext) as UserContextExports;
 
   const onSubmit: mainSubmit = (
     data,
@@ -51,12 +51,8 @@ const LoginForm = ({
             setError(null);
             setSuccess('Login successful!');
             const { payload } = dbResponse;
-            if (userSetter.loginUser !== undefined) {
-              userSetter.loginUser(
-                payload.user_id,
-                payload.username,
-                payload.email,
-              );
+            if (loginUser) {
+              loginUser(payload.user_id, payload.username, payload.email);
             }
           } else {
             setSuccess(null);

@@ -19,8 +19,9 @@ interface NavbarProps {
 }
 
 const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
-  const { loggedUser, removeLoggedUser }: UserContextExports =
-    useContext(UserContext);
+  const { loggedUser, logoutUser: contextLogOut } = useContext(
+    UserContext,
+  ) as UserContextExports;
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
   const [searchInput, setSearchInput] = useState<string>('');
@@ -64,7 +65,7 @@ const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
   const logoutUser = () => {
     if (loggedUser !== null && standardSocket.id !== null) {
       standardSocket.emit('logoutUser', { userId: loggedUser?.user_id });
-      if (removeLoggedUser !== undefined) removeLoggedUser();
+      if (contextLogOut) contextLogOut();
       setIsRenderedMobileSearch(null);
       navigate('/Login');
     }

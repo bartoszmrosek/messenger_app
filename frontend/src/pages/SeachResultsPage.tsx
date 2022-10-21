@@ -25,8 +25,9 @@ interface UserInformations {
 const SearchResultsPage = () => {
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
-  const { loggedUser, handleNewMessage }: UserContextExports =
-    useContext(UserContext);
+  const { loggedUser, handleNewMessage } = useContext(
+    UserContext,
+  ) as UserContextExports;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -36,14 +37,14 @@ const SearchResultsPage = () => {
   const [retrySwitch, setRetrySwitch] = useState<boolean>(false);
 
   const makeNewMessage = (userId: number, username: string) => {
-    if (handleNewMessage !== undefined && loggedUser !== null) {
+    if (handleNewMessage !== undefined && loggedUser) {
       handleNewMessage({
         message_id: nanoid(),
         username: username,
         message: null,
         sender_user_id: loggedUser?.user_id,
         reciever_user_id: userId,
-        is_read: null,
+        isRead: null,
         created_at: null,
       });
       navigate('/Messeges', { state: { activeChat: userId } });
