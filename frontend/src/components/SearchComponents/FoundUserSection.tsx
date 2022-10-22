@@ -1,6 +1,5 @@
 import React from 'react';
 import SvgIcons from '../SvgIcons';
-import { userInformationsInterface } from '../../Contexts/UserContext';
 
 interface FoundUserSectionProps {
   userId: number;

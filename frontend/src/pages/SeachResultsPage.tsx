@@ -13,14 +13,8 @@ import {
   ServerToClientEvents,
   ClientToServerEvents,
 } from '../interfaces/socketContextInterfaces';
-import SvgIcons from '../components/SvgIcons';
 import FoundUserSection from '../components/SearchComponents/FoundUserSection';
 import ErrorDisplayer from '../components/ErrorDisplayer';
-
-interface UserInformations {
-  user_id?: number;
-  username?: string;
-}
 
 const SearchResultsPage = () => {
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
@@ -98,7 +92,7 @@ const SearchResultsPage = () => {
                   </div>,
                 );
               } else {
-                setRenderedUsers(<div>'No matches'</div>);
+                setRenderedUsers(<div>No matches</div>);
               }
             } catch (error) {
               setError(error);

@@ -1,4 +1,4 @@
-import { NavLink, useLocation, useSearchParams } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { UserContext, UserContextExports } from '../Contexts/UserContext';
 import { useNavigate } from 'react-router-dom';

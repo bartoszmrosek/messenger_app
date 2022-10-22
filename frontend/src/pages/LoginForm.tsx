@@ -75,6 +75,7 @@ const LoginForm = ({
             type: 'email',
             rules: {
               required: true,
+              pattern: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
             },
           },
           {

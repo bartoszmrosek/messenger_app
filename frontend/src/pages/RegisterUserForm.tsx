@@ -70,7 +70,7 @@ const RegisterUserForm = ({
             rules: {
               required: true,
               minLength: 1,
-              pattern: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+              pattern: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
             },
           },
           {

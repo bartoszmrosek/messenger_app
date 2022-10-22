@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import InputForm from './InputForm';
 import useErrorType from '../../hooks/useErrorType';
 import SvgIcons from '../SvgIcons';
