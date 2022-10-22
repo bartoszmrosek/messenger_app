@@ -62,6 +62,7 @@ const FormTemplate = ({
   }, [formStateResetSwitch]);
 
   const renderResults = () => {
+    console.log(error === null || isSubmitSuccessfull === null);
     if (isLoading) {
       return (
         <>
@@ -141,10 +142,10 @@ const FormTemplate = ({
         })}
         className={`${
           //prettier-ignore
-          (error === null || isSubmitSuccessfull === null)
-            ? 'bg-main-purple text-porcelain p-3'
-            : 'cursor-not-allowed'
-        } max-w-fit justify-self-center rounded-full justify-center items-center flex flex-row`}
+          (error === null || isSubmitSuccessfull !== null )
+            ? 'bg-main-purple text-porcelain'
+            : 'bg-porcelain cursor-not-allowed border-2 border-red-600'
+        } p-3 max-w-fit justify-self-center rounded-full justify-center items-center flex flex-row`}
         disabled={error !== null || typeof isSubmitSuccessfull === 'string'}
       >
         {renderResults()}

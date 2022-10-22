@@ -78,7 +78,7 @@ const App = () => {
         <main
           className={`transition-all duration-1000 h-full min-h-min ${
             searchOverlayOpened && 'blur-sm'
-          }`}
+          } bg-porcelain`}
         >
           <Routes>
             <Route
