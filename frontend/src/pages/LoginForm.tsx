@@ -50,10 +50,8 @@ const LoginForm = ({
           if (dbResponse.type === 'confirm') {
             setError(null);
             setSuccess('Login successful!');
-            const { payload } = dbResponse;
-            if (loginUser) {
-              loginUser(payload.user_id, payload.username, payload.email);
-            }
+            const { user_id, username, email } = dbResponse.payload;
+            loginUser(user_id, username, email);
           } else {
             setSuccess(null);
             setError(dbResponse.payload);

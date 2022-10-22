@@ -29,7 +29,7 @@ export interface UserContextExports {
   loggedUser: userInformationsInterface;
   loginUser: userPropertiesInterface;
   userMessages: userMessageInterface[];
-  getAndSetMessagesFromHistory: (newMessage: userMessageInterface[]) => void;
+  setMessagesFromHistory: (newMessage: userMessageInterface[]) => void;
   handleNewMessage: (messages: userMessageInterface) => void;
   logoutUser: () => void;
   connectingUserState: {
@@ -61,7 +61,7 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
     setLoggedUser({ user_id, username, email });
   };
 
-  const getAndSetMessagesFromHistory = (messages: userMessageInterface[]) => {
+  const setMessagesFromHistory = (messages: userMessageInterface[]) => {
     const nullMessagesToNewUsers = userMessages.filter(message => {
       return message.message === null;
     });
@@ -84,7 +84,7 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
       value={{
         loggedUser,
         userMessages,
-        getAndSetMessagesFromHistory,
+        setMessagesFromHistory,
         handleNewMessage,
         loginUser,
         logoutUser,

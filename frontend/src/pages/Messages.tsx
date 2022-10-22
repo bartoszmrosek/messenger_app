@@ -24,7 +24,7 @@ const Messeges = () => {
   const {
     loggedUser,
     userMessages,
-    getAndSetMessagesFromHistory,
+    setMessagesFromHistory,
     handleNewMessage,
     connectingUserState,
   } = useContext(UserContext) as UserContextExports;
@@ -51,32 +51,26 @@ const Messeges = () => {
             connectionError: unknown,
             response: standardDbResponse<userMessageInterface[]>,
           ) => {
-            console.log();
-            if (connectionError) {
-              setError(connectionError);
+            if (connectionError || response.type === 'error') {
+              connectionError
+                ? setError(connectionError)
+                : setError(response.payload);
             } else {
-              if (response.type === 'error') {
-                setError(response.payload);
-              } else {
-                setError(null);
-                if (getAndSetMessagesFromHistory !== undefined) {
-                  getAndSetMessagesFromHistory(response.payload);
-                }
-              }
+              setError(null);
+              setMessagesFromHistory(response.payload);
             }
           },
         );
     }
-    if (state !== null && state.activeChat !== undefined) {
+
+    if (state && state.activeChat) {
       setActiveChat(state.activeChat);
     }
-  }, [connectingUserState.isConnectingUser]);
+  }, [isConnectingUser]);
 
   useEffect(() => {
     if (activeChat) {
-      if (userMessages !== undefined) {
-        setFilteredMessages(filterMessages(userMessages, activeChat));
-      }
+      setFilteredMessages(filterMessages(userMessages, activeChat));
     }
   }, [activeChat, userMessages]);
 
@@ -95,17 +89,12 @@ const Messeges = () => {
       });
       setGroupedUsers(uniqueUsers);
     }
-  }, [userMessages]);
-
-  useEffect(() => {
     standardSocket.on(
       'newMessageToClient',
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (newMessage: userMessageInterface, callback: any) => {
-        if (handleNewMessage !== undefined) {
-          callback(true);
-          handleNewMessage(newMessage);
-        }
+        callback(true);
+        handleNewMessage(newMessage);
       },
     );
     return () => {
@@ -151,26 +140,20 @@ const Messeges = () => {
           is_read: false,
           created_at: `${date.toISOString()}`,
         },
-        (
-          error: unknown,
-          messageStatus: standardDbResponse<string | number>,
-        ) => {
-          if (error) {
-            setError(error);
+        (error: unknown, response: standardDbResponse<string | number>) => {
+          if (
+            error ||
+            response.type === 'error' ||
+            typeof response.payload === 'number'
+          ) {
+            error ? setError(error) : setError(response.payload);
           } else {
-            if (
-              messageStatus.type === 'error' ||
-              typeof messageStatus.payload === 'number'
-            ) {
-              setError(messageStatus.payload);
-            } else {
-              setError(null);
-              setNewMessageValue(messageStatus.payload);
-            }
+            setError(null);
+            setNewMessageValue(response.payload);
           }
         },
       );
-      if (handleNewMessage !== undefined && loggedUser && activeChat) {
+      if (loggedUser && activeChat) {
         handleNewMessage({
           user_id: loggedUser?.user_id,
           username: loggedUser?.username,

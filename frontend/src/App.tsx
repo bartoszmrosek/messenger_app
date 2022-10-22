@@ -72,46 +72,42 @@ const App = () => {
   }, []);
 
   return (
-    <div className="h-full w-full">
-      <div className="absolute inset-0 bg-porcelain">
-        <Navbar
-          shouldRender={renderNavOnMobile}
-          setSearchOverlayOpened={setSearchOverlayOpened}
-        />
-        <main
-          className={`transition-all duration-1000 h-view ${
-            searchOverlayOpened && 'blur-sm'
-          } bg-porcelain`}
-        >
-          <Routes>
-            <Route
-              path="/Register"
-              element={
-                <RegisterUserForm setRenderNavOnMobile={setRenderNavOnMobile} />
-              }
-            />
-            <Route
-              path="/Login"
-              element={
-                <LoginForm setRenderNavOnMobile={setRenderNavOnMobile} />
-              }
-            />
-            {loggedUser && (
-              <>
-                <Route path="/Messeges" element={<Messeges />} />
-                <Route path="/SearchResults" element={<SearchResultsPage />} />
-              </>
-            )}
-            <Route path="*" element={<Navigate to="/" replace />} />
-            <Route
-              path="/"
-              element={
-                <RegisterUserForm setRenderNavOnMobile={setRenderNavOnMobile} />
-              }
-            />
-          </Routes>
-        </main>
-      </div>
+    <div className="absolute inset-0 bg-porcelain">
+      <Navbar
+        shouldRender={renderNavOnMobile}
+        setSearchOverlayOpened={setSearchOverlayOpened}
+      />
+      <main
+        className={`transition-all duration-1000 h-full ${
+          searchOverlayOpened && 'blur-sm'
+        } bg-porcelain`}
+      >
+        <Routes>
+          <Route
+            path="/Register"
+            element={
+              <RegisterUserForm setRenderNavOnMobile={setRenderNavOnMobile} />
+            }
+          />
+          <Route
+            path="/Login"
+            element={<LoginForm setRenderNavOnMobile={setRenderNavOnMobile} />}
+          />
+          {loggedUser && (
+            <>
+              <Route path="/Messeges" element={<Messeges />} />
+              <Route path="/SearchResults" element={<SearchResultsPage />} />
+            </>
+          )}
+          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route
+            path="/"
+            element={
+              <RegisterUserForm setRenderNavOnMobile={setRenderNavOnMobile} />
+            }
+          />
+        </Routes>
+      </main>
     </div>
   );
 };

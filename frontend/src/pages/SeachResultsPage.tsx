@@ -15,6 +15,7 @@ import {
 } from '../interfaces/socketContextInterfaces';
 import FoundUserSection from '../components/SearchComponents/FoundUserSection';
 import ErrorDisplayer from '../components/ErrorDisplayer';
+import Loader from '../components/Loader';
 
 const SearchResultsPage = () => {
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
@@ -31,7 +32,7 @@ const SearchResultsPage = () => {
   const [retrySwitch, setRetrySwitch] = useState<boolean>(false);
 
   const makeNewMessage = (userId: number, username: string) => {
-    if (handleNewMessage !== undefined && loggedUser) {
+    if (loggedUser) {
       handleNewMessage({
         message_id: nanoid(),
         username: username,
@@ -112,7 +113,7 @@ const SearchResultsPage = () => {
       {!isLoading && error && (
         <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />
       )}
-      {isLoading && <div>Loading</div>}
+      {isLoading && <Loader loadingMessage="Searching..." />}
       {!error && !isLoading && renderedUsers}
     </>
   );
