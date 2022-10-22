@@ -1,17 +1,24 @@
 import React from 'react';
-import { userMessageInterface } from '../Contexts/UserContext';
+import { userMessageInterface } from '../../Contexts/UserContext';
 
-interface UserActiveChatsInterface {
+interface UserConnectionsProps {
+  loggedUserId: number;
   groupedUsers: userMessageInterface[];
   handleChatChange: (user_id: number) => void;
-  userToSendMessageTo: (userNode: userMessageInterface) => number;
 }
 
-const UserActiveChats = ({
+const UserConnections = ({
+  loggedUserId,
   groupedUsers,
   handleChatChange,
-  userToSendMessageTo,
-}: UserActiveChatsInterface) => {
+}: UserConnectionsProps) => {
+  const userToSendMessageTo = (userNode: userMessageInterface): number => {
+    if (loggedUserId === userNode.reciever_user_id) {
+      return userNode.sender_user_id;
+    } else {
+      return userNode.reciever_user_id;
+    }
+  };
   return (
     <>
       {groupedUsers.length === 0 ? (
@@ -39,4 +46,4 @@ const UserActiveChats = ({
     </>
   );
 };
-export default UserActiveChats;
+export default UserConnections;

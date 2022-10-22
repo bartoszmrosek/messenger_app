@@ -5,8 +5,8 @@ import { useLocation } from 'react-router-dom';
 import { SocketContext } from '../Contexts/SocketContext';
 import { UserContext } from '../Contexts/UserContext';
 
-import MessageSection from '../components/MessageSection';
-import UserActiveChats from '../components/UserActiveChats';
+import MessageSection from '../components/MessageComponents/MessageSection';
+import UserConnections from '../components/MessageComponents/UserConnections';
 import useErrorType from '../hooks/useErrorType';
 
 import { standardDbResponse } from '../interfaces/dbResponsesInterface';
@@ -19,6 +19,8 @@ import {
   userMessageInterface,
   UserContextExports,
 } from '../Contexts/UserContext';
+import Loader from '../components/Loader';
+import ErrorDisplayer from '../components/ErrorDisplayer';
 
 const Messeges = () => {
   const {
@@ -37,8 +39,11 @@ const Messeges = () => {
   const [groupedUsers, setGroupedUsers] = useState<userMessageInterface[]>();
   const [newMessageValue, setNewMessageValue] = useState<string>('');
   const [error, setError] = useErrorType();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [retrySwtich, setRetrySwitch] = useState<boolean>(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
+  const date = new Date();
 
   useEffect(() => {
     if (loggedUser && isConnectingUser !== null && !isConnectingUser) {
@@ -51,13 +56,16 @@ const Messeges = () => {
             connectionError: unknown,
             response: standardDbResponse<userMessageInterface[]>,
           ) => {
+            setIsLoading(true);
             if (connectionError || response.type === 'error') {
               connectionError
                 ? setError(connectionError)
                 : setError(response.payload);
+              setIsLoading(false);
             } else {
               setError(null);
               setMessagesFromHistory(response.payload);
+              setIsLoading(false);
             }
           },
         );
@@ -66,7 +74,7 @@ const Messeges = () => {
     if (state && state.activeChat) {
       setActiveChat(state.activeChat);
     }
-  }, [isConnectingUser]);
+  }, [isConnectingUser, retrySwtich]);
 
   useEffect(() => {
     if (activeChat) {
@@ -102,10 +110,6 @@ const Messeges = () => {
     };
   }, [userMessages]);
 
-  const handleChatChange = (user_id: number) => {
-    setActiveChat(user_id);
-  };
-
   const filterMessages = (
     messages: userMessageInterface[],
     activeChat: number,
@@ -122,11 +126,6 @@ const Messeges = () => {
     });
   };
 
-  const handleInput = (inputValue: React.FormEvent<HTMLInputElement>) => {
-    setNewMessageValue(inputValue.currentTarget.value);
-  };
-
-  const date = new Date();
   const sendNewMessage = () => {
     if (newMessageValue.length > 0) {
       standardSocket.timeout(10000).emit(
@@ -168,33 +167,32 @@ const Messeges = () => {
     }
   };
 
-  const userToSendMessageTo = (userNode: userMessageInterface): number => {
-    if (loggedUser?.user_id === userNode.reciever_user_id) {
-      return userNode.sender_user_id;
-    } else {
-      return userNode.reciever_user_id;
-    }
-  };
-
   return (
-    <div>
-      {groupedUsers !== undefined && (
-        <UserActiveChats
-          groupedUsers={groupedUsers}
-          handleChatChange={handleChatChange}
-          userToSendMessageTo={userToSendMessageTo}
-        />
+    <>
+      {isLoading && !error && <Loader loadingMessage="Loading..." />}
+      {error && <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />}
+      {!isLoading && !error && (
+        <section>
+          {groupedUsers && (
+            <UserConnections
+              loggedUserId={loggedUser.user_id}
+              groupedUsers={groupedUsers}
+              handleChatChange={user_id => setActiveChat(user_id)}
+            />
+          )}
+        </section>
+        //   {/* {activeChat && filteredMessages !== undefined && (
+        //   <MessageSection
+        //     filteredMessages={filteredMessages}
+        //     handleInput={currInput =>
+        //       setNewMessageValue(currInput.currentTarget.value)
+        //     }
+        //     newMessageValue={newMessageValue}
+        //     sendNewMessage={sendNewMessage}
+        //   />
+        // )} */}
       )}
-      {activeChat !== undefined && filteredMessages !== undefined && (
-        <MessageSection
-          filteredMessages={filteredMessages}
-          handleInput={handleInput}
-          newMessageValue={newMessageValue}
-          sendNewMessage={sendNewMessage}
-        />
-      )}
-      {error}
-    </div>
+    </>
   );
 };
 export default Messeges;
