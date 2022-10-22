@@ -1,5 +1,7 @@
 import React from 'react';
 import { userMessageInterface } from '../../Contexts/UserContext';
+import SvgIcons from '../SvgIcons';
+import moment from 'moment';
 
 interface UserConnectionsProps {
   loggedUserId: number;
@@ -21,27 +23,35 @@ const UserConnections = ({
   };
   return (
     <>
-      {groupedUsers.length === 0 ? (
-        <div>
-          It seems that you don{'&apos'}t have any conversations yet, make some!
+      {groupedUsers.length < 1 ? (
+        <div className="h-full w-full flex justify-center items-center text-center p-10 text-lg">
+          It seems that you don`t have any conversations yet, search for user to
+          chat with!
         </div>
       ) : (
-        groupedUsers.map(userNode => {
-          return (
-            <section key={userNode.message_id}>
-              <div>
-                <h3>{userNode.username}</h3>
-                <button
-                  onClick={() =>
-                    handleChatChange(userToSendMessageTo(userNode))
-                  }
-                >
-                  Pick chat
-                </button>
-              </div>
-            </section>
-          );
-        })
+        <section className="flex flex-col gap-3 h-full w-full items-center divide-y-2 divide-slate-100 p-5">
+          {groupedUsers.map(userNode => {
+            console.log(userNode.created_at);
+            return (
+              <button
+                key={userNode.message_id}
+                onClick={() => handleChatChange(userToSendMessageTo(userNode))}
+                className="h-16 w-full flex flex-row justify-start items-center"
+              >
+                <SvgIcons type="user" className="h-16 w-16" />
+                <div className="flex flex-row justify-between w-full text-justify overflow-x-clip items-end">
+                  <span className="truncate whitespace-nowrap">
+                    <h3 className="font-bold text-lg">{userNode.username}</h3>
+                    <p className="truncate text-black/50">{userNode.message}</p>
+                  </span>
+                  <p className="m-1 text-sm text-black/50">
+                    {moment(userNode.created_at).fromNow()}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
+        </section>
       )}
     </>
   );

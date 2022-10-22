@@ -85,6 +85,7 @@ const Messeges = () => {
   useEffect(() => {
     const uniqueUser: string[] = [];
     if (userMessages !== undefined) {
+      userMessages.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
       const uniqueUsers = userMessages.filter(element => {
         const isDuplicate = uniqueUser.includes(element.username);
         if (loggedUser?.username !== element.username) {
@@ -172,7 +173,7 @@ const Messeges = () => {
       {isLoading && !error && <Loader loadingMessage="Loading..." />}
       {error && <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />}
       {!isLoading && !error && (
-        <section>
+        <>
           {groupedUsers && (
             <UserConnections
               loggedUserId={loggedUser.user_id}
@@ -180,7 +181,7 @@ const Messeges = () => {
               handleChatChange={user_id => setActiveChat(user_id)}
             />
           )}
-        </section>
+        </>
         //   {/* {activeChat && filteredMessages !== undefined && (
         //   <MessageSection
         //     filteredMessages={filteredMessages}
