@@ -94,9 +94,11 @@ const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
 
   return (
     <nav
-      className={`z-10 fixed bottom-0 md:top-0 w-screen h-fit bg-main-purple md:bg-porcelain ${
-        !shouldRender && 'hidden md:block'
-      }`}
+      className={`z-10 fixed bottom-0 md:top-0 w-screen h-fit bg-main-purple ${
+        location.pathname === '/Register' || location.pathname === '/Login'
+          ? 'md:bg-transparent'
+          : 'md:bg-porcelain'
+      } ${!shouldRender && 'hidden md:block'}`}
     >
       <div
         className={`gap-3 items-center

@@ -9,9 +9,9 @@ import MessageSection from '../components/MessageSection';
 import UserActiveChats from '../components/UserActiveChats';
 import useErrorType from '../hooks/useErrorType';
 
-import type { standardDbResponse } from '../interfaces/dbResponsesInterface';
-import type { Socket } from 'socket.io-client';
-import type {
+import { standardDbResponse } from '../interfaces/dbResponsesInterface';
+import { Socket } from 'socket.io-client';
+import {
   ServerToClientEvents,
   ClientToServerEvents,
 } from '../interfaces/socketContextInterfaces';
@@ -26,7 +26,9 @@ const Messeges = () => {
     userMessages,
     getAndSetMessagesFromHistory,
     handleNewMessage,
+    connectingUserState,
   } = useContext(UserContext) as UserContextExports;
+  const { isConnectingUser } = connectingUserState;
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
   const [activeChat, setActiveChat] = useState<number | null>(null);
@@ -39,7 +41,7 @@ const Messeges = () => {
   const { state }: any = useLocation();
 
   useEffect(() => {
-    if (loggedUser?.user_id !== undefined) {
+    if (loggedUser && isConnectingUser !== null && !isConnectingUser) {
       standardSocket
         .timeout(10000)
         .emit(
@@ -49,6 +51,7 @@ const Messeges = () => {
             connectionError: unknown,
             response: standardDbResponse<userMessageInterface[]>,
           ) => {
+            console.log();
             if (connectionError) {
               setError(connectionError);
             } else {
@@ -67,7 +70,7 @@ const Messeges = () => {
     if (state !== null && state.activeChat !== undefined) {
       setActiveChat(state.activeChat);
     }
-  }, []);
+  }, [connectingUserState.isConnectingUser]);
 
   useEffect(() => {
     if (activeChat) {

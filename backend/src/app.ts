@@ -5,7 +5,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
-import { isUserAuthorized, disconnectUser, logoutUser } from './users';
+import { Users } from './users';
 
 import checkOrCreateUser from './utils/checkOrCreateUser';
 import checkUserLoginData from './utils/checkUserLoginData';
@@ -24,6 +24,7 @@ const io = new Server(httpServer, {
 });
 
 const db = new DbQueries();
+const users = new Users();
 
 io.on('connection', socket => {
   try {
@@ -44,8 +45,7 @@ io.on('connection', socket => {
       'checkUserLoginData',
       (payload: { data: userLoginDetails }, callback) => {
         const { data } = payload;
-        console.log('function', data);
-        void checkUserLoginData(data, callback, socket.id, db);
+        void checkUserLoginData(data, callback, socket.id, db, users);
       },
     );
 
@@ -54,21 +54,22 @@ io.on('connection', socket => {
     });
 
     socket.on('checkUserHistory', (userId: number, callback: any) => {
-      if (isUserAuthorized(userId, socket.id)) {
+      if (users.isUserAuthorized(userId, socket.id)) {
         void checkUserHistory(userId, callback, db);
-      } else
+      } else {
         callback({
           type: 'error',
           payload: 5,
         });
+      }
     });
 
     socket.on(
       'newMessageToServer',
       async (payload: newMessage, callback: any) => {
-        if (isUserAuthorized(payload.user_id, socket.id)) {
+        if (users.isUserAuthorized(payload.user_id, socket.id)) {
           /* eslint-disable-next-line @typescript-eslint/no-unsafe-argument*/
-          await handleNewMessage(io, payload, callback, db);
+          await handleNewMessage(io, payload, callback, db, users);
         } else
           callback({
             type: 'error',
@@ -78,11 +79,11 @@ io.on('connection', socket => {
     );
 
     socket.on('logoutUser', (userId: number) => {
-      logoutUser(userId, socket.id);
+      users.logoutUser(userId, socket.id);
     });
 
     socket.on('disconnect', () => {
-      disconnectUser(socket.id);
+      users.disconnectUser(socket.id);
     });
   } catch (error) {
     console.log('Uncaught error: ', error);

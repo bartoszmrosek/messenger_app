@@ -26,20 +26,27 @@ export interface userInformationsInterface {
 }
 
 export interface UserContextExports {
-  loggedUser?: userInformationsInterface;
-  loginUser?: userPropertiesInterface;
-  userMessages?: userMessageInterface[];
-  getAndSetMessagesFromHistory?: (newMessage: userMessageInterface[]) => void;
-  handleNewMessage?: (messages: userMessageInterface) => void;
+  loggedUser: userInformationsInterface;
+  loginUser: userPropertiesInterface;
+  userMessages: userMessageInterface[];
+  getAndSetMessagesFromHistory: (newMessage: userMessageInterface[]) => void;
+  handleNewMessage: (messages: userMessageInterface) => void;
   logoutUser: () => void;
+  connectingUserState: {
+    isConnectingUser: boolean;
+    setIsConnectingUser: React.Dispatch<React.SetStateAction<boolean>>;
+  };
 }
 
-const UserContext = createContext<UserContextExports | null>(null);
+const UserContext = createContext<UserContextExports>(null);
 
 const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   children,
 }) => {
   const [userMessages, setUserMessages] = useState<userMessageInterface[]>([]);
+  const [isConnectingUser, setIsConnectingUser] = useState<boolean | null>(
+    null,
+  );
   const [loggedUser, setLoggedUser, removeLoggedUser] = useLocalStorage(
     'user',
     null,
@@ -81,6 +88,10 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
         handleNewMessage,
         loginUser,
         logoutUser,
+        connectingUserState: {
+          isConnectingUser,
+          setIsConnectingUser,
+        },
       }}
     >
       {children}

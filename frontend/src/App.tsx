@@ -16,7 +16,7 @@ import {
 } from './interfaces/socketContextInterfaces';
 
 const App = () => {
-  const { loggedUser, loginUser, logoutUser } = useContext(
+  const { loggedUser, loginUser, logoutUser, connectingUserState } = useContext(
     UserContext,
   ) as UserContextExports;
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
@@ -25,6 +25,7 @@ const App = () => {
   const [searchOverlayOpened, setSearchOverlayOpened] =
     useState<boolean>(false);
   const navigate = useNavigate();
+  const { setIsConnectingUser } = connectingUserState;
   useEffect(() => {
     /* 
       This doesn't explain itself well, so i thought about writing this comment,
@@ -49,7 +50,9 @@ const App = () => {
               password: string;
             }>,
           ) => {
+            setIsConnectingUser(true);
             if (error || dbResponse.type === 'error') {
+              setIsConnectingUser(false);
               if (logoutUser) logoutUser();
               navigate('/Login');
             } else {
@@ -57,6 +60,7 @@ const App = () => {
               if (loginUser !== undefined) {
                 loginUser(payload.user_id, payload.username, payload.email);
               }
+              setIsConnectingUser(false);
             }
           },
         );
@@ -68,8 +72,8 @@ const App = () => {
   }, []);
 
   return (
-    <div className="h-full w-full bg-porcelain">
-      <div className="absolute inset-0">
+    <div className="h-full w-full">
+      <div className="absolute inset-0 bg-porcelain">
         <Navbar
           shouldRender={renderNavOnMobile}
           setSearchOverlayOpened={setSearchOverlayOpened}

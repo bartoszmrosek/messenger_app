@@ -10,7 +10,7 @@ interface SocketChildrenInterface {
 }
 
 const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  'https://messanger.onrender.com',
+  'http://127.0.0.1:3030',
 );
 
 const SocketContext = createContext(standardSocket);

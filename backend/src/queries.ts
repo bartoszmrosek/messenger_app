@@ -1,4 +1,5 @@
 import mysql, { OkPacket, RowDataPacket } from 'mysql2';
+import 'dotenv/config';
 export interface userInfoWithPacket extends RowDataPacket {
   username: string;
   password?: string;
@@ -66,8 +67,6 @@ export class DbQueries {
     );
     try {
       return await action(connection);
-    } catch (err) {
-      throw err;
     } finally {
       connection.release();
     }
