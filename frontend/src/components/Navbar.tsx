@@ -94,7 +94,7 @@ const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
 
   return (
     <nav
-      className={`z-10 fixed bottom-0 md:top-0 w-screen h-fit bg-main-purple md:bg-transparent ${
+      className={`z-10 fixed bottom-0 md:top-0 w-screen h-fit bg-main-purple md:bg-porcelain ${
         !shouldRender && 'hidden md:block'
       }`}
     >

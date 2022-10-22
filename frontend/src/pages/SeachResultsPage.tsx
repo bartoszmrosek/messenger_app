@@ -84,15 +84,19 @@ const SearchResultsPage = () => {
                   }
                 });
                 setRenderedUsers(
-                  <div className="mx-8 mt-12 flex flex-col gap-5 items-center">
-                    <h1 className="font-bold text-2xl text-main-purple">
+                  <div className="mx-8 flex flex-col gap-5 items-center">
+                    <h1 className="font-bold mt-12 lg:mt-28 text-2xl text-main-purple">
                       Matched users:
                     </h1>
                     {listOfMatchingUsers}
                   </div>,
                 );
               } else {
-                setRenderedUsers(<div>No matches</div>);
+                setRenderedUsers(
+                  <div className="h-full w-full flex justify-center items-center lg:items-start text-xl font-semibold text-main-purple">
+                    <p className="lg:mt-28">No matches</p>
+                  </div>,
+                );
               }
             } catch (error) {
               setError(error);

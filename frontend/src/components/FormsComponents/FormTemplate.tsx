@@ -62,7 +62,6 @@ const FormTemplate = ({
   }, [formStateResetSwitch]);
 
   const renderResults = () => {
-    console.log(error === null || isSubmitSuccessfull === null);
     if (isLoading) {
       return (
         <>

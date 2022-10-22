@@ -49,7 +49,6 @@ const App = () => {
               password: string;
             }>,
           ) => {
-            console.log(error);
             if (error || dbResponse.type === 'error') {
               if (logoutUser) logoutUser();
               navigate('/Login');
@@ -69,14 +68,14 @@ const App = () => {
   }, []);
 
   return (
-    <div className="h-full bg-porcelain min-h-min">
+    <div className="h-full w-full bg-porcelain">
       <div className="absolute inset-0">
         <Navbar
           shouldRender={renderNavOnMobile}
           setSearchOverlayOpened={setSearchOverlayOpened}
         />
         <main
-          className={`transition-all duration-1000 h-full min-h-min ${
+          className={`transition-all duration-1000 h-view ${
             searchOverlayOpened && 'blur-sm'
           } bg-porcelain`}
         >

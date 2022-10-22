@@ -13,7 +13,7 @@ const FoundUserSection = ({
   handleClick,
 }: FoundUserSectionProps) => {
   return (
-    <section className="last-of-type:mb-28 flex flex-row justify-between items-center w-full border px-3">
+    <section className="last-of-type:mb-28 lg:last-of-type:mb-12 flex flex-row justify-between items-center w-full border px-3">
       <span className="flex flex-row items-center justify-start gap-2">
         <SvgIcons type="user" className="h-16 w-16" />
         <h1 className="font-semibold capitalize">{username}</h1>
