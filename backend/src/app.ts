@@ -10,7 +10,7 @@ import { Users } from './users';
 import checkOrCreateUser from './utils/checkOrCreateUser';
 import checkUserLoginData from './utils/checkUserLoginData';
 import searchUser from './utils/searchUser';
-import checkUserHistory from './utils/checkUserHistory';
+import getLastestConnections from './utils/getUserLatestConnections';
 import handleNewMessage from './utils/handleNewMessage';
 import { DbQueries, newMessage, userLoginDetails } from './queries';
 
@@ -55,7 +55,7 @@ io.on('connection', socket => {
 
     socket.on('checkUserHistory', (userId: number, callback: any) => {
       if (users.isUserAuthorized(userId, socket.id)) {
-        void checkUserHistory(userId, callback, db);
+        void getLastestConnections(userId, callback, db);
       } else {
         callback({
           type: 'error',

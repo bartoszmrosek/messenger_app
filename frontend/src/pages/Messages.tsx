@@ -168,6 +168,7 @@ const Messeges = () => {
     }
   };
 
+  console.log(userMessages);
   return (
     <>
       {isLoading && !error && <Loader loadingMessage="Loading..." />}

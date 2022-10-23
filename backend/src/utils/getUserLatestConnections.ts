@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { DbQueries } from '../queries';
 
-const checkUserHistory = async (
+const getLastestConnections = async (
   userId: number,
   callback: any,
   db: DbQueries,
 ) => {
   try {
-    const messagesSearchResults = await db.searchUserMessagesHistory(userId);
+    const messagesSearchResults = await db.getUserLatestConnections(userId);
     if (Array.isArray(messagesSearchResults)) {
       if (messagesSearchResults.length > 0) {
         callback({
@@ -31,4 +31,4 @@ const checkUserHistory = async (
   }
 };
 
-export default checkUserHistory;
+export default getLastestConnections;

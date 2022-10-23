@@ -7,6 +7,7 @@ interface ConnectedUsersSpecs {
 export class Users {
   #currentlyConnectedUsers: ConnectedUsersSpecs[] = [];
   connectUser = (userId: number, socketId: string) => {
+    console.log('Conn');
     if (!this.#currentlyConnectedUsers.some(user => user.userId === userId)) {
       this.#currentlyConnectedUsers.push({
         userId,
@@ -16,12 +17,13 @@ export class Users {
   };
 
   isUserAuthorized = (userId: unknown, socketId: string): boolean => {
+    console.log('Auth');
+    console.log(this.#currentlyConnectedUsers);
     const check = this.#currentlyConnectedUsers.some(connectedUser => {
       return (
         connectedUser.userId === userId && connectedUser.socketId === socketId
       );
     });
-    console.log(check);
     return check;
   };
 

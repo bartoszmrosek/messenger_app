@@ -31,7 +31,6 @@ const UserConnections = ({
       ) : (
         <section className="flex flex-col gap-3 h-full w-full items-center divide-y-2 divide-slate-100 p-5">
           {groupedUsers.map(userNode => {
-            console.log(userNode.created_at);
             return (
               <button
                 key={userNode.message_id}
@@ -42,7 +41,10 @@ const UserConnections = ({
                 <div className="flex flex-row justify-between w-full text-justify overflow-x-clip items-end">
                   <span className="truncate whitespace-nowrap">
                     <h3 className="font-bold text-lg">{userNode.username}</h3>
-                    <p className="truncate text-black/50">{userNode.message}</p>
+                    <p className="truncate text-black/50">
+                      {userNode.sender_user_id === loggedUserId && 'You:'}
+                      {userNode.message}
+                    </p>
                   </span>
                   <p className="m-1 text-sm text-black/50">
                     {moment(userNode.created_at).fromNow()}
