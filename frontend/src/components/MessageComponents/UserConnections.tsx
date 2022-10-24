@@ -29,13 +29,13 @@ const UserConnections = ({
           chat with!
         </div>
       ) : (
-        <section className="flex flex-col gap-3 h-full w-full items-center divide-y-2 divide-slate-100 p-5 md:w-3/12 md:mt-20">
+        <section className="flex flex-col gap-3 h-full w-full items-center divide-y-2 divide-slate-100 p-5 md:w-3/12">
           {connections.map(userNode => {
             return (
               <button
                 key={userNode.message_id}
                 onClick={() => handleChatChange(userToSendMessageTo(userNode))}
-                className="h-16 w-full flex flex-row justify-start items-center"
+                className="h-16 w-full flex flex-row justify-start items-center first-of-type:md:mt-20"
               >
                 <SvgIcons type="user" className="h-16 w-16" />
                 <div className="flex flex-row justify-between w-full text-justify overflow-x-clip items-end">

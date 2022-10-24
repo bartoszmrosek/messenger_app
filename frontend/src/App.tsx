@@ -95,7 +95,12 @@ const App = () => {
           />
           {loggedUser && (
             <>
-              <Route path="/Messages" element={<Messages />} />
+              <Route
+                path="/Messages"
+                element={
+                  <Messages setRenderNavOnMobile={setRenderNavOnMobile} />
+                }
+              />
               <Route path="/SearchResults" element={<SearchResultsPage />} />
             </>
           )}
