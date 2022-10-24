@@ -85,8 +85,12 @@ const Messeges = ({
         );
     }
 
-    if (state && state.activeChat) {
-      setActiveChat(state.activeChat);
+    if (state && state.activeChat && state.from) {
+      if (state.from === '/SearchResultsPage') {
+        setActiveChat(state.activeChat);
+      } else {
+        setActiveChat(null);
+      }
     }
   }, [isConnectingUser, retrySwtich]);
 
@@ -106,7 +110,7 @@ const Messeges = ({
     };
   }, [userConnetions]);
 
-  const handleChatChange = chatNum => {
+  const handleChatChange = (chatNum: number) => {
     setActiveChat(chatNum);
     if (media === 'sm') {
       setShouldOpenMobileChat(true);
