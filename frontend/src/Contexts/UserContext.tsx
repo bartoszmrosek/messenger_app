@@ -28,9 +28,10 @@ export interface userInformationsInterface {
 export interface UserContextExports {
   loggedUser: userInformationsInterface;
   loginUser: userPropertiesInterface;
-  userMessages: userMessageInterface[];
-  setMessagesFromHistory: (newMessage: userMessageInterface[]) => void;
-  handleNewMessage: (messages: userMessageInterface) => void;
+  userConnetions: userMessageInterface[];
+  setUserConnections: React.Dispatch<
+    React.SetStateAction<userMessageInterface[]>
+  >;
   logoutUser: () => void;
   connectingUserState: {
     isConnectingUser: boolean;
@@ -43,7 +44,9 @@ const UserContext = createContext<UserContextExports>(null);
 const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   children,
 }) => {
-  const [userMessages, setUserMessages] = useState<userMessageInterface[]>([]);
+  const [userConnetions, setUserConnections] = useState<userMessageInterface[]>(
+    [],
+  );
   const [isConnectingUser, setIsConnectingUser] = useState<boolean | null>(
     null,
   );
@@ -54,38 +57,19 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
 
   const logoutUser = () => {
     removeLoggedUser();
-    setUserMessages([]);
+    setUserConnections([]);
   };
 
   const loginUser: userPropertiesInterface = (user_id, username, email) => {
     setLoggedUser({ user_id, username, email });
   };
 
-  const setMessagesFromHistory = (messages: userMessageInterface[]) => {
-    const nullMessagesToNewUsers = userMessages.filter(message => {
-      return message.message === null;
-    });
-    setUserMessages([...messages, ...nullMessagesToNewUsers]);
-  };
-
-  const handleNewMessage = (newMessage: userMessageInterface) => {
-    if (
-      !(
-        newMessage.message === null &&
-        userMessages.some(message => message.username === newMessage.username)
-      )
-    ) {
-      setUserMessages(prevList => [...prevList, newMessage]);
-    }
-  };
-
   return (
     <UserContext.Provider
       value={{
         loggedUser,
-        userMessages,
-        setMessagesFromHistory,
-        handleNewMessage,
+        userConnetions,
+        setUserConnections,
         loginUser,
         logoutUser,
         connectingUserState: {

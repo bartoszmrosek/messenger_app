@@ -5,13 +5,13 @@ import moment from 'moment';
 
 interface UserConnectionsProps {
   loggedUserId: number;
-  groupedUsers: userMessageInterface[];
+  connections: userMessageInterface[];
   handleChatChange: (user_id: number) => void;
 }
 
 const UserConnections = ({
   loggedUserId,
-  groupedUsers,
+  connections,
   handleChatChange,
 }: UserConnectionsProps) => {
   const userToSendMessageTo = (userNode: userMessageInterface): number => {
@@ -23,14 +23,14 @@ const UserConnections = ({
   };
   return (
     <>
-      {groupedUsers.length < 1 ? (
+      {connections.length < 1 ? (
         <div className="h-full w-full flex justify-center items-center text-center p-10 text-lg">
           It seems that you don`t have any conversations yet, search for user to
           chat with!
         </div>
       ) : (
-        <section className="flex flex-col gap-3 h-full w-full items-center divide-y-2 divide-slate-100 p-5">
-          {groupedUsers.map(userNode => {
+        <section className="flex flex-col gap-3 h-full w-full items-center divide-y-2 divide-slate-100 p-5 md:w-3/12 md:mt-20">
+          {connections.map(userNode => {
             return (
               <button
                 key={userNode.message_id}
@@ -46,7 +46,7 @@ const UserConnections = ({
                       {userNode.message}
                     </p>
                   </span>
-                  <p className="m-1 text-sm text-black/50">
+                  <p className="m-1 text-sm text-black/50 whitespace-nowrap">
                     {moment(userNode.created_at).fromNow()}
                   </p>
                 </div>

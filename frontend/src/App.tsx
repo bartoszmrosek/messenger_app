@@ -3,7 +3,7 @@ import RegisterUserForm from './pages/RegisterUserForm';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import LoginForm from './pages/LoginForm';
-import Messeges from './pages/Messages';
+import Messages from './pages/Messages';
 import SearchResultsPage from './pages/SeachResultsPage';
 import { UserContext } from './Contexts/UserContext';
 import { SocketContext } from './Contexts/SocketContext';
@@ -95,7 +95,7 @@ const App = () => {
           />
           {loggedUser && (
             <>
-              <Route path="/Messeges" element={<Messeges />} />
+              <Route path="/Messages" element={<Messages />} />
               <Route path="/SearchResults" element={<SearchResultsPage />} />
             </>
           )}

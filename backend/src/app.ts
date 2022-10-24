@@ -53,7 +53,7 @@ io.on('connection', socket => {
       void searchUser(payload, callback, db);
     });
 
-    socket.on('checkUserHistory', (userId: number, callback: any) => {
+    socket.on('checkUserConnetions', (userId: number, callback: any) => {
       if (users.isUserAuthorized(userId, socket.id)) {
         void getLastestConnections(userId, callback, db);
       } else {

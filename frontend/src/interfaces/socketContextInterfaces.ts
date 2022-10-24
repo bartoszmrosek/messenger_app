@@ -12,7 +12,7 @@ export interface ClientToServerEvents {
   checkUserLoginData: (...args: any) => void;
   checkOrCreateUser: (...args: any) => void;
   searchUser: (...args: any) => void;
-  checkUserHistory: (...args: any) => void;
+  checkUserConnetions: (...args: any) => void;
   newMessageToServer: (...args: any) => void;
   logoutUser: (...args: any) => void;
 }

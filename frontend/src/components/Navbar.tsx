@@ -74,7 +74,10 @@ const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
   const shouldRenderUser = () => {
     if (loggedUser !== undefined && loggedUser !== null && media !== 'sm') {
       const fillingColor =
-        location.pathname === '/SearchResults/' ? 'main-purple' : 'porcelain';
+        location.pathname === '/SearchResults/' ||
+        location.pathname === '/Messages'
+          ? 'main-purple'
+          : 'porcelain';
       return (
         <section className={`flex flex-row text-${fillingColor}`}>
           <SvgIcons type="user" className={`w-20 h-20 fill-${fillingColor}`} />
@@ -180,7 +183,7 @@ const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
           )}
           {loggedUser && (
             <NavLink
-              to="Messeges"
+              to="Messages"
               className="align-middle justify-self-center flex justify-center items-center md:block w-full h-full"
             >
               {media !== 'sm' ? (
