@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { nanoid } from 'nanoid';
 
 import { SocketContext } from '../Contexts/SocketContext';
-import { UserContext } from '../Contexts/UserContext';
+import { UserContext, userMessageInterface } from '../Contexts/UserContext';
 import useErrorType from '../hooks/useErrorType';
 
 import { UserContextExports } from '../Contexts/UserContext';
@@ -20,7 +20,7 @@ import Loader from '../components/Loader';
 const SearchResultsPage = () => {
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
-  const { loggedUser, handleNewMessage } = useContext(
+  const { loggedUser, userConnetions, setUserConnections } = useContext(
     UserContext,
   ) as UserContextExports;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -33,16 +33,27 @@ const SearchResultsPage = () => {
 
   const makeNewMessage = (userId: number, username: string) => {
     if (loggedUser) {
-      handleNewMessage({
+      const nullMessage: userMessageInterface = {
         message_id: nanoid(),
         username: username,
         message: null,
-        sender_user_id: loggedUser?.user_id,
+        sender_user_id: loggedUser.user_id,
         reciever_user_id: userId,
         isRead: null,
         created_at: null,
-      });
-      navigate('/Messeges', { state: { activeChat: userId } });
+      };
+
+      if (
+        !userConnetions.some(message => {
+          return (
+            message.message === null &&
+            message.reciever_user_id === nullMessage.reciever_user_id
+          );
+        })
+      ) {
+        setUserConnections(prev => [nullMessage, ...prev]);
+      }
+      navigate('/Messages', { state: { activeChat: userId } });
     }
   };
 

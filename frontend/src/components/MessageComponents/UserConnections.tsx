@@ -40,15 +40,21 @@ const UserConnections = ({
                 <SvgIcons type="user" className="h-16 w-16" />
                 <div className="flex flex-row justify-between w-full text-justify overflow-x-clip items-end">
                   <span className="truncate whitespace-nowrap">
-                    <h3 className="font-bold text-lg">{userNode.username}</h3>
-                    <p className="truncate text-black/50">
-                      {userNode.sender_user_id === loggedUserId && 'You:'}
-                      {userNode.message}
-                    </p>
+                    <h3 className="font-bold text-lg capitalize">
+                      {userNode.username}
+                    </h3>
+                    {userNode.message !== null && (
+                      <p className="truncate text-black/50">
+                        {userNode.sender_user_id === loggedUserId && 'You: '}
+                        {userNode.message}
+                      </p>
+                    )}
                   </span>
-                  <p className="m-1 text-sm text-black/50 whitespace-nowrap">
-                    {moment(userNode.created_at).fromNow()}
-                  </p>
+                  {userNode.message !== null && (
+                    <p className="m-1 text-sm text-black/50 whitespace-nowrap">
+                      {moment(userNode.created_at).fromNow()}
+                    </p>
+                  )}
                 </div>
               </button>
             );

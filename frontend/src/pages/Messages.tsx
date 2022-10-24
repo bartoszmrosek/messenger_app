@@ -73,7 +73,12 @@ const Messeges = ({
               setIsLoading(false);
             } else {
               setError(null);
-              setUserConnections(response.payload);
+              setUserConnections(prev => {
+                const onlyNullMessages = prev.filter(message => {
+                  return message.message === null ? true : false;
+                });
+                return [...onlyNullMessages, ...response.payload];
+              });
               setIsLoading(false);
             }
           },
