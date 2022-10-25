@@ -47,12 +47,10 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   const [userConnetions, setUserConnections] = useState<userMessageInterface[]>(
     [],
   );
-  const [isConnectingUser, setIsConnectingUser] = useState<boolean | null>(
-    null,
-  );
+  const [isConnectingUser, setIsConnectingUser] = useState<boolean>(false);
   const [loggedUser, setLoggedUser, removeLoggedUser] = useLocalStorage(
     'user',
-    null,
+    true,
   );
 
   const logoutUser = () => {

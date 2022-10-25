@@ -19,11 +19,13 @@ export class Users {
   isUserAuthorized = (userId: unknown, socketId: string): boolean => {
     console.log('Auth');
     console.log(this.#currentlyConnectedUsers);
+    console.log(userId, socketId);
     const check = this.#currentlyConnectedUsers.some(connectedUser => {
       return (
         connectedUser.userId === userId && connectedUser.socketId === socketId
       );
     });
+    console.log(check);
     return check;
   };
 

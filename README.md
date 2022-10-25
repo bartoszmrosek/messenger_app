@@ -13,6 +13,7 @@ while also being nice to look at and great with usability.
 - React hook form
 - Tailwind CSS
 - MomentJs
+- Axios
 
 ### Backend:
 
@@ -26,3 +27,4 @@ while also being nice to look at and great with usability.
 - Typescript
 - Socket.io
 - nanoid
+- JWT

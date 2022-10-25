@@ -14,6 +14,7 @@ import {
   ServerToClientEvents,
   ClientToServerEvents,
 } from './interfaces/socketContextInterfaces';
+import axios from 'axios';
 
 const App = () => {
   const { loggedUser, loginUser, logoutUser, connectingUserState } = useContext(
@@ -26,6 +27,21 @@ const App = () => {
     useState<boolean>(false);
   const navigate = useNavigate();
   const { setIsConnectingUser } = connectingUserState;
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const res = await axios.post('http://127.0.0.1:3030/api/Register', {
+          username: 'EmotekPL',
+        });
+        console.log(res);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetch();
+  }, []);
+
   useEffect(() => {
     /* 
       This doesn't explain itself well, so i thought about writing this comment,
@@ -55,7 +71,8 @@ const App = () => {
               setIsConnectingUser(false);
               if (logoutUser) logoutUser();
               navigate('/Login');
-            } else {
+            }
+            if (dbResponse.type === 'confirm') {
               const { payload } = dbResponse;
               if (loginUser !== undefined) {
                 loginUser(payload.user_id, payload.username, payload.email);

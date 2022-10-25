@@ -55,6 +55,7 @@ const Messeges = ({
   };
 
   useEffect(() => {
+    console.log(isConnectingUser);
     if (loggedUser && isConnectingUser !== null && !isConnectingUser) {
       standardSocket
         .timeout(10000)
