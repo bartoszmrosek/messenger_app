@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 
 import express from 'express';
+import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
@@ -13,6 +14,7 @@ import searchUser from './utils/searchUser';
 import getLastestConnections from './utils/getUserLatestConnections';
 import handleNewMessage from './utils/handleNewMessage';
 import { DbQueries, newMessage, userLoginDetails } from './queries';
+import authTokenMiddleware from './middleware/authenticate.middleware';
 
 const PORT = process.env.PORT || 3030;
 const app = express();
@@ -25,6 +27,19 @@ const io = new Server(httpServer, {
 
 const db = new DbQueries();
 const users = new Users();
+
+export interface RegisterUser {
+  username: string;
+  password: string;
+  email: string;
+}
+
+app.use(cors({ origin: '*' }));
+app.use(express.json());
+
+app.post('/api/Register', (req, res) => {
+  const data: RegisterUser = req.body;
+});
 
 io.on('connection', socket => {
   try {
