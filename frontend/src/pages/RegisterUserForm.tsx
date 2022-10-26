@@ -10,6 +10,7 @@ import {
 import AnimatedBlobs from '../components/AnimatedBlobs';
 import FormTemplate from '../components/FormsComponents/FormTemplate';
 import { mainSubmit } from '../components/FormsComponents/FormTemplate';
+import useFetch from '../hooks/useFetch';
 
 const RegisterUserForm = ({
   setRenderNavOnMobile,
@@ -18,6 +19,7 @@ const RegisterUserForm = ({
 }) => {
   const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
     useContext(SocketContext);
+  const { data } = useFetch('/api/Regster');
 
   const onSubmit: mainSubmit = (
     data,
