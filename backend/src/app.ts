@@ -13,7 +13,12 @@ import checkUserLoginData from './utils/checkUserLoginData';
 import searchUser from './utils/searchUser';
 import getLastestConnections from './utils/getUserLatestConnections';
 import handleNewMessage from './utils/handleNewMessage';
-import { DbQueries, newMessage, userLoginDetails } from './queries';
+import {
+  DbQueries,
+  newMessage,
+  userDetails,
+  userLoginDetails,
+} from './queries';
 import authTokenMiddleware from './middleware/authenticate.middleware';
 
 const PORT = process.env.PORT || 3030;
@@ -28,34 +33,25 @@ const io = new Server(httpServer, {
 const db = new DbQueries();
 const users = new Users();
 
-export interface RegisterUser {
-  username: string;
-  password: string;
-  email: string;
-}
-
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-app.post('/api/Register', (req, res) => {
-  const data: RegisterUser = req.body;
+app.post('/api/Register', async (req, res) => {
+  if (
+    typeof req.body.username === 'string' &&
+    typeof req.body.email === 'string' &&
+    typeof req.body.password === 'string'
+  ) {
+    const data: userDetails = req.body;
+    const resCode = await checkOrCreateUser(data, db);
+    res.sendStatus(resCode);
+  } else {
+    res.sendStatus(400);
+  }
 });
 
 io.on('connection', socket => {
   try {
-    socket.on(
-      'checkOrCreateUser',
-      (
-        payload: {
-          data: { password: string; username: string; email: string };
-        },
-        callback,
-      ) => {
-        const { data } = payload;
-        void checkOrCreateUser(data, callback, db);
-      },
-    );
-
     socket.on(
       'checkUserLoginData',
       (payload: { data: userLoginDetails }, callback) => {

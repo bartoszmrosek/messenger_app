@@ -35,6 +35,15 @@ const useErrorType = () => {
       case 5:
         setErrorType('No authorization for given event');
         break;
+      case 409:
+        setErrorType('User already exists');
+        break;
+      case 400:
+        setErrorType('Bad request');
+        break;
+      case 500:
+        setErrorType('Server internal error');
+        break;
       case null:
         setErrorType(null);
         break;

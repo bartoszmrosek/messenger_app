@@ -50,7 +50,7 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   const [isConnectingUser, setIsConnectingUser] = useState<boolean>(false);
   const [loggedUser, setLoggedUser, removeLoggedUser] = useLocalStorage(
     'user',
-    true,
+    null,
   );
 
   const logoutUser = () => {
