@@ -7,6 +7,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
+import ms from 'ms';
 
 import { Users } from './users';
 
@@ -51,25 +52,36 @@ app.post('/api/Register', async (req, res) => {
 
 app.post('/api/Login', async (req, res) => {
   const token: unknown = req.cookies.token;
+  const checkingAuth = await checkUserLoginData(req.body, db);
   if (typeof token === 'string') {
+    console.log(token);
     jwt.verify(
       token,
       process.env.SECRET_KEY as string,
       async (err: Error, user: userDetails) => {
         console.log(err, user);
-        if (err) return res.send(401);
-        res.send(user);
+        if (err) {
+          res.cookie('token', 'rubbish', { maxAge: 0 });
+          return res.sendStatus(401);
+        } else {
+          return res.send(user);
+        }
       },
     );
   } else {
-    const checkingAuth = await checkUserLoginData(req.body, db);
     if (typeof checkingAuth === 'object') {
       const newToken = jwt.sign(
         checkingAuth.results,
         process.env.SECRET_KEY as string,
-        { expiresIn: '30m' },
+        { expiresIn: '1m' },
       );
-      res.cookie('token', newToken).send(checkingAuth.results);
+      const date = new Date();
+      const now = date.getTime();
+      const expire = now + ms('1m');
+      date.setTime(expire);
+      res
+        .cookie('token', newToken, { httpOnly: true, expires: date })
+        .send(checkingAuth.results);
     } else {
       res.sendStatus(checkingAuth);
     }

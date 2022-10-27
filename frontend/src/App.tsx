@@ -45,8 +45,11 @@ const App = () => {
           }),
           credentials: 'include',
         });
-        console.log(response);
-        console.log(document.cookie);
+        if (response.ok) {
+          console.log(await response.json());
+        } else {
+          console.log(response.statusText);
+        }
       } catch (error) {
         console.log(error);
       }
