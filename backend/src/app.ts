@@ -5,7 +5,8 @@ import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import cookieParser from 'cookie-parser'
+import cookieParser from 'cookie-parser';
+import jwt from 'jsonwebtoken';
 
 import { Users } from './users';
 
@@ -14,12 +15,8 @@ import checkUserLoginData from './utils/checkUserLoginData';
 import searchUser from './utils/searchUser';
 import getLastestConnections from './utils/getUserLatestConnections';
 import handleNewMessage from './utils/handleNewMessage';
-import {
-  DbQueries,
-  newMessage,
-  userDetails,
-  userLoginDetails,
-} from './queries';
+import { DbQueries, newMessage, userDetails } from './queries';
+import 'dotenv/config';
 import authTokenMiddleware from './middleware/authenticate.middleware';
 
 const PORT = process.env.PORT || 3030;
@@ -34,7 +31,7 @@ const io = new Server(httpServer, {
 const db = new DbQueries();
 const users = new Users();
 
-app.use(cors({ origin: '*' }));
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(cookieParser());
 app.use(express.json());
 
@@ -52,16 +49,35 @@ app.post('/api/Register', async (req, res) => {
   }
 });
 
-io.on('connection', socket => {
-  try {
-    socket.on(
-      'checkUserLoginData',
-      (payload: { data: userLoginDetails }, callback) => {
-        const { data } = payload;
-        void checkUserLoginData(data, callback, socket.id, db, users);
+app.post('/api/Login', async (req, res) => {
+  const token: unknown = req.cookies.token;
+  if (typeof token === 'string') {
+    jwt.verify(
+      token,
+      process.env.SECRET_KEY as string,
+      async (err: Error, user: userDetails) => {
+        console.log(err, user);
+        if (err) return res.send(401);
+        res.send(user);
       },
     );
+  } else {
+    const checkingAuth = await checkUserLoginData(req.body, db);
+    if (typeof checkingAuth === 'object') {
+      const newToken = jwt.sign(
+        checkingAuth.results,
+        process.env.SECRET_KEY as string,
+        { expiresIn: '30m' },
+      );
+      res.cookie('token', newToken).send(checkingAuth.results);
+    } else {
+      res.sendStatus(checkingAuth);
+    }
+  }
+});
 
+io.on('connection', socket => {
+  try {
     socket.on('searchUser', (payload: string, callback) => {
       void searchUser(payload, callback, db);
     });

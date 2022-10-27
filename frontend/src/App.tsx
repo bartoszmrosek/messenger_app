@@ -32,6 +32,25 @@ const App = () => {
       This doesn't explain itself well, so i thought about writing this comment,
       it reautorizes user if connection is estabilished after losing it
     */
+    (async () => {
+      try {
+        const response = await fetch('http://localhost:3030/api/Login', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json;charset=UTF-8',
+          },
+          body: JSON.stringify({
+            email: 'bartoszmrosek@op.pl',
+            password: 'wasd',
+          }),
+          credentials: 'include',
+        });
+        console.log(response);
+        console.log(document.cookie);
+      } catch (error) {
+        console.log(error);
+      }
+    })();
     standardSocket.on('connect', () => {
       if (loggedUser) {
         standardSocket.timeout(10000).emit(

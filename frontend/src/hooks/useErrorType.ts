@@ -41,6 +41,9 @@ const useErrorType = () => {
       case 400:
         setErrorType('Bad request');
         break;
+      case 401:
+        setErrorType('Login failed');
+        break;
       case 500:
         setErrorType('Server internal error');
         break;

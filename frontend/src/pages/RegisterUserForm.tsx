@@ -1,26 +1,16 @@
-import React, { useContext } from 'react';
-import { SocketContext } from '../Contexts/SocketContext';
-import { standardDbResponse } from '../interfaces/dbResponsesInterface';
+import React, { useEffect } from 'react';
 
-import { Socket } from 'socket.io-client';
-import {
-  ServerToClientEvents,
-  ClientToServerEvents,
-} from '../interfaces/socketContextInterfaces';
 import AnimatedBlobs from '../components/AnimatedBlobs';
 import FormTemplate from '../components/FormsComponents/FormTemplate';
 import { mainSubmit } from '../components/FormsComponents/FormTemplate';
-import useFetch from '../hooks/useFetch';
 
 const RegisterUserForm = ({
   setRenderNavOnMobile,
 }: {
   setRenderNavOnMobile: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
-    useContext(SocketContext);
-  const { data } = useFetch('/api/Regster');
-
+  const controller = new AbortController();
+  const signal = controller.signal;
   const onSubmit: mainSubmit = (
     data,
     setLoading,
@@ -28,29 +18,37 @@ const RegisterUserForm = ({
     setError,
     setSuccess,
   ) => {
-    setLoading(true);
-    standardSocket
-      .timeout(10000)
-      .emit(
-        'checkOrCreateUser',
-        { data },
-        (error: unknown, dbResponse: standardDbResponse<null | number>) => {
-          setLoading(false);
-          setFormStateResetSwitch(prev => !prev);
-          if (error) {
-            setError(error);
-          } else {
-            if (dbResponse.type === 'confirm') {
-              setError(null);
-              setSuccess('Registered!');
-            } else {
-              setSuccess(null);
-              setError(dbResponse.payload);
-            }
-          }
-        },
-      );
+    (async () => {
+      setLoading(true);
+      try {
+        const response = await fetch('http://localhost:3030/api/Register', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json;charset=UTF-8',
+          },
+          signal,
+          body: JSON.stringify(data),
+        });
+        if (response.ok) {
+          setSuccess('Registration succeded');
+        } else {
+          setError(response.status);
+        }
+      } catch (error) {
+        setSuccess(null);
+        setError(error);
+      } finally {
+        setLoading(false);
+        setFormStateResetSwitch(prev => !prev);
+      }
+    })();
   };
+
+  useEffect(() => {
+    return () => {
+      controller.abort();
+    };
+  }, []);
 
   return (
     <div className="flex items-center justify-center h-screen w-screen absolute inset-0">
