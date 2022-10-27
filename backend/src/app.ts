@@ -5,6 +5,7 @@ import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import cookieParser from 'cookie-parser'
 
 import { Users } from './users';
 
@@ -34,6 +35,7 @@ const db = new DbQueries();
 const users = new Users();
 
 app.use(cors({ origin: '*' }));
+app.use(cookieParser());
 app.use(express.json());
 
 app.post('/api/Register', async (req, res) => {
