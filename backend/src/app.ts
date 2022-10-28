@@ -44,22 +44,37 @@ app.post('/api/Register', async (req, res) => {
   ) {
     const data: userDetails = req.body;
     const resCode = await checkOrCreateUser(data, db);
-    res.sendStatus(resCode);
-  } else {
-    res.sendStatus(400);
+    return res.sendStatus(resCode);
   }
+  return res.sendStatus(400);
 });
 
 app.post('/api/Login', async (req, res) => {
   const token: unknown = req.cookies.token;
-  const checkingAuth = await checkUserLoginData(req.body, db);
+  const checkingAuth =
+    typeof req.body.email === 'string' && typeof req.body.email === 'string'
+      ? await checkUserLoginData(req.body, db)
+      : 400;
+  if (typeof checkingAuth === 'number') return res.sendStatus(checkingAuth);
+  if (typeof checkingAuth === 'object') {
+    const newToken = jwt.sign(
+      checkingAuth.results,
+      process.env.SECRET_KEY as string,
+      { expiresIn: '1m' },
+    );
+    const date = new Date();
+    const now = date.getTime();
+    const expire = now + ms('1m');
+    date.setTime(expire);
+    return res
+      .cookie('token', newToken, { httpOnly: true, expires: date })
+      .send(checkingAuth.results);
+  }
   if (typeof token === 'string') {
-    console.log(token);
     jwt.verify(
       token,
       process.env.SECRET_KEY as string,
       async (err: Error, user: userDetails) => {
-        console.log(err, user);
         if (err) {
           res.cookie('token', 'rubbish', { maxAge: 0 });
           return res.sendStatus(401);
@@ -68,24 +83,8 @@ app.post('/api/Login', async (req, res) => {
         }
       },
     );
-  } else {
-    if (typeof checkingAuth === 'object') {
-      const newToken = jwt.sign(
-        checkingAuth.results,
-        process.env.SECRET_KEY as string,
-        { expiresIn: '1m' },
-      );
-      const date = new Date();
-      const now = date.getTime();
-      const expire = now + ms('1m');
-      date.setTime(expire);
-      res
-        .cookie('token', newToken, { httpOnly: true, expires: date })
-        .send(checkingAuth.results);
-    } else {
-      res.sendStatus(checkingAuth);
-    }
   }
+  return res.sendStatus(checkingAuth);
 });
 
 io.on('connection', socket => {

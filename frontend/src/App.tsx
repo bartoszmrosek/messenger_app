@@ -6,21 +6,15 @@ import LoginForm from './pages/LoginForm';
 import Messages from './pages/Messages';
 import SearchResultsPage from './pages/SeachResultsPage';
 import { UserContext } from './Contexts/UserContext';
-import { SocketContext } from './Contexts/SocketContext';
-import { UserContextExports } from './Contexts/UserContext';
-import { standardDbResponse } from './interfaces/dbResponsesInterface';
-import { Socket } from 'socket.io-client';
 import {
-  ServerToClientEvents,
-  ClientToServerEvents,
-} from './interfaces/socketContextInterfaces';
+  UserContextExports,
+  userInformationsInterface,
+} from './Contexts/UserContext';
 
 const App = () => {
   const { loggedUser, loginUser, logoutUser, connectingUserState } = useContext(
     UserContext,
   ) as UserContextExports;
-  const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
-    useContext(SocketContext);
   const [renderNavOnMobile, setRenderNavOnMobile] = useState<boolean>(true);
   const [searchOverlayOpened, setSearchOverlayOpened] =
     useState<boolean>(false);
@@ -32,67 +26,31 @@ const App = () => {
       This doesn't explain itself well, so i thought about writing this comment,
       it reautorizes user if connection is estabilished after losing it
     */
-    (async () => {
-      try {
-        const response = await fetch('http://localhost:3030/api/Login', {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json;charset=UTF-8',
-          },
-          body: JSON.stringify({
-            email: 'bartoszmrosek@op.pl',
-            password: 'wasd',
-          }),
-          credentials: 'include',
-        });
-        if (response.ok) {
-          console.log(await response.json());
-        } else {
-          console.log(response.statusText);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    })();
-    standardSocket.on('connect', () => {
-      if (loggedUser) {
-        standardSocket.timeout(10000).emit(
-          'checkUserLoginData',
-          {
-            data: {
-              email: loggedUser.email,
-              password: loggedUser.user_id,
+    if (loggedUser) {
+      (async () => {
+        try {
+          const response = await fetch('http://localhost:3030/api/Login', {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json;charset=UTF-8',
             },
-          },
-          (
-            error: unknown,
-            dbResponse: standardDbResponse<{
-              user_id: number;
-              username: string;
-              email: string;
-              password: string;
-            }>,
-          ) => {
-            setIsConnectingUser(true);
-            if (error || dbResponse.type === 'error') {
-              setIsConnectingUser(false);
-              if (logoutUser) logoutUser();
-              navigate('/Login');
+            credentials: 'include',
+          });
+          if (response.ok) {
+            const data: userInformationsInterface = await response.json();
+            const { user_id, username, email } = data;
+            if (user_id && username && email) {
+              loginUser(user_id, username, email);
             }
-            if (dbResponse.type === 'confirm') {
-              const { payload } = dbResponse;
-              if (loginUser !== undefined) {
-                loginUser(payload.user_id, payload.username, payload.email);
-              }
-              setIsConnectingUser(false);
-            }
-          },
-        );
-      }
-    });
-    return () => {
-      standardSocket.io.off('reconnect');
-    };
+          } else {
+            throw 'relogin needed';
+          }
+        } catch (error) {
+          logoutUser();
+          navigate('/Login', { state: { relogin: true } });
+        }
+      })();
+    }
   }, []);
 
   return (

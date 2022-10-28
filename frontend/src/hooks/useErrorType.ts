@@ -18,12 +18,6 @@ const useErrorType = () => {
       case 0:
         setErrorType('Cannot connect to database');
         break;
-      case 1:
-        setErrorType('User already exists');
-        break;
-      case 2:
-        setErrorType('Login failed');
-        break;
       case 3:
         setErrorType('User does not exist or informations are wrong');
         break;

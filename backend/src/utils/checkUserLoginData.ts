@@ -11,10 +11,6 @@ const checkUserLoginData = async (
       userLoginData,
     );
     if (typeof loginTryResult === 'number') {
-      if (loginTryResult === 3) {
-        return 401;
-      }
-      console.log(loginTryResult);
       return 400;
     } else {
       return {
@@ -23,6 +19,9 @@ const checkUserLoginData = async (
       };
     }
   } catch (error) {
+    if (error === 3) {
+      return 401;
+    }
     console.log('[utils][checkUserLoginData] error: ', error);
     return 500;
   }
