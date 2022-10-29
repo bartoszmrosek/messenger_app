@@ -49,7 +49,7 @@ const LoginForm = ({
     }
   };
   return (
-    <div className="flex items-center justify-center h-screen w-screen absolute inset-0">
+    <div className="flex items-center justify-center h-screen w-screen absolute inset-0 bg-inherit">
       <AnimatedBlobs />
       <FormTemplate
         title="Login"
