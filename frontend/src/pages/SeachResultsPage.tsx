@@ -2,24 +2,15 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { nanoid } from 'nanoid';
 
-import { SocketContext } from '../Contexts/SocketContext';
 import { UserContext, userMessageInterface } from '../Contexts/UserContext';
 import useErrorType from '../hooks/useErrorType';
 
 import { UserContextExports } from '../Contexts/UserContext';
-import { standardDbResponse } from '../interfaces/dbResponsesInterface';
-import { Socket } from 'socket.io-client';
-import {
-  ServerToClientEvents,
-  ClientToServerEvents,
-} from '../interfaces/socketContextInterfaces';
 import FoundUserSection from '../components/SearchComponents/FoundUserSection';
 import ErrorDisplayer from '../components/ErrorDisplayer';
 import Loader from '../components/Loader';
 
 const SearchResultsPage = () => {
-  const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
-    useContext(SocketContext);
   const { loggedUser, userConnetions, setUserConnections } = useContext(
     UserContext,
   ) as UserContextExports;
@@ -63,62 +54,49 @@ const SearchResultsPage = () => {
     const username = searchParams.get('username');
     if (loggedUser && username && username.length > 0) {
       setIsLoading(true);
-      standardSocket
-        .timeout(10000)
-        .emit(
-          'searchUser',
-          username,
-          (
-            resError: unknown,
-            dbResponse: standardDbResponse<
-              [{ user_id: number; username: string }] | number
-            >,
-          ) => {
-            try {
-              if (resError || dbResponse.type === 'error') {
-                throw resError
-                  ? setError(resError)
-                  : setError(dbResponse.payload);
-              }
-              setError(null);
-              if (
-                Array.isArray(dbResponse.payload) &&
-                dbResponse.payload.length > 0
-              ) {
-                const listOfMatchingUsers = dbResponse.payload.map(element => {
-                  if (element.username !== loggedUser?.username) {
-                    return (
-                      <FoundUserSection
-                        key={element.user_id}
-                        userId={element.user_id}
-                        username={element.username}
-                        handleClick={makeNewMessage}
-                      />
-                    );
-                  }
-                });
-                setRenderedUsers(
-                  <div className="mx-8 flex flex-col gap-5 items-center">
-                    <h1 className="font-bold mt-12 lg:mt-28 text-2xl text-main-purple">
-                      Matched users:
-                    </h1>
-                    {listOfMatchingUsers}
-                  </div>,
-                );
-              } else {
-                setRenderedUsers(
-                  <div className="h-full w-full flex justify-center items-center lg:items-start text-xl font-semibold text-main-purple">
-                    <p className="lg:mt-28">No matches</p>
-                  </div>,
-                );
-              }
-            } catch (error) {
-              setError(error);
-            } finally {
-              setIsLoading(false);
-            }
-          },
-        );
+      (async () => {
+        try {
+          const response = await fetch(
+            `http://localhost:3030/api/Search?username=${username}`,
+            {
+              credentials: 'include',
+            },
+          );
+          if (!response.ok) throw response.status;
+          const result: [{ user_id: number; username: string }] =
+            await response.json();
+          if (result.length > 0) {
+            const withoutLoggedUser = result.map(user => {
+              return user.username !== loggedUser.username ? (
+                <FoundUserSection
+                  key={user.user_id}
+                  userId={user.user_id}
+                  username={user.username}
+                  handleClick={makeNewMessage}
+                />
+              ) : null;
+            });
+            setRenderedUsers(
+              <div className="mx-8 flex flex-col gap-5 items-center h-full">
+                <h1 className="font-bold mt-12 lg:mt-28 text-2xl text-main-purple">
+                  Matched users:
+                </h1>
+                {withoutLoggedUser}
+              </div>,
+            );
+          } else {
+            setRenderedUsers(
+              <div className="h-full w-full flex justify-center items-center lg:items-start text-xl font-semibold text-main-purple">
+                <p className="lg:mt-28">No matches</p>
+              </div>,
+            );
+          }
+        } catch (error) {
+          setError(error);
+        } finally {
+          setIsLoading(false);
+        }
+      })();
     }
   }, [searchParams.get('username'), retrySwitch]);
   return (

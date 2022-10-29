@@ -18,7 +18,9 @@ import getLastestConnections from './utils/getUserLatestConnections';
 import handleNewMessage from './utils/handleNewMessage';
 import { DbQueries, newMessage, userDetails } from './queries';
 import 'dotenv/config';
-import authTokenMiddleware from './middleware/authenticate.middleware';
+import authTokenMiddleware, {
+  IGetUserAuth,
+} from './middleware/authenticate.middleware';
 
 const PORT = process.env.PORT || 3030;
 const app = express();
@@ -55,23 +57,22 @@ app.post('/api/Login', async (req, res) => {
     typeof req.body.email === 'string' && typeof req.body.email === 'string'
       ? await checkUserLoginData(req.body, db)
       : 400;
-  if (typeof checkingAuth === 'number') return res.sendStatus(checkingAuth);
   if (typeof checkingAuth === 'object') {
     const newToken = jwt.sign(
       checkingAuth.results,
       process.env.SECRET_KEY as string,
-      { expiresIn: '1m' },
+      { expiresIn: '30m' },
     );
     const date = new Date();
     const now = date.getTime();
-    const expire = now + ms('1m');
+    const expire = now + ms('30m');
     date.setTime(expire);
     return res
       .cookie('token', newToken, { httpOnly: true, expires: date })
       .send(checkingAuth.results);
   }
   if (typeof token === 'string') {
-    jwt.verify(
+    return jwt.verify(
       token,
       process.env.SECRET_KEY as string,
       async (err: Error, user: userDetails) => {
@@ -87,12 +88,17 @@ app.post('/api/Login', async (req, res) => {
   return res.sendStatus(checkingAuth);
 });
 
+app.get('/api/Search', authTokenMiddleware, async (req: IGetUserAuth, res) => {
+  if (typeof req.query.username === 'string') {
+    const queryRes = await searchUser(req.query.username, db);
+    if (queryRes === 500) return res.sendStatus(500);
+    return res.send(queryRes);
+  }
+  return 400;
+});
+
 io.on('connection', socket => {
   try {
-    socket.on('searchUser', (payload: string, callback) => {
-      void searchUser(payload, callback, db);
-    });
-
     socket.on('checkUserConnetions', (userId: number, callback: any) => {
       if (users.isUserAuthorized(userId, socket.id)) {
         void getLastestConnections(userId, callback, db);

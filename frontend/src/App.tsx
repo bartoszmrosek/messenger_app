@@ -12,14 +12,13 @@ import {
 } from './Contexts/UserContext';
 
 const App = () => {
-  const { loggedUser, loginUser, logoutUser, connectingUserState } = useContext(
+  const { loggedUser, loginUser, logoutUser } = useContext(
     UserContext,
   ) as UserContextExports;
   const [renderNavOnMobile, setRenderNavOnMobile] = useState<boolean>(true);
   const [searchOverlayOpened, setSearchOverlayOpened] =
     useState<boolean>(false);
   const navigate = useNavigate();
-  const { setIsConnectingUser } = connectingUserState;
 
   useEffect(() => {
     /* 
@@ -54,7 +53,7 @@ const App = () => {
   }, []);
 
   return (
-    <div className="absolute inset-0 bg-porcelain">
+    <div className="absolute inset-0 bg-porcelain min-h-fit w-full">
       <Navbar
         shouldRender={renderNavOnMobile}
         setSearchOverlayOpened={setSearchOverlayOpened}
