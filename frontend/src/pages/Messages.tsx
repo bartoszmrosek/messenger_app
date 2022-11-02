@@ -32,8 +32,9 @@ const Messeges = ({
   const media = useMedia();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
-  console.log('Cookie:', document.cookie);
-  const socket = io(import.meta.env.VITE_REST_ENDPOINT);
+  const socket = io(import.meta.env.VITE_REST_ENDPOINT, {
+    withCredentials: true,
+  });
 
   // Specially for reason of displaying newest message in user connections
   const handleNewConnectionMessage = (message: userMessageInterface) => {

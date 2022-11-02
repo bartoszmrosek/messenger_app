@@ -8,6 +8,7 @@ import { Server } from 'socket.io';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import ms from 'ms';
+import { parse } from 'cookie';
 
 import { Users } from './users';
 
@@ -27,7 +28,8 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: '*',
+    origin: process.env.CORS_ORIGIN as string,
+    credentials: true,
   },
 });
 
@@ -105,14 +107,12 @@ app.get(
   },
 );
 
-io.engine.on(
-  'headers',
-  (_headers: any, request: { headers: { cookie: any } }) => {
-    console.log(request.headers.cookie);
-  },
-);
-
 io.on('connection', socket => {
+  const cookies = parse(socket.request.headers.cookie);
+  console.log(cookies.token || '');
+});
+
+io.on('connect', socket => {
   try {
     socket.on(
       'newMessageToServer',
