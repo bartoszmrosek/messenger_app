@@ -33,10 +33,6 @@ export interface UserContextExports {
     React.SetStateAction<userMessageInterface[]>
   >;
   logoutUser: () => void;
-  connectingUserState: {
-    isConnectingUser: boolean;
-    setIsConnectingUser: React.Dispatch<React.SetStateAction<boolean>>;
-  };
 }
 
 const UserContext = createContext<UserContextExports>(null);
@@ -47,7 +43,6 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   const [userConnetions, setUserConnections] = useState<userMessageInterface[]>(
     [],
   );
-  const [isConnectingUser, setIsConnectingUser] = useState<boolean>(false);
   const [loggedUser, setLoggedUser, removeLoggedUser] = useLocalStorage(
     'user',
     null,
@@ -70,10 +65,6 @@ const UserContextProvider: FunctionComponent<UserContextChildren> = ({
         setUserConnections,
         loginUser,
         logoutUser,
-        connectingUserState: {
-          isConnectingUser,
-          setIsConnectingUser,
-        },
       }}
     >
       {children}

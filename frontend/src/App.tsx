@@ -35,14 +35,11 @@ const App = () => {
             },
             credentials: 'include',
           });
-          if (response.ok) {
-            const data: userInformationsInterface = await response.json();
-            const { user_id, username, email } = data;
-            if (user_id && username && email) {
-              loginUser(user_id, username, email);
-            }
-          } else {
-            throw 'relogin needed';
+          if (!response.ok) throw 'relogin needed';
+          const data: userInformationsInterface = await response.json();
+          const { user_id, username, email } = data;
+          if (user_id && username && email) {
+            loginUser(user_id, username, email);
           }
         } catch (error) {
           logoutUser();
@@ -53,13 +50,13 @@ const App = () => {
   }, []);
 
   return (
-    <div className="absolute inset-0 bg-porcelain min-h-fit w-full">
+    <div className="absolute inset-0 bg-porcelain h-full w-full">
       <Navbar
         shouldRender={renderNavOnMobile}
         setSearchOverlayOpened={setSearchOverlayOpened}
       />
       <main
-        className={`transition-all duration-1000 h-full ${
+        className={`transition-all duration-1000 min-h-fit ${
           searchOverlayOpened && 'blur-sm'
         } bg-porcelain`}
       >

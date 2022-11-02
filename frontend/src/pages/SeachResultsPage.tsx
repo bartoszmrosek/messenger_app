@@ -57,7 +57,9 @@ const SearchResultsPage = () => {
       (async () => {
         try {
           const response = await fetch(
-            `http://localhost:3030/api/Search?username=${username}`,
+            `${
+              import.meta.env.VITE_REST_ENDPOINT
+            }/api/Search?username=${username}`,
             {
               credentials: 'include',
             },

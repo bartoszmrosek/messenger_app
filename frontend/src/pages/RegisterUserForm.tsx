@@ -21,14 +21,17 @@ const RegisterUserForm = ({
     (async () => {
       setLoading(true);
       try {
-        const response = await fetch('http://localhost:3030/api/Register', {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json;charset=UTF-8',
+        const response = await fetch(
+          `${import.meta.env.VITE_REST_ENDPOINT}/api/Register`,
+          {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json;charset=UTF-8',
+            },
+            signal,
+            body: JSON.stringify(data),
           },
-          signal,
-          body: JSON.stringify(data),
-        });
+        );
         if (response.ok) {
           setSuccess('Registration succeded');
         } else {

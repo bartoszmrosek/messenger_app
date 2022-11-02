@@ -23,14 +23,17 @@ const LoginForm = ({
   ) => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3030/api/Login', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json;charset=UTF-8',
+      const response = await fetch(
+        `${import.meta.env.VITE_REST_ENDPOINT}/api/Login`,
+        {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json;charset=UTF-8',
+          },
+          body: JSON.stringify(data),
+          credentials: 'include',
         },
-        body: JSON.stringify(data),
-        credentials: 'include',
-      });
+      );
       if (response.ok) {
         const data: userInformationsInterface = await response.json();
         const { user_id, username, email } = data;
