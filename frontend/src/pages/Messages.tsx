@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { SocketContext } from '../Contexts/SocketContext';
 import {
   UserContext,
   userMessageInterface,
@@ -9,11 +8,6 @@ import {
 import UserConnections from '../components/MessageComponents/UserConnections';
 import useErrorType from '../hooks/useErrorType';
 import { standardDbResponse } from '../interfaces/dbResponsesInterface';
-import { Socket } from 'socket.io-client';
-import {
-  ServerToClientEvents,
-  ClientToServerEvents,
-} from '../interfaces/socketContextInterfaces';
 import Loader from '../components/Loader';
 import ErrorDisplayer from '../components/ErrorDisplayer';
 import Chat from '../components/MessageComponents/Chat';
@@ -24,15 +18,9 @@ const Messeges = ({
 }: {
   setRenderNavOnMobile: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const {
-    loggedUser,
-    userConnetions,
-    setUserConnections,
-    connectingUserState,
-  } = useContext(UserContext) as UserContextExports;
-  const { isConnectingUser } = connectingUserState;
-  const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
-    useContext(SocketContext);
+  const { loggedUser, userConnetions, setUserConnections } = useContext(
+    UserContext,
+  ) as UserContextExports;
   const [activeChat, setActiveChat] = useState<null | number>(null);
   const [currChat, setCurrChat] = useState<userMessageInterface[]>(null);
   const [error, setError] = useErrorType();
@@ -43,6 +31,7 @@ const Messeges = ({
   const media = useMedia();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
+  const socket = socket;
 
   // Specially for reason of displaying newest message in user connections
   const handleNewConnectionMessage = (message: userMessageInterface) => {
@@ -55,8 +44,7 @@ const Messeges = ({
   };
 
   useEffect(() => {
-    console.log(isConnectingUser);
-    if (loggedUser && isConnectingUser !== null && !isConnectingUser) {
+    if (loggedUser) {
       standardSocket
         .timeout(10000)
         .emit(
@@ -93,7 +81,7 @@ const Messeges = ({
         setActiveChat(null);
       }
     }
-  }, [isConnectingUser, retrySwtich]);
+  }, [retrySwtich]);
 
   useEffect(() => {
     standardSocket.on(
