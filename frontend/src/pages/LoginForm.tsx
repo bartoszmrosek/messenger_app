@@ -13,7 +13,6 @@ const LoginForm = ({
   setRenderNavOnMobile: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const { loginUser } = useContext(UserContext) as UserContextExports;
-
   const onSubmit: mainSubmit = async (
     data,
     setLoading,

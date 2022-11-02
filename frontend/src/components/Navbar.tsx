@@ -3,12 +3,6 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { UserContext, UserContextExports } from '../Contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { nanoid } from 'nanoid';
-import { SocketContext } from '../Contexts/SocketContext';
-import { Socket } from 'socket.io-client';
-import {
-  ServerToClientEvents,
-  ClientToServerEvents,
-} from '../interfaces/socketContextInterfaces';
 import useMedia from '../hooks/useMedia';
 import SvgIcons from './SvgIcons';
 import SearchOverlay from './SearchComponents/SearchOverlay';
@@ -22,8 +16,6 @@ const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
   const { loggedUser, logoutUser: contextLogOut } = useContext(
     UserContext,
   ) as UserContextExports;
-  const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
-    useContext(SocketContext);
   const [searchInput, setSearchInput] = useState<string>('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,8 +55,7 @@ const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
   };
 
   const logoutUser = () => {
-    if (loggedUser !== null && standardSocket.id !== null) {
-      standardSocket.emit('logoutUser', { userId: loggedUser?.user_id });
+    if (loggedUser !== null) {
       if (contextLogOut) contextLogOut();
       setIsRenderedMobileSearch(null);
       navigate('/Login');

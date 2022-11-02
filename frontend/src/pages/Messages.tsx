@@ -12,6 +12,7 @@ import Loader from '../components/Loader';
 import ErrorDisplayer from '../components/ErrorDisplayer';
 import Chat from '../components/MessageComponents/Chat';
 import useMedia from '../hooks/useMedia';
+import { io } from 'socket.io-client';
 
 const Messeges = ({
   setRenderNavOnMobile,
@@ -31,7 +32,8 @@ const Messeges = ({
   const media = useMedia();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
-  const socket = socket;
+  console.log('Cookie:', document.cookie);
+  const socket = io(import.meta.env.VITE_REST_ENDPOINT);
 
   // Specially for reason of displaying newest message in user connections
   const handleNewConnectionMessage = (message: userMessageInterface) => {
@@ -44,36 +46,6 @@ const Messeges = ({
   };
 
   useEffect(() => {
-    if (loggedUser) {
-      standardSocket
-        .timeout(10000)
-        .emit(
-          'checkUserConnetions',
-          loggedUser.user_id,
-          (
-            connectionError: unknown,
-            response: standardDbResponse<userMessageInterface[]>,
-          ) => {
-            setIsLoading(true);
-            if (connectionError || response.type === 'error') {
-              connectionError
-                ? setError(connectionError)
-                : setError(response.payload);
-              setIsLoading(false);
-            } else {
-              setError(null);
-              setUserConnections(prev => {
-                const onlyNullMessages = prev.filter(message => {
-                  return message.message === null ? true : false;
-                });
-                return [...onlyNullMessages, ...response.payload];
-              });
-              setIsLoading(false);
-            }
-          },
-        );
-    }
-
     if (state && state.activeChat && state.from) {
       if (state.from === '/SearchResultsPage') {
         setActiveChat(state.activeChat);
@@ -83,21 +55,21 @@ const Messeges = ({
     }
   }, [retrySwtich]);
 
-  useEffect(() => {
-    standardSocket.on(
-      'newMessageToClient',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (newMessage: userMessageInterface, callback: any) => {
-        callback(true);
-        handleNewConnectionMessage(newMessage);
-        if (activeChat === newMessage.sender_user_id)
-          setCurrChat(messages => [...messages, newMessage]);
-      },
-    );
-    return () => {
-      standardSocket.off('newMessageToClient');
-    };
-  }, [userConnetions]);
+  // useEffect(() => {
+  //   standardSocket.on(
+  //     'newMessageToClient',
+  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //     (newMessage: userMessageInterface, callback: any) => {
+  //       callback(true);
+  //       handleNewConnectionMessage(newMessage);
+  //       if (activeChat === newMessage.sender_user_id)
+  //         setCurrChat(messages => [...messages, newMessage]);
+  //     },
+  //   );
+  //   return () => {
+  //     standardSocket.off('newMessageToClient');
+  //   };
+  // }, [userConnetions]);
 
   const handleChatChange = (chatNum: number) => {
     setActiveChat(chatNum);

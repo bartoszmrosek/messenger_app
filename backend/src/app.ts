@@ -97,19 +97,23 @@ app.get('/api/Search', authTokenMiddleware, async (req: IGetUserAuth, res) => {
   return 400;
 });
 
+app.get(
+  '/api/UserConnections',
+  authTokenMiddleware,
+  async (req: IGetUserAuth, res) => {
+    return res.send(await getLastestConnections(req.user.user_id, db));
+  },
+);
+
+io.engine.on(
+  'headers',
+  (_headers: any, request: { headers: { cookie: any } }) => {
+    console.log(request.headers.cookie);
+  },
+);
+
 io.on('connection', socket => {
   try {
-    socket.on('checkUserConnetions', (userId: number, callback: any) => {
-      if (users.isUserAuthorized(userId, socket.id)) {
-        void getLastestConnections(userId, callback, db);
-      } else {
-        callback({
-          type: 'error',
-          payload: 5,
-        });
-      }
-    });
-
     socket.on(
       'newMessageToServer',
       async (payload: newMessage, callback: any) => {
