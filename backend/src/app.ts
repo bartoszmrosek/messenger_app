@@ -76,7 +76,11 @@ app.post('/api/Login', async (req, res) => {
     const expire = now + ms('30m');
     date.setTime(expire);
     return res
-      .cookie('token', newToken, { httpOnly: true, expires: date })
+      .cookie('token', newToken, {
+        httpOnly: true,
+        expires: date,
+        sameSite: 'lax',
+      })
       .send(checkingAuth.results);
   }
   if (typeof token === 'string') {
