@@ -4,7 +4,7 @@
 import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import ms from 'ms';
@@ -22,6 +22,12 @@ import 'dotenv/config';
 import authTokenMiddleware, {
   IGetUserAuth,
 } from './middleware/authenticate.middleware';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+
+export interface SocketWithUserAuth
+  extends Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any> {
+  user: userDetails;
+}
 
 const PORT = process.env.PORT || 3030;
 const app = express();
@@ -77,7 +83,7 @@ app.post('/api/Login', async (req, res) => {
     return jwt.verify(
       token,
       process.env.SECRET_KEY as string,
-      async (err: Error, user: userDetails) => {
+      (err: Error, user: userDetails) => {
         if (err) {
           res.cookie('token', 'rubbish', { maxAge: 0 });
           return res.sendStatus(401);
@@ -107,9 +113,30 @@ app.get(
   },
 );
 
-io.on('connection', socket => {
-  const cookies = parse(socket.request.headers.cookie);
-  console.log(cookies.token || '');
+io.use((socket: SocketWithUserAuth, next) => {
+  try {
+    const cookies = parse(socket.handshake.headers.cookie);
+    if (!cookies.token) {
+      const err = new Error();
+      err.cause = 403;
+      throw err;
+    }
+    jwt.verify(
+      cookies.token,
+      process.env.SECRET_KEY as string,
+      async (err: Error, user: userDetails) => {
+        if (err) throw err;
+        socket.user = user;
+        next();
+      },
+    );
+  } catch (error) {
+    next(error);
+  }
+});
+
+io.on('connection', (socket: SocketWithUserAuth) => {
+  console.log(socket.user);
 });
 
 io.on('connect', socket => {
