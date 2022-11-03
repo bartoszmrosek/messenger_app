@@ -4,7 +4,7 @@
   "version": "0.8.5",
   "scripts": {
     "dev": "vite --host",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint --fix --ignore-path ../.gitignore ."
   },
