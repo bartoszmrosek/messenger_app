@@ -79,7 +79,8 @@ app.post('/api/Login', async (req, res) => {
       .cookie('token', newToken, {
         httpOnly: true,
         expires: date,
-        sameSite: 'lax',
+        sameSite: 'none',
+        secure: true,
       })
       .send(checkingAuth.results);
   }
