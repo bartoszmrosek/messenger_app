@@ -1,223 +1,111 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { nanoid } from 'nanoid';
 import { useLocation } from 'react-router-dom';
-
-import { SocketContext } from '../Contexts/SocketContext';
-import { UserContext } from '../Contexts/UserContext';
-
-import MessageSection from '../components/MessageSection';
-import UserActiveChats from '../components/UserActiveChats';
-import useErrorType from '../hooks/useErrorType';
-
-import type { standardDbResponse } from '../interfaces/dbResponsesInterface';
-import type { Socket } from 'socket.io-client';
-import type {
-  ServerToClientEvents,
-  ClientToServerEvents,
-} from '../interfaces/socketContextInterfaces';
 import {
+  UserContext,
   userMessageInterface,
   UserContextExports,
 } from '../Contexts/UserContext';
+import UserConnections from '../components/MessageComponents/UserConnections';
+import useErrorType from '../hooks/useErrorType';
+import { standardDbResponse } from '../interfaces/dbResponsesInterface';
+import Loader from '../components/Loader';
+import ErrorDisplayer from '../components/ErrorDisplayer';
+import Chat from '../components/MessageComponents/Chat';
+import useMedia from '../hooks/useMedia';
+import { io } from 'socket.io-client';
 
-interface newMessage {
-  username: string;
-  message: string;
-  sender_user_id: number;
-  reciever_user_id: number;
-  is_read: boolean;
-  created_at: string;
-}
-
-const Messeges = () => {
-  const {
-    user,
-    userMessages,
-    getAndSetMessagesFromHistory,
-    handleNewMessage,
-  }: UserContextExports = useContext(UserContext);
-  const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
-    useContext(SocketContext);
-  const [activeChat, setActiveChat] = useState<number>();
-  const [filteredMessages, setFilteredMessages] =
-    useState<userMessageInterface[]>();
-  const [groupedUsers, setGroupedUsers] = useState<userMessageInterface[]>();
-  const [newMessageValue, setNewMessageValue] = useState<string>('');
+const Messeges = ({
+  setRenderNavOnMobile,
+}: {
+  setRenderNavOnMobile: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
+  const { loggedUser, userConnetions, setUserConnections } = useContext(
+    UserContext,
+  ) as UserContextExports;
+  const [activeChat, setActiveChat] = useState<null | number>(null);
+  const [currChat, setCurrChat] = useState<userMessageInterface[]>(null);
   const [error, setError] = useErrorType();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [retrySwtich, setRetrySwitch] = useState<boolean>(false);
+  const [shouldOpenMobileChat, setShouldOpenMobileChat] =
+    useState<boolean>(false);
+  const media = useMedia();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
+  const socket = io(import.meta.env.VITE_REST_ENDPOINT, {
+    withCredentials: true,
+  });
 
-  useEffect(() => {
-    if (user?.user_id !== undefined) {
-      standardSocket
-        .timeout(10000)
-        .emit(
-          'checkUserHistory',
-          user.user_id,
-          (
-            connectionError: unknown,
-            response: standardDbResponse<userMessageInterface[]>,
-          ) => {
-            if (connectionError) {
-              setError(connectionError);
-            } else {
-              if (response.type === 'error') {
-                setError(response.payload);
-              } else {
-                setError(null);
-                if (getAndSetMessagesFromHistory !== undefined) {
-                  getAndSetMessagesFromHistory(response.payload);
-                }
-              }
-            }
-          },
-        );
-    }
-    if (state !== null && state.activeChat !== undefined) {
-      setActiveChat(state.activeChat);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (activeChat !== undefined) {
-      if (userMessages !== undefined) {
-        setFilteredMessages(filterMessages(userMessages, activeChat));
-      }
-    }
-  }, [activeChat, userMessages]);
-
-  useEffect(() => {
-    const uniqueUser: string[] = [];
-    if (userMessages !== undefined) {
-      const uniqueUsers = userMessages.filter(element => {
-        const isDuplicate = uniqueUser.includes(element.username);
-        if (user?.username !== element.username) {
-          if (!isDuplicate) {
-            uniqueUser.push(element.username);
-            return true;
-          }
-        }
-        return false;
+  // Specially for reason of displaying newest message in user connections
+  const handleNewConnectionMessage = (message: userMessageInterface) => {
+    setUserConnections(connections => {
+      const filteredConnections = connections.filter(connection => {
+        return connection.username !== message.username;
       });
-      setGroupedUsers(uniqueUsers);
-    }
-  }, [userMessages]);
-
-  useEffect(() => {
-    standardSocket.on(
-      'newMessageToClient',
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (newMessage: newMessage, callback: any) => {
-        if (handleNewMessage !== undefined) {
-          callback(true);
-          handleNewMessage(newMessage);
-        }
-      },
-    );
-    return () => {
-      standardSocket.off('newMessageToClient');
-    };
-  }, [userMessages]);
-
-  const handleChatChange = (user_id: number) => {
-    setActiveChat(user_id);
-  };
-
-  const filterMessages = (
-    messages: userMessageInterface[],
-    activeChat: number,
-  ) => {
-    return messages.filter(message => {
-      if (
-        (activeChat === message.sender_user_id &&
-          user?.user_id === message.reciever_user_id) ||
-        (activeChat === message.reciever_user_id &&
-          user?.user_id === message.sender_user_id)
-      ) {
-        return message;
-      }
+      return [message, ...filteredConnections];
     });
   };
 
-  const handleInput = (inputValue: React.FormEvent<HTMLInputElement>) => {
-    setNewMessageValue(inputValue.currentTarget.value);
-  };
-
-  const date = new Date();
-  const sendNewMessage = () => {
-    if (newMessageValue.length > 0) {
-      standardSocket.timeout(10000).emit(
-        'newMessageToServer',
-        {
-          user_id: user?.user_id,
-          username: user?.username,
-          message: newMessageValue,
-          sender_user_id: user?.user_id,
-          reciever_user_id: activeChat,
-          is_read: false,
-          created_at: `${date.toISOString()}`,
-        },
-        (
-          error: unknown,
-          messageStatus: standardDbResponse<string | number>,
-        ) => {
-          if (error) {
-            setError(error);
-          } else {
-            if (
-              messageStatus.type === 'error' ||
-              typeof messageStatus.payload === 'number'
-            ) {
-              setError(messageStatus.payload);
-            } else {
-              setError(null);
-              setNewMessageValue(messageStatus.payload);
-            }
-          }
-        },
-      );
-      if (handleNewMessage !== undefined) {
-        handleNewMessage({
-          user_id: user?.user_id,
-          username: user?.username,
-          message: newMessageValue,
-          sender_user_id: user?.user_id,
-          reciever_user_id: activeChat,
-          isRead: false,
-          created_at: `${date.toISOString()}`,
-          message_id: nanoid(),
-        });
+  useEffect(() => {
+    if (state && state.activeChat && state.from) {
+      if (state.from === '/SearchResultsPage') {
+        setActiveChat(state.activeChat);
+      } else {
+        setActiveChat(null);
       }
     }
-  };
+  }, [retrySwtich]);
 
-  const userToSendMessageTo = (userNode: userMessageInterface): number => {
-    if (user?.user_id === userNode.reciever_user_id) {
-      return userNode.sender_user_id;
-    } else {
-      return userNode.reciever_user_id;
+  // useEffect(() => {
+  //   standardSocket.on(
+  //     'newMessageToClient',
+  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //     (newMessage: userMessageInterface, callback: any) => {
+  //       callback(true);
+  //       handleNewConnectionMessage(newMessage);
+  //       if (activeChat === newMessage.sender_user_id)
+  //         setCurrChat(messages => [...messages, newMessage]);
+  //     },
+  //   );
+  //   return () => {
+  //     standardSocket.off('newMessageToClient');
+  //   };
+  // }, [userConnetions]);
+
+  const handleChatChange = (chatNum: number) => {
+    setActiveChat(chatNum);
+    if (media === 'sm') {
+      setShouldOpenMobileChat(true);
+      setRenderNavOnMobile(false);
     }
   };
 
   return (
-    <div>
-      {groupedUsers !== undefined && (
-        <UserActiveChats
-          groupedUsers={groupedUsers}
-          handleChatChange={handleChatChange}
-          userToSendMessageTo={userToSendMessageTo}
-        />
+    <>
+      {isLoading && !error && <Loader loadingMessage="Loading..." />}
+      {error && <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />}
+      {!isLoading && !error && (
+        <div className="h-full w-full flex flex-row divide-x divide-slate-400 overflow-x-hidden overflow-hidden relative">
+          {userConnetions && (
+            <>
+              <UserConnections
+                loggedUserId={loggedUser.user_id}
+                connections={userConnetions}
+                handleChatChange={handleChatChange}
+              />
+              <Chat
+                messages={currChat}
+                setMessages={setCurrChat}
+                selectedChat={activeChat}
+                shouldOpenMobileVersion={shouldOpenMobileChat}
+                setMobileVersionSwitch={setShouldOpenMobileChat}
+                setRenderNavOnMobile={setRenderNavOnMobile}
+              />
+            </>
+          )}
+        </div>
       )}
-      {activeChat !== undefined && filteredMessages !== undefined && (
-        <MessageSection
-          filteredMessages={filteredMessages}
-          handleInput={handleInput}
-          newMessageValue={newMessageValue}
-          sendNewMessage={sendNewMessage}
-        />
-      )}
-      {error}
-    </div>
+    </>
   );
 };
 export default Messeges;

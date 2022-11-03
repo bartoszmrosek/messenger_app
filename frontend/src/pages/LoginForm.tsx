@@ -1,71 +1,57 @@
 import React, { useContext } from 'react';
-import { SocketContext } from '../Contexts/SocketContext';
 import { UserContext } from '../Contexts/UserContext';
 import { UserContextExports } from '../Contexts/UserContext';
-import type { standardDbResponse } from '../interfaces/dbResponsesInterface';
-import type { Socket } from 'socket.io-client';
-import type {
-  ServerToClientEvents,
-  ClientToServerEvents,
-} from '../interfaces/socketContextInterfaces';
 import AnimatedBlobs from '../components/AnimatedBlobs';
-import FormTemplate, { mainSubmit } from '../components/Forms/FormTemplate';
+import FormTemplate, {
+  mainSubmit,
+} from '../components/FormsComponents/FormTemplate';
+import { userInformationsInterface } from '../Contexts/UserContext';
 
 const LoginForm = ({
   setRenderNavOnMobile,
 }: {
   setRenderNavOnMobile: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
-    useContext(SocketContext);
-  const userSetter: UserContextExports = useContext(UserContext);
-
-  const onSubmit: mainSubmit = (
+  const { loginUser } = useContext(UserContext) as UserContextExports;
+  const onSubmit: mainSubmit = async (
     data,
     setLoading,
     setFormStateResetSwitch,
     setError,
     setSuccess,
   ) => {
-    setLoading(true);
-    standardSocket.timeout(10000).emit(
-      'checkUserLoginData',
-      { data },
-      (
-        error: unknown,
-        dbResponse: standardDbResponse<{
-          user_id: number;
-          username: string;
-          email: string;
-        }>,
-      ) => {
-        setFormStateResetSwitch(prev => !prev);
-        if (error) {
-          setLoading(false);
-          setError(error);
-        } else {
-          setLoading(false);
-          if (dbResponse.type === 'confirm') {
-            setError(null);
-            setSuccess('Login successful!');
-            const { payload } = dbResponse;
-            if (userSetter.loginUser !== undefined) {
-              userSetter.loginUser(
-                payload.user_id,
-                payload.username,
-                payload.email,
-              );
-            }
-          } else {
-            setSuccess(null);
-            setError(dbResponse.payload);
-          }
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `${import.meta.env.VITE_REST_ENDPOINT}/api/Login`,
+        {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json;charset=UTF-8',
+          },
+          body: JSON.stringify(data),
+          credentials: 'include',
+        },
+      );
+      if (response.ok) {
+        const data: userInformationsInterface = await response.json();
+        const { user_id, username, email } = data;
+        if (user_id && username && email) {
+          loginUser(user_id, username, email);
+          setSuccess('Login succeded!');
         }
-      },
-    );
+      } else {
+        throw 401;
+      }
+    } catch (error) {
+      setError(error);
+    } finally {
+      setFormStateResetSwitch(prev => !prev);
+      setLoading(false);
+    }
   };
   return (
-    <div className="flex items-center justify-center h-screen w-screen absolute inset-0">
+    <div className="flex items-center justify-center h-screen w-screen absolute inset-0 bg-inherit">
       <AnimatedBlobs />
       <FormTemplate
         title="Login"
@@ -77,6 +63,7 @@ const LoginForm = ({
             type: 'email',
             rules: {
               required: true,
+              pattern: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/g,
             },
           },
           {

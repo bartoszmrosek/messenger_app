@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { nanoid } from 'nanoid';
 
-import { checkIsUserConnected } from '../users';
+import { Users } from '../users';
 import type { Server } from 'socket.io';
 import { DbQueries, newMessage } from '../queries';
 
@@ -39,8 +39,9 @@ const handleNewMessage = async (
   data: newMessage,
   callback: any,
   db: DbQueries,
+  users: Users,
 ) => {
-  const stateOfRecieverUser = checkIsUserConnected(data.reciever_user_id);
+  const stateOfRecieverUser = users.checkIsUserConnected(data.reciever_user_id);
   const {
     created_at,
     is_read,

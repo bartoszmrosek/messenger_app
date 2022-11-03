@@ -9,69 +9,62 @@ interface userPropertiesInterface {
 }
 
 export interface userMessageInterface {
-  message_id: number;
+  user_id?: number;
+  message_id: number | string;
   username: string;
-  message: string;
+  message: string | null;
   sender_user_id: number;
   reciever_user_id: number;
-  isRead: boolean;
-  created_at: string;
+  isRead: boolean | null;
+  created_at: string | null;
 }
 
-interface userInformationsInterface {
+export interface userInformationsInterface {
   user_id: number;
   username: string;
   email: string;
 }
 
 export interface UserContextExports {
-  user?: userInformationsInterface;
-  removeUser?: () => void;
-  loginUser?: userPropertiesInterface;
-  userMessages?: userMessageInterface[];
-  getAndSetMessagesFromHistory?: (newMessage: userMessageInterface[]) => void;
-  handleNewMessage?: (messages: unknown) => void;
+  loggedUser: userInformationsInterface;
+  loginUser: userPropertiesInterface;
+  userConnetions: userMessageInterface[];
+  setUserConnections: React.Dispatch<
+    React.SetStateAction<userMessageInterface[]>
+  >;
+  logoutUser: () => void;
 }
 
-const UserContext = createContext({});
+const UserContext = createContext<UserContextExports>(null);
 
 const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   children,
 }) => {
-  const [userMessages, setUserMessages] = useState<userMessageInterface[]>([]);
-  const [user, setUser, removeUser] = useLocalStorage('user', null);
+  const [userConnetions, setUserConnections] = useState<userMessageInterface[]>(
+    [],
+  );
+  const [loggedUser, setLoggedUser, removeLoggedUser] = useLocalStorage(
+    'user',
+    null,
+  );
+
+  const logoutUser = () => {
+    removeLoggedUser();
+    setUserConnections([]);
+  };
 
   const loginUser: userPropertiesInterface = (user_id, username, email) => {
-    setUser({ user_id, username, email });
-  };
-
-  const getAndSetMessagesFromHistory = (messages: userMessageInterface[]) => {
-    const nullMessagesToNewUsers = userMessages.filter(message => {
-      return message.message === null;
-    });
-    setUserMessages([...messages, ...nullMessagesToNewUsers]);
-  };
-
-  const handleNewMessage = (newMessage: userMessageInterface) => {
-    if (
-      !(
-        newMessage.message === null &&
-        userMessages.some(message => message.username === newMessage.username)
-      )
-    ) {
-      setUserMessages(prevList => [...prevList, newMessage]);
-    }
+    setLoggedUser({ user_id, username, email });
   };
 
   return (
     <UserContext.Provider
       value={{
-        user,
-        removeUser,
+        loggedUser,
+        userConnetions,
+        setUserConnections,
         loginUser,
-        userMessages,
-        getAndSetMessagesFromHistory,
-        handleNewMessage,
+        logoutUser,
       }}
     >
       {children}

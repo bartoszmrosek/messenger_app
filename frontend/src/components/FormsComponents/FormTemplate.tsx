@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import InputForm from './InputForm';
 import useErrorType from '../../hooks/useErrorType';
-import SvgIcons from '../../components/SvgIcons';
+import SvgIcons from '../SvgIcons';
 
 export interface userInput {
   username: string;
@@ -65,7 +65,10 @@ const FormTemplate = ({
     if (isLoading) {
       return (
         <>
-          <SvgIcons type="loading" />
+          <SvgIcons
+            type="loading"
+            className="animate-spin mr-3 h-5 w-5 text-white"
+          />
           Processing...
         </>
       );
@@ -138,10 +141,10 @@ const FormTemplate = ({
         })}
         className={`${
           //prettier-ignore
-          (error === null || isSubmitSuccessfull === null)
-            ? 'bg-main-purple text-porcelain p-3'
-            : 'cursor-not-allowed'
-        } max-w-fit justify-self-center rounded-full justify-center items-center flex flex-row`}
+          (error === null || isSubmitSuccessfull !== null )
+            ? 'bg-main-purple text-porcelain'
+            : 'bg-porcelain cursor-not-allowed border-2 border-red-600'
+        } p-3 max-w-fit justify-self-center rounded-full justify-center items-center flex flex-row`}
         disabled={error !== null || typeof isSubmitSuccessfull === 'string'}
       >
         {renderResults()}

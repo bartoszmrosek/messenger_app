@@ -4,8 +4,8 @@ const AnimatedBlobs = () => {
   useEffect(() => {
     const wobblyInterval = setInterval(() => {
       const wobblyElems = document.querySelectorAll<HTMLElement>('.wobbly');
-      let tl, tr, br, bl;
-      let max = 200,
+      let tl: number, tr: number, br: number, bl: number;
+      const max = 200,
         min = 350;
       wobblyElems.forEach(elem => {
         tl = Math.floor(Math.random() * (max - min) + min);
@@ -13,7 +13,7 @@ const AnimatedBlobs = () => {
         br = Math.floor(Math.random() * (max - min) + min);
         bl = Math.floor(Math.random() * (max - min) + min);
 
-        let borderRadius = `${tl}px ${tr}px ${br}px ${bl}px `;
+        const borderRadius = `${tl}px ${tr}px ${br}px ${bl}px `;
         elem.style.borderRadius = borderRadius;
       });
     }, 5000);

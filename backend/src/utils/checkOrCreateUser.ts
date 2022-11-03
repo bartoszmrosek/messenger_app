@@ -2,24 +2,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { DbQueries, userDetails } from '../queries';
 
-const checkOrCreateUser = async (
-  data: userDetails,
-  callback: any,
-  db: DbQueries,
-) => {
+const checkOrCreateUser = async (data: userDetails, db: DbQueries) => {
   try {
     await db.insertNewUser(data);
-    callback({ type: 'confirm', payload: null });
+    return 200;
   } catch (error) {
-    if (
-      typeof error === 'object' &&
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      error.errno === -4078
-    ) {
-      callback({ type: 'error', payload: 0 });
+    if (error === 1) {
+      return 409;
     } else {
       console.log('[utils][checkOrCreateUser] error: ', error);
-      callback({ type: 'error', payload: error });
+      return 500;
     }
   }
 };

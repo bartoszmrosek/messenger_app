@@ -1,4 +1,5 @@
 import mysql, { OkPacket, RowDataPacket } from 'mysql2';
+import 'dotenv/config';
 export interface userInfoWithPacket extends RowDataPacket {
   username: string;
   password?: string;
@@ -65,9 +66,8 @@ export class DbQueries {
       },
     );
     try {
+      connection.query('SET sql_mode =""');
       return await action(connection);
-    } catch (err) {
-      throw err;
     } finally {
       connection.release();
     }
@@ -133,13 +133,12 @@ export class DbQueries {
       });
     });
   }
-  searchUserMessagesHistory(
-    userId: number,
-  ): Promise<messageDetails[] | number> {
+  getUserLatestConnections(userId: number): Promise<messageDetails[] | number> {
     return this.#usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
         connection.execute<messageDetails[]>(
-          `SELECT
+          `
+          SELECT
       user_accounts.username,
       user_messages.message,
       user_messages.sender_user_id,
@@ -152,7 +151,7 @@ export class DbQueries {
     (user_messages.reciever_user_id = ? AND user_messages.sender_user_id = user_accounts.user_id)
     OR
     (user_messages.sender_user_id = ? AND user_messages.reciever_user_id = user_accounts.user_id)
-    ORDER BY user_messages.created_at ASC`,
+    GROUP BY user_accounts.username ORDER BY user_messages.created_at DESC;`,
           [userId, userId],
           (err, res) => {
             if (err) reject(err);

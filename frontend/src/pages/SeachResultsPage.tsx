@@ -2,99 +2,113 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { nanoid } from 'nanoid';
 
-import { SocketContext } from '../Contexts/SocketContext';
-import { UserContext } from '../Contexts/UserContext';
+import { UserContext, userMessageInterface } from '../Contexts/UserContext';
 import useErrorType from '../hooks/useErrorType';
 
 import { UserContextExports } from '../Contexts/UserContext';
-import { standardDbResponse } from '../interfaces/dbResponsesInterface';
-import { Socket } from 'socket.io-client';
-import {
-  ServerToClientEvents,
-  ClientToServerEvents,
-} from '../interfaces/socketContextInterfaces';
-
-interface UserInformations {
-  user_id?: number;
-  username?: string;
-}
+import FoundUserSection from '../components/SearchComponents/FoundUserSection';
+import ErrorDisplayer from '../components/ErrorDisplayer';
+import Loader from '../components/Loader';
 
 const SearchResultsPage = () => {
-  const standardSocket: Socket<ServerToClientEvents, ClientToServerEvents> =
-    useContext(SocketContext);
-  const { user, handleNewMessage }: UserContextExports =
-    useContext(UserContext);
+  const { loggedUser, userConnetions, setUserConnections } = useContext(
+    UserContext,
+  ) as UserContextExports;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [searchParams] = useSearchParams();
-  const [renderedUsers, setRenderedUsers] = useState<
-    string | React.ReactNode
-  >();
   const navigate = useNavigate();
   const [error, setError] = useErrorType();
+  const [renderedUsers, setRenderedUsers] = useState<JSX.Element>(<></>);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [retrySwitch, setRetrySwitch] = useState<boolean>(false);
 
-  const handleClick = (userInfo: UserInformations) => {
-    if (handleNewMessage !== undefined && user !== null) {
-      handleNewMessage({
+  const makeNewMessage = (userId: number, username: string) => {
+    if (loggedUser) {
+      const nullMessage: userMessageInterface = {
         message_id: nanoid(),
-        username: userInfo.username,
+        username: username,
         message: null,
-        sender_user_id: user?.user_id,
-        reciever_user_id: userInfo.user_id,
-        is_read: null,
+        sender_user_id: loggedUser.user_id,
+        reciever_user_id: userId,
+        isRead: null,
         created_at: null,
+      };
+
+      if (
+        !userConnetions.some(message => {
+          return (
+            message.message === null &&
+            message.reciever_user_id === nullMessage.reciever_user_id
+          );
+        })
+      ) {
+        setUserConnections(prev => [nullMessage, ...prev]);
+      }
+      navigate('/Messages', {
+        state: { from: '/SearchResultsPage', activeChat: userId },
       });
-      navigate('/Messeges', { state: { activeChat: userInfo.user_id } });
     }
   };
 
   useEffect(() => {
     const username = searchParams.get('username');
-    if (user && username && username.length > 0) {
-      standardSocket
-        .timeout(10000)
-        .emit(
-          'searchUser',
-          username,
-          (
-            resError: unknown,
-            dbResponse: standardDbResponse<
-              [{ user_id: number; username: string }] | number
-            >,
-          ) => {
-            if (resError || dbResponse.type === 'error') {
-              resError ? setError(resError) : setError(dbResponse.payload);
-            } else {
-              setError(null);
-              if (
-                Array.isArray(dbResponse.payload) &&
-                dbResponse.payload.length > 0
-              ) {
-                const listOfMatchingUsers = dbResponse.payload.map(element => {
-                  if (element.username !== user?.username) {
-                    return (
-                      <section key={element.user_id}>
-                        <h1>{element.username}</h1>
-                        {user !== undefined && user !== null && (
-                          <button onClick={() => handleClick(element)}>
-                            Send message
-                          </button>
-                        )}
-                      </section>
-                    );
-                  }
-                });
-                setRenderedUsers(listOfMatchingUsers);
-              } else {
-                setRenderedUsers('Brak wyszukań');
-              }
-            }
-          },
-        );
+    if (loggedUser && username && username.length > 0) {
+      setIsLoading(true);
+      (async () => {
+        try {
+          const response = await fetch(
+            `${
+              import.meta.env.VITE_REST_ENDPOINT
+            }/api/Search?username=${username}`,
+            {
+              credentials: 'include',
+            },
+          );
+          if (!response.ok) throw response.status;
+          const result: [{ user_id: number; username: string }] =
+            await response.json();
+          if (result.length > 0) {
+            const withoutLoggedUser = result.map(user => {
+              return user.username !== loggedUser.username ? (
+                <FoundUserSection
+                  key={user.user_id}
+                  userId={user.user_id}
+                  username={user.username}
+                  handleClick={makeNewMessage}
+                />
+              ) : null;
+            });
+            setRenderedUsers(
+              <div className="mx-8 flex flex-col gap-5 items-center h-full">
+                <h1 className="font-bold mt-12 lg:mt-28 text-2xl text-main-purple">
+                  Matched users:
+                </h1>
+                {withoutLoggedUser}
+              </div>,
+            );
+          } else {
+            setRenderedUsers(
+              <div className="h-full w-full flex justify-center items-center lg:items-start text-xl font-semibold text-main-purple">
+                <p className="lg:mt-28">No matches</p>
+              </div>,
+            );
+          }
+        } catch (error) {
+          setError(error);
+        } finally {
+          setIsLoading(false);
+        }
+      })();
     }
-  }, [searchParams.get('username')]);
-  useEffect(() => {
-    setRenderedUsers(error);
-  }, [error]);
-  return <div>{renderedUsers}</div>;
+  }, [searchParams.get('username'), retrySwitch]);
+  return (
+    <>
+      {!isLoading && error && (
+        <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />
+      )}
+      {isLoading && <Loader loadingMessage="Searching..." />}
+      {!error && !isLoading && renderedUsers}
+    </>
+  );
 };
 export default SearchResultsPage;

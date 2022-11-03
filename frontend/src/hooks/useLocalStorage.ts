@@ -2,10 +2,10 @@ import { useState } from 'react';
 
 export interface Item {
   name: string;
-  value: any;
+  value: unknown;
 }
 
-function useLocalStorage(key: string, initialValue: any) {
+function useLocalStorage(key: string, initialValue: unknown) {
   const [storedValue, setStoredValue] = useState(() => {
     if (typeof window === 'undefined') {
       return initialValue;
@@ -18,7 +18,7 @@ function useLocalStorage(key: string, initialValue: any) {
       return initialValue;
     }
   });
-  const setValue = (value: any) => {
+  const setValue = (value: unknown) => {
     try {
       const valueToStore =
         value instanceof Function ? value(storedValue) : value;

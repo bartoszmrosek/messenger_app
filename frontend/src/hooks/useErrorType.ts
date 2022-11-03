@@ -18,22 +18,25 @@ const useErrorType = () => {
       case 0:
         setErrorType('Cannot connect to database');
         break;
-      case 1:
-        setErrorType('User already exists');
-        break;
-      case 2:
-        setErrorType('Login failed');
-        break;
-      case 3:
-        setErrorType('User does not exist or informations are wrong');
-        break;
       case 4:
         setErrorType(
           'User message cannot be saved, you still can communicate in real time',
         );
         break;
-      case 5:
-        setErrorType('No authorization for given event');
+      case 409:
+        setErrorType('User already exists');
+        break;
+      case 400:
+        setErrorType('Bad request');
+        break;
+      case 401:
+        setErrorType('Login failed');
+        break;
+      case 403:
+        setErrorType('Unauthorized');
+        break;
+      case 500:
+        setErrorType('Server internal error');
         break;
       case null:
         setErrorType(null);

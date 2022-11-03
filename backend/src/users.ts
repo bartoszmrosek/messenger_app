@@ -4,53 +4,57 @@ interface ConnectedUsersSpecs {
   socketId: string;
 }
 
-let currentlyConnectedUsers: ConnectedUsersSpecs[] = [];
+export class Users {
+  #currentlyConnectedUsers: ConnectedUsersSpecs[] = [];
+  connectUser = (userId: number, socketId: string) => {
+    console.log('Conn');
+    if (!this.#currentlyConnectedUsers.some(user => user.userId === userId)) {
+      this.#currentlyConnectedUsers.push({
+        userId,
+        socketId,
+      });
+    }
+  };
 
-const connectUser = (userId: number, socketId: string) => {
-  currentlyConnectedUsers.push({
-    userId,
-    socketId,
-  });
-};
+  isUserAuthorized = (userId: unknown, socketId: string): boolean => {
+    console.log('Auth');
+    console.log(this.#currentlyConnectedUsers);
+    console.log(userId, socketId);
+    const check = this.#currentlyConnectedUsers.some(connectedUser => {
+      return (
+        connectedUser.userId === userId && connectedUser.socketId === socketId
+      );
+    });
+    console.log(check);
+    return check;
+  };
 
-const isUserAuthorized = (userId: unknown, socketId: string): boolean => {
-  const check = currentlyConnectedUsers.some(connectedUser => {
-    return (
-      connectedUser.userId === userId && connectedUser.socketId === socketId
+  checkIsUserConnected = (
+    userId: number,
+  ): ConnectedUsersSpecs | 'Not connected' => {
+    const isConnected = this.#currentlyConnectedUsers.find(user => {
+      return user.userId === userId;
+    });
+    if (isConnected !== undefined) {
+      return isConnected;
+    } else {
+      return 'Not connected';
+    }
+  };
+
+  logoutUser = (userId: number, socketId: string) => {
+    this.#currentlyConnectedUsers = this.#currentlyConnectedUsers.filter(
+      user => {
+        return user.socketId !== socketId && user.userId !== userId;
+      },
     );
-  });
-  return check;
-};
+  };
 
-const checkIsUserConnected = (
-  userId: number,
-): ConnectedUsersSpecs | 'Not connected' => {
-  const isConnected = currentlyConnectedUsers.find(user => {
-    return user.userId === userId;
-  });
-  if (isConnected !== undefined) {
-    return isConnected;
-  } else {
-    return 'Not connected';
-  }
-};
-
-const logoutUser = (userId: number, socketId: string) => {
-  currentlyConnectedUsers = currentlyConnectedUsers.filter(user => {
-    return user.socketId !== socketId && user.userId !== userId;
-  });
-};
-
-const disconnectUser = (socketId: string) => {
-  currentlyConnectedUsers = currentlyConnectedUsers.filter(user => {
-    return user.socketId !== socketId;
-  });
-};
-
-export {
-  connectUser,
-  isUserAuthorized,
-  checkIsUserConnected,
-  logoutUser,
-  disconnectUser,
-};
+  disconnectUser = (socketId: string) => {
+    this.#currentlyConnectedUsers = this.#currentlyConnectedUsers.filter(
+      user => {
+        return user.socketId !== socketId;
+      },
+    );
+  };
+}
