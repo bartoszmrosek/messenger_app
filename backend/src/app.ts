@@ -23,6 +23,7 @@ import authTokenMiddleware, {
   IGetUserAuth,
 } from './middleware/authenticate.middleware';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+import authSocketMiddleware from './middleware/authSocket.middleware';
 
 export interface SocketWithUserAuth
   extends Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any> {
@@ -61,10 +62,11 @@ app.post('/api/Register', async (req, res) => {
 
 app.post('/api/Login', async (req, res) => {
   const token: unknown = req.cookies.token;
+  //prettier-ignore
   const checkingAuth =
-    typeof req.body.email === 'string' && typeof req.body.email === 'string'
+  (typeof req.body.email === 'string' && typeof req.body.email === 'string'
       ? await checkUserLoginData(req.body, db)
-      : 400;
+      : 400);
   if (typeof checkingAuth === 'object') {
     const newToken = jwt.sign(
       checkingAuth.results,
@@ -118,58 +120,17 @@ app.get(
   },
 );
 
-io.use((socket: SocketWithUserAuth, next) => {
-  try {
-    const cookies = parse(socket.handshake.headers.cookie);
-    if (!cookies.token) {
-      const err = new Error();
-      err.cause = 403;
-      throw err;
-    }
-    jwt.verify(
-      cookies.token,
-      process.env.SECRET_KEY as string,
-      async (err: Error, user: userDetails) => {
-        if (err) throw err;
-        socket.user = user;
-        next();
-      },
-    );
-  } catch (error) {
-    next(error);
-  }
-});
+//Normal expressjs middleware doesn't work with sockets so this is custom made for this specific case
+io.use(authSocketMiddleware);
 
 io.on('connection', (socket: SocketWithUserAuth) => {
-  console.log(socket.user);
-});
-
-io.on('connect', socket => {
-  try {
-    socket.on(
-      'newMessageToServer',
-      async (payload: newMessage, callback: any) => {
-        if (users.isUserAuthorized(payload.user_id, socket.id)) {
-          /* eslint-disable-next-line @typescript-eslint/no-unsafe-argument*/
-          await handleNewMessage(io, payload, callback, db, users);
-        } else
-          callback({
-            type: 'error',
-            payload: 5,
-          });
-      },
-    );
-
-    socket.on('logoutUser', (userId: number) => {
-      users.logoutUser(userId, socket.id);
-    });
-
-    socket.on('disconnect', () => {
-      users.disconnectUser(socket.id);
-    });
-  } catch (error) {
-    console.log('Uncaught error: ', error);
-  }
+  socket.on(
+    'newMessageToServer',
+    async (payload: newMessage, callback: any) => {
+      /* eslint-disable-next-line @typescript-eslint/no-unsafe-argument*/
+      await handleNewMessage(io, payload, callback, db, users);
+    },
+  );
 });
 
 httpServer.listen(PORT, () => {

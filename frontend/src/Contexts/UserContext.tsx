@@ -15,7 +15,7 @@ export interface userMessageInterface {
   message: string | null;
   sender_user_id: number;
   reciever_user_id: number;
-  isRead: boolean | null;
+  is_read: boolean | null;
   created_at: string | null;
 }
 

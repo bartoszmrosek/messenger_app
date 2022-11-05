@@ -8,7 +8,7 @@ interface ErrorDisplayerProps {
 
 const ErrorDisplayer = ({ error, retrySwitch }: ErrorDisplayerProps) => {
   return (
-    <div className="h-full w-full flex flex-col justify-center items-center text-red-600 font-bold text-2xl">
+    <div className="h-full w-full flex flex-col justify-self-center self-center justify-center items-center text-red-600 font-bold text-2xl">
       <div className="flex flex-row justify-evenly items-center">
         <SvgIcons type="error" />
         <p className="mx-5 text-center">{error}</p>

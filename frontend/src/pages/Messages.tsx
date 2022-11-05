@@ -7,7 +7,6 @@ import {
 } from '../Contexts/UserContext';
 import UserConnections from '../components/MessageComponents/UserConnections';
 import useErrorType from '../hooks/useErrorType';
-import { standardDbResponse } from '../interfaces/dbResponsesInterface';
 import Loader from '../components/Loader';
 import ErrorDisplayer from '../components/ErrorDisplayer';
 import Chat from '../components/MessageComponents/Chat';
@@ -23,7 +22,7 @@ const Messeges = ({
     UserContext,
   ) as UserContextExports;
   const [activeChat, setActiveChat] = useState<null | number>(null);
-  const [currChat, setCurrChat] = useState<userMessageInterface[]>(null);
+  const [currentChat, setCurrentChat] = useState<userMessageInterface[]>(null);
   const [error, setError] = useErrorType();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [retrySwtich, setRetrySwitch] = useState<boolean>(false);
@@ -32,9 +31,11 @@ const Messeges = ({
   const media = useMedia();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
-  const socket = io(import.meta.env.VITE_REST_ENDPOINT, {
-    withCredentials: true,
-  });
+  // const socket = io(import.meta.env.VITE_REST_ENDPOINT, {
+  //   withCredentials: true,
+  // });
+
+  console.log(userConnetions);
 
   // Specially for reason of displaying newest message in user connections
   const handleNewConnectionMessage = (message: userMessageInterface) => {
@@ -56,21 +57,33 @@ const Messeges = ({
     }
   }, [retrySwtich]);
 
-  // useEffect(() => {
-  //   standardSocket.on(
-  //     'newMessageToClient',
-  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //     (newMessage: userMessageInterface, callback: any) => {
-  //       callback(true);
-  //       handleNewConnectionMessage(newMessage);
-  //       if (activeChat === newMessage.sender_user_id)
-  //         setCurrChat(messages => [...messages, newMessage]);
-  //     },
-  //   );
-  //   return () => {
-  //     standardSocket.off('newMessageToClient');
-  //   };
-  // }, [userConnetions]);
+  useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    (async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_REST_ENDPOINT}/api/UserConnections`,
+          {
+            signal,
+            credentials: 'include',
+          },
+        );
+        if (!response.ok) throw response.status;
+        const result: [userMessageInterface] = await response.json();
+        setError(null);
+        setUserConnections(result);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+    return () => {
+      controller.abort();
+    };
+  }, []);
 
   const handleChatChange = (chatNum: number) => {
     setActiveChat(chatNum);
@@ -94,8 +107,8 @@ const Messeges = ({
                 handleChatChange={handleChatChange}
               />
               <Chat
-                messages={currChat}
-                setMessages={setCurrChat}
+                messages={currentChat}
+                setMessages={setCurrentChat}
                 selectedChat={activeChat}
                 shouldOpenMobileVersion={shouldOpenMobileChat}
                 setMobileVersionSwitch={setShouldOpenMobileChat}
