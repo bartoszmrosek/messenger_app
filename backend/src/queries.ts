@@ -161,6 +161,23 @@ export class DbQueries {
       });
     });
   }
+  getChatHistory(firstUserId: number, secondUserId: number) {
+    return this.#usePooledConnection(async connection => {
+      return new Promise((resolve, reject) => {
+        connection.execute<messageDetails[]>(
+          `SELECT message, sender_user_id, reciever_user_id, is_read, created_at,message_id 
+          FROM user_messages 
+          WHERE (sender_user_id = ? AND reciever_user_id = ?) OR (reciever_user_id = ? AND sender_user_id = ?)
+          ORDER BY user_messages.created_at DESC;`,
+          [firstUserId, secondUserId, firstUserId, secondUserId],
+          (err, res) => {
+            if (err) reject(err);
+            resolve(res);
+          },
+        );
+      });
+    });
+  }
   saveNewMessage(message: newMessage): Promise<null | number> {
     return this.#usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {

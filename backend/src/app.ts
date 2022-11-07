@@ -8,16 +8,12 @@ import { Server, Socket } from 'socket.io';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import ms from 'ms';
-import { parse } from 'cookie';
-
-import { Users } from './users';
 
 import checkOrCreateUser from './utils/checkOrCreateUser';
 import checkUserLoginData from './utils/checkUserLoginData';
 import searchUser from './utils/searchUser';
 import getLastestConnections from './utils/getUserLatestConnections';
-import handleNewMessage from './utils/handleNewMessage';
-import { DbQueries, newMessage, userDetails } from './queries';
+import { DbQueries, userDetails } from './queries';
 import 'dotenv/config';
 import authTokenMiddleware, {
   IGetUserAuth,
@@ -41,7 +37,6 @@ const io = new Server(httpServer, {
 });
 
 const db = new DbQueries();
-const users = new Users();
 
 app.use(cors({ origin: process.env.CORS_ORIGIN as string, credentials: true }));
 app.use(cookieParser());
@@ -87,18 +82,22 @@ app.post('/api/Login', async (req, res) => {
       .send(checkingAuth.results);
   }
   if (typeof token === 'string') {
-    return jwt.verify(
-      token,
-      process.env.SECRET_KEY as string,
-      (err: Error, user: userDetails) => {
-        if (err) {
-          res.cookie('token', 'rubbish', { maxAge: 0 });
-          return res.sendStatus(401);
-        } else {
-          return res.send(user);
-        }
-      },
-    );
+    try {
+      return jwt.verify(
+        token,
+        process.env.SECRET_KEY as string,
+        (err: Error, user: userDetails) => {
+          if (err) {
+            res.cookie('token', 'rubbish', { maxAge: 0 });
+            throw 401;
+          } else {
+            return res.send(user);
+          }
+        },
+      );
+    } catch (err) {
+      res.sendStatus(err);
+    }
   }
   return res.sendStatus(checkingAuth);
 });
@@ -109,7 +108,7 @@ app.get('/api/Search', authTokenMiddleware, async (req: IGetUserAuth, res) => {
     if (queryRes === 500) return res.sendStatus(500);
     return res.send(queryRes);
   }
-  return 400;
+  return res.sendStatus(400);
 });
 
 app.get(
@@ -120,17 +119,24 @@ app.get(
   },
 );
 
+app.get(
+  '/api/ChatHistory',
+  authTokenMiddleware,
+  async (req: IGetUserAuth, res) => {
+    console.log(req.query);
+    if (typeof req.query.selectedChat === 'string') {
+      const selectedChat = parseInt(req.query.selectedChat);
+      return res.send(await db.getChatHistory(req.user.user_id, selectedChat));
+    }
+    return res.sendStatus(400);
+  },
+);
+
 //Normal expressjs middleware doesn't work with sockets so this is custom made for this specific case
 io.use(authSocketMiddleware);
 
 io.on('connection', (socket: SocketWithUserAuth) => {
-  socket.on(
-    'newMessageToServer',
-    async (payload: newMessage, callback: any) => {
-      /* eslint-disable-next-line @typescript-eslint/no-unsafe-argument*/
-      await handleNewMessage(io, payload, callback, db, users);
-    },
-  );
+  socket.join(socket.user.user_id.toString());
 });
 
 httpServer.listen(PORT, () => {

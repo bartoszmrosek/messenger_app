@@ -46,6 +46,7 @@ const App = () => {
           const { user_id, username, email } = data;
           if (user_id && username && email) {
             loginUser(user_id, username, email);
+            navigate('/Messages');
           }
         } catch (error) {
           logoutUser();

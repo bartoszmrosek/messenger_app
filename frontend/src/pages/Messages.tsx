@@ -31,11 +31,9 @@ const Messeges = ({
   const media = useMedia();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
-  // const socket = io(import.meta.env.VITE_REST_ENDPOINT, {
-  //   withCredentials: true,
-  // });
-
-  console.log(userConnetions);
+  const socket = io(import.meta.env.VITE_REST_ENDPOINT, {
+    withCredentials: true,
+  });
 
   // Specially for reason of displaying newest message in user connections
   const handleNewConnectionMessage = (message: userMessageInterface) => {
@@ -55,7 +53,7 @@ const Messeges = ({
         setActiveChat(null);
       }
     }
-  }, [retrySwtich]);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -74,16 +72,23 @@ const Messeges = ({
         const result: [userMessageInterface] = await response.json();
         setError(null);
         setUserConnections(result);
-      } catch (err) {
-        setError(err);
-      } finally {
         setIsLoading(false);
+      } catch (err) {
+        if (!signal.aborted) {
+          setIsLoading(false);
+          setError(err);
+        }
       }
+      socket.on('connect_error', err => {
+        setError(err);
+      });
     })();
     return () => {
+      socket.close();
       controller.abort();
+      socket.removeAllListeners();
     };
-  }, []);
+  }, [retrySwtich]);
 
   const handleChatChange = (chatNum: number) => {
     setActiveChat(chatNum);
@@ -98,7 +103,7 @@ const Messeges = ({
       {isLoading && !error && <Loader loadingMessage="Loading..." />}
       {error && <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />}
       {!isLoading && !error && (
-        <div className="h-full w-full flex flex-row divide-x divide-slate-400 overflow-x-hidden overflow-hidden relative">
+        <div className="h-screen w-screen flex flex-row divide-x divide-slate-400 overflow-x-hidden overflow-hidden relative">
           {userConnetions && (
             <>
               <UserConnections
@@ -113,6 +118,8 @@ const Messeges = ({
                 shouldOpenMobileVersion={shouldOpenMobileChat}
                 setMobileVersionSwitch={setShouldOpenMobileChat}
                 setRenderNavOnMobile={setRenderNavOnMobile}
+                updateConnectionMessage={handleNewConnectionMessage}
+                socket={socket}
               />
             </>
           )}

@@ -57,6 +57,7 @@ const SearchResultsPage = () => {
     if (loggedUser && username && username.length > 0) {
       setIsLoading(true);
       (async () => {
+        setError(null);
         try {
           const response = await fetch(
             `${
@@ -68,7 +69,6 @@ const SearchResultsPage = () => {
             },
           );
           if (!response.ok) throw response.status;
-          setError(null);
           const result: [{ user_id: number; username: string }] =
             await response.json();
           if (result.length > 0) {
@@ -83,7 +83,7 @@ const SearchResultsPage = () => {
               ) : null;
             });
             setRenderedUsers(
-              <div className="mx-8 flex flex-col gap-5 items-center h-full w-full">
+              <div className="mx-8 flex flex-col gap-5 items-center h-full w-full self-start">
                 <h1 className="font-bold mt-12 lg:mt-28 text-2xl text-main-purple">
                   Matched users:
                 </h1>
