@@ -71,7 +71,12 @@ const Messeges = ({
         if (!response.ok) throw response.status;
         const result: [userMessageInterface] = await response.json();
         setError(null);
-        setUserConnections(result);
+        setUserConnections(prev => {
+          const onlyNullMessage = prev.filter(message => {
+            return message.message === null;
+          });
+          return [...onlyNullMessage, ...result];
+        });
         setIsLoading(false);
       } catch (err) {
         if (!signal.aborted) {
