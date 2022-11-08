@@ -123,8 +123,10 @@ app.get(
   '/api/ChatHistory',
   authTokenMiddleware,
   async (req: IGetUserAuth, res) => {
-    console.log(req.query);
-    if (typeof req.query.selectedChat === 'string') {
+    if (
+      typeof req.query.selectedChat === 'string' &&
+      req.query.selectedChat !== 'undefined'
+    ) {
       const selectedChat = parseInt(req.query.selectedChat);
       return res.send(await db.getChatHistory(req.user.user_id, selectedChat));
     }

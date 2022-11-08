@@ -6,7 +6,10 @@ import moment from 'moment';
 interface UserConnectionsProps {
   loggedUserId: number;
   connections: userMessageInterface[];
-  handleChatChange: (user_id: number) => void;
+  handleChatChange: (userToSendMessage: {
+    userId: number;
+    username: string;
+  }) => void;
 }
 
 const UserConnections = ({
@@ -34,7 +37,12 @@ const UserConnections = ({
             return (
               <button
                 key={userNode.message_id}
-                onClick={() => handleChatChange(userToSendMessageTo(userNode))}
+                onClick={() =>
+                  handleChatChange({
+                    userId: userToSendMessageTo(userNode),
+                    username: userNode.username,
+                  })
+                }
                 className="h-16 w-full flex flex-row justify-start items-center first-of-type:md:mt-20"
               >
                 <SvgIcons type="user" className="h-16 w-16" />
