@@ -8,13 +8,13 @@ import { Server, Socket } from 'socket.io';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import ms from 'ms';
+import 'dotenv/config';
 
 import checkOrCreateUser from './utils/checkOrCreateUser';
 import checkUserLoginData from './utils/checkUserLoginData';
 import searchUser from './utils/searchUser';
 import getLastestConnections from './utils/getUserLatestConnections';
 import { DbQueries, userDetails } from './queries';
-import 'dotenv/config';
 import authTokenMiddleware, {
   IGetUserAuth,
 } from './middleware/authenticate.middleware';
@@ -59,7 +59,7 @@ app.post('/api/Login', async (req, res) => {
   const token: unknown = req.cookies.token;
   //prettier-ignore
   const checkingAuth =
-  (typeof req.body.email === 'string' && typeof req.body.email === 'string'
+  (typeof req.body.email === 'string' && typeof req.body.password === 'string'
       ? await checkUserLoginData(req.body, db)
       : 400);
   if (typeof checkingAuth === 'object') {

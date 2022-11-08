@@ -14,7 +14,6 @@ interface ChatProps {
   shouldOpenMobileVersion: boolean;
   setMobileVersionSwitch: React.Dispatch<React.SetStateAction<boolean>>;
   setRenderNavOnMobile: React.Dispatch<React.SetStateAction<boolean>>;
-  updateConnectionMessage: (message: userMessageInterface) => void;
   socket: Socket;
 }
 
@@ -25,7 +24,6 @@ const Chat = ({
   shouldOpenMobileVersion,
   setMobileVersionSwitch,
   setRenderNavOnMobile,
-  updateConnectionMessage,
   socket,
 }: ChatProps) => {
   const media = useMedia();
@@ -39,6 +37,7 @@ const Chat = ({
     (async () => {
       if (selectedChat !== null) {
         setIsLoading(true);
+        //Cannot use finally, abort will trigger it as well and mess with loading state
         try {
           setError(null);
           const response = await fetch(
@@ -51,7 +50,8 @@ const Chat = ({
             },
           );
           if (!response.ok) throw response.status;
-          console.log(await response.json());
+          const result: userMessageInterface[] = await response.json();
+          setMessages(result);
           setIsLoading(false);
         } catch (err) {
           if (!signal.aborted) {
@@ -65,11 +65,6 @@ const Chat = ({
       controller.abort('abort on unmount');
     };
   }, [selectedChat, retrySwitch]);
-
-  const chatLocation = () => {
-    if (shouldOpenMobileVersion) return 'translate-x-[0%]';
-    return 'translate-x-[100%]';
-  };
 
   const renderedMessages = () => {
     if (messages !== null && selectedChat !== null)
@@ -86,6 +81,10 @@ const Chat = ({
   const handleMobileChatClose = () => {
     setMobileVersionSwitch(false);
     setRenderNavOnMobile(true);
+  };
+
+  const chatLocation = () => {
+    return shouldOpenMobileVersion ? 'translate-x-[0%]' : 'translate-x-[100%]';
   };
 
   return (

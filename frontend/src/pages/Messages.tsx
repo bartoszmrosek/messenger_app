@@ -84,6 +84,18 @@ const Messeges = ({
           setError(err);
         }
       }
+      socket.on(
+        'newMessageToClient',
+        (message: userMessageInterface, callback) => {
+          callback({ status: 200 });
+          if (activeChat !== message.sender_user_id) {
+            handleNewConnectionMessage(message);
+          } else {
+            setCurrentChat(prev => [...prev, message]);
+          }
+        },
+      );
+
       socket.on('connect_error', err => {
         setError(err);
       });
@@ -123,7 +135,6 @@ const Messeges = ({
                 shouldOpenMobileVersion={shouldOpenMobileChat}
                 setMobileVersionSwitch={setShouldOpenMobileChat}
                 setRenderNavOnMobile={setRenderNavOnMobile}
-                updateConnectionMessage={handleNewConnectionMessage}
                 socket={socket}
               />
             </>
