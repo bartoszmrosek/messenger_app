@@ -16,7 +16,7 @@ export interface userDetails {
 
 export interface userLoginDetails {
   email: string;
-  password: number | string;
+  password: string;
 }
 
 export interface messageDetails extends RowDataPacket {
@@ -73,14 +73,6 @@ export class DbQueries {
     }
   }
 
-  #checkUser = (shouldUseUserId: boolean) => {
-    if (shouldUseUserId) {
-      return `SELECT user_id, username, email FROM user_accounts WHERE email = ? AND user_id = ?`;
-    } else {
-      return `SELECT user_id, username, email FROM user_accounts WHERE email = ? AND password = ?`;
-    }
-  };
-
   insertNewUser(
     newUserData: userDetails,
   ): Promise<mysql.QueryError | null | number> {
@@ -107,7 +99,9 @@ export class DbQueries {
       async connection => {
         return new Promise((resolve, reject) => {
           connection.execute<userInfoWithPacket[]>(
-            this.#checkUser(typeof userLoginData.password === 'number'),
+            `SELECT user_id, username, email 
+            FROM user_accounts 
+            WHERE email = ? AND password = ?`,
             [userLoginData.email, userLoginData.password],
             (err, res) => {
               if (err) reject(err);
@@ -139,22 +133,43 @@ export class DbQueries {
         connection.execute<messageDetails[]>(
           `
           SELECT
-      user_accounts.username,
-      user_messages.message,
-      user_messages.sender_user_id,
-      user_messages.reciever_user_id,
-      user_messages.is_read,
-      user_messages.created_at,
-      user_messages.message_id
-    FROM user_accounts, user_messages
-    WHERE
-    (user_messages.reciever_user_id = ? AND user_messages.sender_user_id = user_accounts.user_id)
-    OR
-    (user_messages.sender_user_id = ? AND user_messages.reciever_user_id = user_accounts.user_id)
-    GROUP BY user_accounts.username ORDER BY user_messages.created_at DESC;`,
+        user_accounts.username,
+        user_messages.message,
+        user_messages.sender_user_id,
+        user_messages.reciever_user_id,
+        user_messages.is_read,
+        user_messages.created_at,
+        user_messages.message_id
+        FROM user_accounts, user_messages
+        WHERE
+        (user_messages.reciever_user_id = ? AND user_messages.sender_user_id = user_accounts.user_id)
+        OR
+        (user_messages.sender_user_id = ? AND user_messages.reciever_user_id = user_accounts.user_id)
+        GROUP BY user_accounts.username 
+        ORDER BY user_messages.created_at DESC;`,
           [userId, userId],
           (err, res) => {
             if (err) reject(err);
+            resolve(res);
+          },
+        );
+      });
+    });
+  }
+  getChatHistory(firstUserId: number, secondUserId: number): Promise<messageDetails[] | mysql.QueryError> {
+    return this.#usePooledConnection(async connection => {
+      return new Promise((resolve, reject) => {
+        connection.execute<messageDetails[]>(
+          `SELECT message, sender_user_id, reciever_user_id, is_read, created_at,message_id 
+          FROM user_messages 
+          WHERE (sender_user_id = ? AND reciever_user_id = ?) OR (reciever_user_id = ? AND sender_user_id = ?)
+          ORDER BY user_messages.created_at DESC;`,
+          [firstUserId, secondUserId, firstUserId, secondUserId],
+          (err, res) => {
+            if (err) {
+              console.log(err)
+              reject(500);
+            }
             resolve(res);
           },
         );

@@ -11,11 +11,11 @@ interface userPropertiesInterface {
 export interface userMessageInterface {
   user_id?: number;
   message_id: number | string;
-  username: string;
+  username?: string;
   message: string | null;
   sender_user_id: number;
   reciever_user_id: number;
-  isRead: boolean | null;
+  is_read: boolean | null;
   created_at: string | null;
 }
 

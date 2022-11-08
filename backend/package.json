@@ -5,6 +5,7 @@
   "main": "dist/app.js",
   "scripts": {
     "prebuild": "eslint --ignore-path ../.gitignore .",
+    "lint":"eslint --ignore-path ../.gitignore",
     "build": "tsc",
     "prestart": "yarn run build",
     "start": "node .",

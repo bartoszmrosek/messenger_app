@@ -42,12 +42,13 @@ const useErrorType = () => {
         setErrorType(null);
         break;
       default:
-        if (typeof error === 'object') {
-          setErrorType('Connection timeout');
-        } else {
-          setErrorType('Cannot connect to server');
-          console.log(error);
+        if (error instanceof Error) {
+          error.name === 'AbortError'
+            ? setErrorType(null)
+            : setErrorType('Connection timeout');
+          break;
         }
+        setErrorType('Cannot connect to server');
         break;
     }
   };

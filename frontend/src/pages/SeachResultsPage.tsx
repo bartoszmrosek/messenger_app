@@ -19,7 +19,7 @@ const SearchResultsPage = () => {
   const navigate = useNavigate();
   const [error, setError] = useErrorType();
   const [renderedUsers, setRenderedUsers] = useState<JSX.Element>(<></>);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [retrySwitch, setRetrySwitch] = useState<boolean>(false);
 
   const makeNewMessage = (userId: number, username: string) => {
@@ -30,7 +30,7 @@ const SearchResultsPage = () => {
         message: null,
         sender_user_id: loggedUser.user_id,
         reciever_user_id: userId,
-        isRead: null,
+        is_read: null,
         created_at: null,
       };
 
@@ -51,16 +51,20 @@ const SearchResultsPage = () => {
   };
 
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
     const username = searchParams.get('username');
     if (loggedUser && username && username.length > 0) {
       setIsLoading(true);
       (async () => {
+        setError(null);
         try {
           const response = await fetch(
             `${
               import.meta.env.VITE_REST_ENDPOINT
             }/api/Search?username=${username}`,
             {
+              signal,
               credentials: 'include',
             },
           );
@@ -79,7 +83,7 @@ const SearchResultsPage = () => {
               ) : null;
             });
             setRenderedUsers(
-              <div className="mx-8 flex flex-col gap-5 items-center h-full">
+              <div className="mx-8 flex flex-col gap-5 items-center h-full w-full self-start">
                 <h1 className="font-bold mt-12 lg:mt-28 text-2xl text-main-purple">
                   Matched users:
                 </h1>
@@ -89,24 +93,29 @@ const SearchResultsPage = () => {
           } else {
             setRenderedUsers(
               <div className="h-full w-full flex justify-center items-center lg:items-start text-xl font-semibold text-main-purple">
-                <p className="lg:mt-28">No matches</p>
+                <p>No matches</p>
               </div>,
             );
           }
-        } catch (error) {
-          setError(error);
-        } finally {
           setIsLoading(false);
+        } catch (error) {
+          if (!signal.aborted) {
+            setError(error);
+            setIsLoading(false);
+          }
         }
       })();
     }
+    return () => {
+      controller.abort('abort on unmount');
+    };
   }, [searchParams.get('username'), retrySwitch]);
   return (
     <>
+      {isLoading && <Loader loadingMessage="Searching..." />}
       {!isLoading && error && (
         <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />
       )}
-      {isLoading && <Loader loadingMessage="Searching..." />}
       {!error && !isLoading && renderedUsers}
     </>
   );

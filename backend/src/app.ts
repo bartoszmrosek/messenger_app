@@ -8,21 +8,18 @@ import { Server, Socket } from 'socket.io';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import ms from 'ms';
-import { parse } from 'cookie';
-
-import { Users } from './users';
+import 'dotenv/config';
 
 import checkOrCreateUser from './utils/checkOrCreateUser';
 import checkUserLoginData from './utils/checkUserLoginData';
 import searchUser from './utils/searchUser';
 import getLastestConnections from './utils/getUserLatestConnections';
-import handleNewMessage from './utils/handleNewMessage';
-import { DbQueries, newMessage, userDetails } from './queries';
-import 'dotenv/config';
+import { DbQueries, userDetails } from './queries';
 import authTokenMiddleware, {
   IGetUserAuth,
 } from './middleware/authenticate.middleware';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+import authSocketMiddleware from './middleware/authSocket.middleware';
 
 export interface SocketWithUserAuth
   extends Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any> {
@@ -40,7 +37,6 @@ const io = new Server(httpServer, {
 });
 
 const db = new DbQueries();
-const users = new Users();
 
 app.use(cors({ origin: process.env.CORS_ORIGIN as string, credentials: true }));
 app.use(cookieParser());
@@ -61,10 +57,11 @@ app.post('/api/Register', async (req, res) => {
 
 app.post('/api/Login', async (req, res) => {
   const token: unknown = req.cookies.token;
+  //prettier-ignore
   const checkingAuth =
-    typeof req.body.email === 'string' && typeof req.body.email === 'string'
+  (typeof req.body.email === 'string' && typeof req.body.password === 'string'
       ? await checkUserLoginData(req.body, db)
-      : 400;
+      : 400);
   if (typeof checkingAuth === 'object') {
     const newToken = jwt.sign(
       checkingAuth.results,
@@ -85,18 +82,22 @@ app.post('/api/Login', async (req, res) => {
       .send(checkingAuth.results);
   }
   if (typeof token === 'string') {
-    return jwt.verify(
-      token,
-      process.env.SECRET_KEY as string,
-      (err: Error, user: userDetails) => {
-        if (err) {
-          res.cookie('token', 'rubbish', { maxAge: 0 });
-          return res.sendStatus(401);
-        } else {
-          return res.send(user);
-        }
-      },
-    );
+    try {
+      return jwt.verify(
+        token,
+        process.env.SECRET_KEY as string,
+        (err: Error, user: userDetails) => {
+          if (err) {
+            res.cookie('token', 'rubbish', { maxAge: 0 });
+            throw 401;
+          } else {
+            return res.send(user);
+          }
+        },
+      );
+    } catch (err) {
+      res.sendStatus(err);
+    }
   }
   return res.sendStatus(checkingAuth);
 });
@@ -107,7 +108,7 @@ app.get('/api/Search', authTokenMiddleware, async (req: IGetUserAuth, res) => {
     if (queryRes === 500) return res.sendStatus(500);
     return res.send(queryRes);
   }
-  return 400;
+  return res.sendStatus(400);
 });
 
 app.get(
@@ -118,58 +119,26 @@ app.get(
   },
 );
 
-io.use((socket: SocketWithUserAuth, next) => {
-  try {
-    const cookies = parse(socket.handshake.headers.cookie);
-    if (!cookies.token) {
-      const err = new Error();
-      err.cause = 403;
-      throw err;
+app.get(
+  '/api/ChatHistory',
+  authTokenMiddleware,
+  async (req: IGetUserAuth, res) => {
+    if (
+      typeof req.query.selectedChat === 'string' &&
+      req.query.selectedChat !== 'undefined'
+    ) {
+      const selectedChat = parseInt(req.query.selectedChat);
+      return res.send(await db.getChatHistory(req.user.user_id, selectedChat));
     }
-    jwt.verify(
-      cookies.token,
-      process.env.SECRET_KEY as string,
-      async (err: Error, user: userDetails) => {
-        if (err) throw err;
-        socket.user = user;
-        next();
-      },
-    );
-  } catch (error) {
-    next(error);
-  }
-});
+    return res.sendStatus(400);
+  },
+);
+
+//Normal expressjs middleware doesn't work with sockets so this is custom made for this specific case
+io.use(authSocketMiddleware);
 
 io.on('connection', (socket: SocketWithUserAuth) => {
-  console.log(socket.user);
-});
-
-io.on('connect', socket => {
-  try {
-    socket.on(
-      'newMessageToServer',
-      async (payload: newMessage, callback: any) => {
-        if (users.isUserAuthorized(payload.user_id, socket.id)) {
-          /* eslint-disable-next-line @typescript-eslint/no-unsafe-argument*/
-          await handleNewMessage(io, payload, callback, db, users);
-        } else
-          callback({
-            type: 'error',
-            payload: 5,
-          });
-      },
-    );
-
-    socket.on('logoutUser', (userId: number) => {
-      users.logoutUser(userId, socket.id);
-    });
-
-    socket.on('disconnect', () => {
-      users.disconnectUser(socket.id);
-    });
-  } catch (error) {
-    console.log('Uncaught error: ', error);
-  }
+  socket.join(socket.user.user_id.toString());
 });
 
 httpServer.listen(PORT, () => {

@@ -7,12 +7,12 @@ import {
 } from '../Contexts/UserContext';
 import UserConnections from '../components/MessageComponents/UserConnections';
 import useErrorType from '../hooks/useErrorType';
-import { standardDbResponse } from '../interfaces/dbResponsesInterface';
 import Loader from '../components/Loader';
 import ErrorDisplayer from '../components/ErrorDisplayer';
 import Chat from '../components/MessageComponents/Chat';
 import useMedia from '../hooks/useMedia';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
+import { DefaultEventsMap } from '@socket.io/component-emitter';
 
 const Messeges = ({
   setRenderNavOnMobile,
@@ -22,8 +22,11 @@ const Messeges = ({
   const { loggedUser, userConnetions, setUserConnections } = useContext(
     UserContext,
   ) as UserContextExports;
-  const [activeChat, setActiveChat] = useState<null | number>(null);
-  const [currChat, setCurrChat] = useState<userMessageInterface[]>(null);
+  const [activeChat, setActiveChat] = useState<null | {
+    userId: number;
+    username: string;
+  }>(null);
+  const [currentChat, setCurrentChat] = useState<userMessageInterface[]>(null);
   const [error, setError] = useErrorType();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [retrySwtich, setRetrySwitch] = useState<boolean>(false);
@@ -32,9 +35,37 @@ const Messeges = ({
   const media = useMedia();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
-  const socket = io(import.meta.env.VITE_REST_ENDPOINT, {
-    withCredentials: true,
-  });
+  const [socket, setSocket] = useState<Socket<
+    DefaultEventsMap,
+    DefaultEventsMap
+  > | null>(null);
+
+  //Code only to make socket resistant to rerenders caused by other data states
+  useEffect(() => {
+    const socket = io(import.meta.env.VITE_REST_ENDPOINT, {
+      withCredentials: true,
+    });
+    socket.on(
+      'newMessageToClient',
+      (message: userMessageInterface, callback) => {
+        callback({ status: 200 });
+        if (activeChat.userId !== message.sender_user_id) {
+          handleNewConnectionMessage(message);
+        } else {
+          setCurrentChat(prev => [...prev, message]);
+        }
+      },
+    );
+
+    socket.on('connect_error', err => {
+      setError(err);
+    });
+    setSocket(socket);
+    return () => {
+      socket.removeAllListeners();
+      socket.close();
+    };
+  }, [loggedUser]);
 
   // Specially for reason of displaying newest message in user connections
   const handleNewConnectionMessage = (message: userMessageInterface) => {
@@ -54,26 +85,51 @@ const Messeges = ({
         setActiveChat(null);
       }
     }
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    (async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_REST_ENDPOINT}/api/UserConnections`,
+          {
+            signal,
+            credentials: 'include',
+          },
+        );
+        if (!response.ok) throw response.status;
+        const result: [userMessageInterface] = await response.json();
+        setError(null);
+        setUserConnections(prev => {
+          const onlyNullMessage = prev.filter(message => {
+            return message.message === null;
+          });
+          return [...onlyNullMessage, ...result];
+        });
+        setIsLoading(false);
+      } catch (err) {
+        if (!signal.aborted) {
+          setIsLoading(false);
+          setError(err);
+        }
+      }
+    })();
+    return () => {
+      controller.abort();
+    };
   }, [retrySwtich]);
 
-  // useEffect(() => {
-  //   standardSocket.on(
-  //     'newMessageToClient',
-  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //     (newMessage: userMessageInterface, callback: any) => {
-  //       callback(true);
-  //       handleNewConnectionMessage(newMessage);
-  //       if (activeChat === newMessage.sender_user_id)
-  //         setCurrChat(messages => [...messages, newMessage]);
-  //     },
-  //   );
-  //   return () => {
-  //     standardSocket.off('newMessageToClient');
-  //   };
-  // }, [userConnetions]);
-
-  const handleChatChange = (chatNum: number) => {
-    setActiveChat(chatNum);
+  const handleChatChange = (userToSendMessage: {
+    userId: number;
+    username: string;
+  }) => {
+    setActiveChat({
+      userId: userToSendMessage.userId,
+      username: userToSendMessage.username,
+    });
     if (media === 'sm') {
       setShouldOpenMobileChat(true);
       setRenderNavOnMobile(false);
@@ -85,7 +141,7 @@ const Messeges = ({
       {isLoading && !error && <Loader loadingMessage="Loading..." />}
       {error && <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />}
       {!isLoading && !error && (
-        <div className="h-full w-full flex flex-row divide-x divide-slate-400 overflow-x-hidden overflow-hidden relative">
+        <div className="h-screen w-screen flex flex-row divide-x divide-slate-400 overflow-x-hidden overflow-hidden relative">
           {userConnetions && (
             <>
               <UserConnections
@@ -94,12 +150,13 @@ const Messeges = ({
                 handleChatChange={handleChatChange}
               />
               <Chat
-                messages={currChat}
-                setMessages={setCurrChat}
+                messages={currentChat}
+                setMessages={setCurrentChat}
                 selectedChat={activeChat}
                 shouldOpenMobileVersion={shouldOpenMobileChat}
                 setMobileVersionSwitch={setShouldOpenMobileChat}
                 setRenderNavOnMobile={setRenderNavOnMobile}
+                socket={socket}
               />
             </>
           )}

@@ -25,21 +25,28 @@ const App = () => {
       This doesn't explain itself well, so i thought about writing this comment,
       it reautorizes user if connection is estabilished after losing it
     */
+    const controller = new AbortController();
+    const signal = controller.signal;
     if (loggedUser) {
       (async () => {
         try {
-          const response = await fetch('http://localhost:3030/api/Login', {
-            method: 'POST',
-            headers: {
-              'content-type': 'application/json;charset=UTF-8',
+          const response = await fetch(
+            `${import.meta.env.VITE_REST_ENDPOINT}/api/Login`,
+            {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/json;charset=UTF-8',
+              },
+              credentials: 'include',
+              signal,
             },
-            credentials: 'include',
-          });
+          );
           if (!response.ok) throw 'relogin needed';
           const data: userInformationsInterface = await response.json();
           const { user_id, username, email } = data;
           if (user_id && username && email) {
             loginUser(user_id, username, email);
+            navigate('/Messages');
           }
         } catch (error) {
           logoutUser();
@@ -47,6 +54,9 @@ const App = () => {
         }
       })();
     }
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   return (
@@ -56,7 +66,7 @@ const App = () => {
         setSearchOverlayOpened={setSearchOverlayOpened}
       />
       <main
-        className={`transition-all duration-1000 min-h-fit ${
+        className={`transition-all duration-1000 min-h-full flex justify-center items-center ${
           searchOverlayOpened && 'blur-sm'
         } bg-porcelain`}
       >
