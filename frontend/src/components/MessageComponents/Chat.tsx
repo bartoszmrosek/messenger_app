@@ -82,7 +82,6 @@ const Chat = ({
           <Message
             key={message.created_at}
             isOnLeftSide={loggedUser.user_id !== message.sender_user_id}
-            username={selectedChat.username}
             message={message.message}
           />
         );

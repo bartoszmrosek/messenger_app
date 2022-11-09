@@ -32,7 +32,7 @@ const UserConnections = ({
           chat with!
         </div>
       ) : (
-        <section className="flex flex-col gap-3 h-full w-full items-center divide-y-2 divide-slate-100 p-5 md:w-3/12">
+        <section className="flex flex-col gap-3 h-full w-full items-center divide-y-2 divide-slate-100 p-5 md:w-3/12 min-w-[18rem]">
           {connections.map(userNode => {
             return (
               <button
@@ -47,8 +47,8 @@ const UserConnections = ({
               >
                 <SvgIcons type="user" className="h-16 w-16" />
                 <div className="flex flex-row justify-between w-full text-justify overflow-x-clip items-end">
-                  <span className="truncate whitespace-nowrap">
-                    <h3 className="font-bold text-lg capitalize">
+                  <span className="truncate whitespace-nowrap min-w-[10%]">
+                    <h3 className="font-bold text-lg capitalize overflow-visible z-20">
                       {userNode.username}
                     </h3>
                     {userNode.message !== null && (
@@ -59,7 +59,7 @@ const UserConnections = ({
                     )}
                   </span>
                   {userNode.message !== null && (
-                    <p className="m-1 text-sm text-black/50 whitespace-nowrap">
+                    <p className="m-1 text-sm text-black/50 whitespace-wrap bg-transparent truncate">
                       {moment(userNode.created_at).fromNow()}
                     </p>
                   )}

@@ -63,7 +63,13 @@ const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
   };
 
   const shouldRenderUser = () => {
-    if (loggedUser !== undefined && loggedUser !== null && media !== 'sm') {
+    if (
+      //prettier-ignore
+      loggedUser !== undefined &&
+      loggedUser !== null &&
+      (media !== 'sm' &&
+      media !== 'md')
+    ) {
       const fillingColor =
         location.pathname === '/SearchResults/' ||
         location.pathname === '/Messages'
@@ -97,10 +103,8 @@ const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
       } ${!shouldRender && 'hidden md:block'}`}
     >
       <div
-        className={`gap-3 items-center
-        justify-end ${
-          loggedUser && 'md:justify-between'
-        } md:flex md:flex-row text-center`}
+        className={`gap-3 items-center justify-end md:flex md:flex-row text-center 
+        ${loggedUser && 'md:justify-between'}`}
       >
         {shouldRenderUser()}
         <section
@@ -130,23 +134,29 @@ const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
             <>
               <button
                 className={`${
-                  media !== 'sm'
+                  //prettier-ignore
+                  (media !== 'sm' && media !== 'md')
                     ? 'transition duration-1000 p-1 md:p-2 rounded-2xl border-4 border-[#ad79fd] hover:border-green-400 w-3/5 md:min-w-[6rem] md:w-[10%] lg:w-[6%] justify-self-center md:order-last'
                     : 'justify-self-center align-middle order-last flex justify-center items-center w-full h-full'
                 }`}
                 onClick={logoutUser}
                 title="Logout"
               >
-                {media === 'sm' ? (
+                {
+                  //prettier-ignore
+                  (media === 'sm' || media === 'md') ? (
                   <SvgIcons
                     type="logout"
                     className="w-6 h-6 fill-porcelain overflow-hidden align-middle"
                   />
                 ) : (
                   'Logout'
-                )}
+                )
+                }
               </button>
-              {media !== 'sm' ? (
+              {
+                //prettier-ignore
+                (media !== 'sm' && media !== 'md') ? (
                 <form onSubmit={handleSearchSubmit}>
                   <input
                     className="transition duration-1000 p-2 md:p-3 rounded-full focus:outline-none focus:ring
@@ -169,7 +179,8 @@ const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
                     className="w-6 h-6 fill-porcelain overflow-hidden align-middle justify-self-center"
                   />
                 </button>
-              )}
+              )
+              }
             </>
           )}
           {loggedUser && (
@@ -177,19 +188,22 @@ const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
               to="Messages"
               className="align-middle justify-self-center flex justify-center items-center md:block w-full h-full"
             >
-              {media !== 'sm' ? (
+              {
+                //prettier-ignore
+                (media !== 'sm' && media !== 'md') ? (
                 'Messages'
               ) : (
                 <SvgIcons
                   type="messages"
                   className="w-12 h-12 fill-porcelain overflow-hidden align-middle justify-self-center"
                 />
-              )}
+              )
+              }
             </NavLink>
           )}
         </section>
       </div>
-      {media === 'sm' && (
+      {(media === 'sm' || media === 'md') && (
         <SearchOverlay
           setSearchOverlayOpened={setSearchOverlayOpened}
           handleChange={handleSearchChange}
