@@ -45,7 +45,7 @@ const SearchResultsPage = () => {
         setUserConnections(prev => [nullMessage, ...prev]);
       }
       navigate('/Messages', {
-        state: { from: '/SearchResultsPage', activeChat: userId },
+        state: { from: '/SearchResultsPage', activeChat: userId, username },
       });
     }
   };

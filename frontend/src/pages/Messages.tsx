@@ -78,9 +78,10 @@ const Messeges = ({
   };
 
   useEffect(() => {
-    if (state && state.activeChat && state.from) {
+    if (state && state.activeChat && state.from && state.username) {
       if (state.from === '/SearchResultsPage') {
-        setActiveChat(state.activeChat);
+        setShouldOpenMobileChat(true);
+        setActiveChat({ userId: state.activeChat, username: state.username });
       } else {
         setActiveChat(null);
       }
