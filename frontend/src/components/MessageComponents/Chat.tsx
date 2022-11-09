@@ -116,7 +116,9 @@ const Chat = ({
       >
         {isLoading && <Loader loadingMessage="Loading..." />}
         {error && <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />}
-        {media === 'sm' && selectedChat && (
+        {
+          //prettier-ignore
+          (media === 'sm' || media ==='md') && selectedChat && (
           <section className="absolute inset-0 w-full h-fit flex flex-col p-3 justify-center bg-main-purple z-50">
             <button
               onClick={handleMobileChatClose}
@@ -128,7 +130,8 @@ const Chat = ({
               </p>
             </button>
           </section>
-        )}
+        )
+        }
         {!isLoading && !error && renderedMessages()}
       </section>
     </>

@@ -131,7 +131,7 @@ const Messeges = ({
       userId: userToSendMessage.userId,
       username: userToSendMessage.username,
     });
-    if (media === 'sm') {
+    if (media === 'sm' || media === 'md') {
       setShouldOpenMobileChat(true);
       setRenderNavOnMobile(false);
     }
