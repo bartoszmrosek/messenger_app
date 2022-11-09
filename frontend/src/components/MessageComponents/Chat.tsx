@@ -107,12 +107,12 @@ const Chat = ({
   return (
     <>
       <section
-        className={`transition-all delay-250 absolute md:static ${chatLocation()} md:translate-x-[0%] flex flex-col ${
+        className={`transition-all delay-250 absolute md:static ${chatLocation()} md:translate-x-[0%] flex flex-col h-full w-full items-center bg-porcelain text-center p-3 ${
           //prettier-ignore
           (messages !== null && messages.length > 0 && selectedChat)
             ? 'justify-end divide-y-4 divide-black/5'
             : 'justify-center'
-        } h-full w-full items-center bg-porcelain text-center p-3`}
+        }`}
       >
         {isLoading && <Loader loadingMessage="Loading..." />}
         {error && <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />}
