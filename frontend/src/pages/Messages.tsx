@@ -60,6 +60,11 @@ const Messeges = ({
     socket.on('connect_error', err => {
       setError(err);
     });
+
+    socket.on('reconnect', () => {
+      setError(null);
+    });
+
     setSocket(socket);
     return () => {
       socket.removeAllListeners();

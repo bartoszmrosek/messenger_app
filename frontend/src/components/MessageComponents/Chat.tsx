@@ -110,7 +110,7 @@ const Chat = ({
         className={`transition-all delay-250 absolute md:static ${chatLocation()} md:translate-x-[0%] flex flex-col h-full w-full items-center bg-porcelain text-center p-3 ${
           //prettier-ignore
           (messages !== null && messages.length > 0 && selectedChat)
-            ? 'justify-end divide-y-4 divide-black/5'
+            ? 'justify-end'
             : 'justify-center'
         }`}
       >
@@ -133,6 +133,15 @@ const Chat = ({
         )
         }
         {!isLoading && !error && renderedMessages()}
+        {selectedChat && (
+          <section className="border-none w-full max-h-20 text-[#371965] flex flex-row">
+            <div
+              className="w-full h-min max-h-20 rounded-3xl bg-[#bcbfc3] outline-none p-5 break-words whitespace-pre-wrap overflow-y-scroll flex-grow text-left before:content-['Aa']"
+              contentEditable={true}
+            ></div>
+            <button className="rounded-full"></button>
+          </section>
+        )}
       </section>
     </>
   );

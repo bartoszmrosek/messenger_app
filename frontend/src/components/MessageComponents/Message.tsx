@@ -24,7 +24,7 @@ const Message = ({ isOnLeftSide, message }: MessageProps) => {
       <section
         className={`px-5 py-3 rounded-full ${
           isOnLeftSide
-            ? 'order-3 bg-[#bcbfc3]'
+            ? 'order-3 bg-[#bcbfc3] text-[#371965]'
             : 'order-1 bg-main-purple text-white'
         } ${media === 'sm' ? 'mr-2' : 'mr-5'}`}
       >
