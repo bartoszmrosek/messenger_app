@@ -6,7 +6,7 @@ while also being nice to look at and great with usability.
 
 ## Viewable demo:
 https://emotekpl-messenger-prod.netlify.app/Login
-### Netlify make errors on refresh, in the future app will be moved to beter hosting, also first login can take up to 5 minutes becouse of backend server beeing hosted on render
+### Netlify make errors on refresh, in the future app will be moved to better hosting, also first login can take up to 5 minutes becouse of backend server beeing hosted on [render](https://render.com/)
 
 ## Technologies used:
 
