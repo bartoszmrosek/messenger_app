@@ -12,6 +12,7 @@ import ErrorDisplayer from '../ErrorDisplayer';
 import Loader from '../Loader';
 import SvgIcons from '../SvgIcons';
 import Message from './Message';
+import TextareaAutosize from 'react-textarea-autosize';
 
 interface ChatProps {
   messages: userMessageInterface[] | null;
@@ -38,6 +39,7 @@ const Chat = ({
   const [retrySwitch, setRetrySwitch] = useState(false);
   const { loggedUser } = useContext(UserContext) as UserContextExports;
   const navigate = useNavigate();
+  const [textAreaValue, setTextAreaValue] = useState('');
 
   useEffect(() => {
     const controller = new AbortController();
@@ -100,19 +102,23 @@ const Chat = ({
     setRenderNavOnMobile(true);
   };
 
-  const chatLocation = () => {
-    return shouldOpenMobileVersion ? 'translate-x-[0%]' : 'translate-x-[100%]';
+  const handleTextAreaChange = (
+    event: React.FormEvent<HTMLTextAreaElement>,
+  ) => {
+    setTextAreaValue(event.currentTarget.value);
   };
 
   return (
     <>
       <section
-        className={`transition-all delay-250 absolute md:static ${chatLocation()} md:translate-x-[0%] flex flex-col h-full w-full items-center bg-porcelain text-center p-3 ${
-          //prettier-ignore
-          (messages !== null && messages.length > 0 && selectedChat)
+        className={`transition-all delay-250 absolute md:static
+         ${shouldOpenMobileVersion ? 'translate-x-[0%]' : 'translate-x-[100%]'} 
+         md:translate-x-[0%] flex flex-col h-full w-full max-w-full items-center overflow-x-hidden bg-porcelain text-center py-3 lg:p-3 lg:pr-0 ${
+           //prettier-ignore
+           (messages !== null && messages.length > 0 && selectedChat)
             ? 'justify-end'
             : 'justify-center'
-        }`}
+         }`}
       >
         {isLoading && <Loader loadingMessage="Loading..." />}
         {error && <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />}
@@ -132,15 +138,28 @@ const Chat = ({
           </section>
         )
         }
-        {!isLoading && !error && renderedMessages()}
-        {selectedChat && (
-          <section className="border-none w-full max-h-20 text-[#371965] flex flex-row">
-            <div
-              className="w-full h-min max-h-20 rounded-3xl bg-[#bcbfc3] outline-none p-5 break-words whitespace-pre-wrap overflow-y-scroll flex-grow text-left before:content-['Aa']"
-              contentEditable={true}
-            ></div>
-            <button className="rounded-full"></button>
-          </section>
+        {!isLoading && !error && (
+          <>
+            {renderedMessages()}
+            {selectedChat && (
+              <section className="relative border-none h-fit w-full text-[#371965] flex flex-row flex-grow-0 justify-self-end mt-2 self-end items-center">
+                <section className="flex flex-row flex-grow-0 w-full h-full overflow-x-hidden rounded-3xl py-1 pl-3 pr-0 m-2 bg-[#bcbfc3] overflow-y-hidden items-center">
+                  <TextareaAutosize
+                    className="w-full h-8 max-h-30 outline-none overflow-y-scroll resize-none bg-inherit text-left scrollbar-thin scrollbar-thumb-[#717375] whitespace-pre-wrap break-words pr-3"
+                    onChange={handleTextAreaChange}
+                    value={textAreaValue}
+                    placeholder="Aa"
+                    maxRows={4}
+                  />
+                  {/* There shouldn`t be any empty divs, but this is easier and less complicated option to push scrollbar to the left */}
+                  <div className="w-5"></div>
+                </section>
+                <button className="rounded-full w-16 h-full p-2 hover:bg-black/20">
+                  <SvgIcons type="send" />
+                </button>
+              </section>
+            )}
+          </>
         )}
       </section>
     </>

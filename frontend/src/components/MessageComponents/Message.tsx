@@ -11,7 +11,7 @@ const Message = ({ isOnLeftSide, message }: MessageProps) => {
   const media = useMedia();
   return (
     <div
-      className={`grid grid-flow-col items-center w-full h-16 ${
+      className={`grid grid-flow-col items-center w-full h-16  ${
         isOnLeftSide ? 'justify-start self-start' : 'justify-end self-end'
       }
       `}
