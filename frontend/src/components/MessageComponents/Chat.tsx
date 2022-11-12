@@ -40,6 +40,7 @@ const Chat = ({
   const { loggedUser } = useContext(UserContext) as UserContextExports;
   const navigate = useNavigate();
   const [textAreaValue, setTextAreaValue] = useState('');
+  const [ref, setRef] = useState<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -88,13 +89,13 @@ const Chat = ({
           />
         );
       });
-    if ((messages === null || messages.length === 0) && selectedChat)
-      return (
-        <p className="text-lg font-medium">
-          You don`t have any messages with this user yet!
-        </p>
-      );
-    return <p className="text-lg font-medium">Select any user to open chat!</p>;
+    return (
+      <p className="text-lg font-medium absolute w-fit h-fit inset-0 m-auto p-5">
+        {(messages === null || messages.length === 0) && selectedChat
+          ? 'It looks like you don`t have any messages yet!'
+          : 'Select any user to open chat!'}
+      </p>
+    );
   };
 
   const handleMobileChatClose = () => {
@@ -107,6 +108,9 @@ const Chat = ({
   ) => {
     setTextAreaValue(event.currentTarget.value);
   };
+  const expandFocusArea = () => {
+    ref.focus();
+  };
 
   return (
     <>
@@ -117,7 +121,7 @@ const Chat = ({
            //prettier-ignore
            (messages !== null && messages.length > 0 && selectedChat)
             ? 'justify-end'
-            : 'justify-center'
+            : 'justify-end'
          }`}
       >
         {isLoading && <Loader loadingMessage="Loading..." />}
@@ -141,15 +145,21 @@ const Chat = ({
         {!isLoading && !error && (
           <>
             {renderedMessages()}
-            {selectedChat && (
-              <section className="relative border-none h-fit w-full text-[#371965] flex flex-row flex-grow-0 justify-self-end mt-2 self-end items-center">
-                <section className="flex flex-row flex-grow-0 w-full h-full overflow-x-hidden rounded-3xl py-1 pl-3 pr-0 m-2 bg-[#bcbfc3] overflow-y-hidden items-center">
+            {selectedChat && messages && (
+              <section
+                className={`static border-none h-fit w-full text-[#371965] flex flex-row flex-grow-0 mt-2 self-end items-center`}
+              >
+                <section
+                  className="flex flex-row flex-grow-0 w-full h-full overflow-x-hidden rounded-3xl py-1 pl-3 pr-0 m-2 bg-[#bcbfc3] overflow-y-hidden items-center cursor-text"
+                  onClick={expandFocusArea}
+                >
                   <TextareaAutosize
                     className="w-full h-8 max-h-30 outline-none overflow-y-scroll resize-none bg-inherit text-left scrollbar-thin scrollbar-thumb-[#717375] whitespace-pre-wrap break-words pr-3"
                     onChange={handleTextAreaChange}
                     value={textAreaValue}
                     placeholder="Aa"
                     maxRows={4}
+                    ref={tag => setRef(tag)}
                   />
                   {/* There shouldn`t be any empty divs, but this is easier and less complicated option to push scrollbar to the left */}
                   <div className="w-5"></div>

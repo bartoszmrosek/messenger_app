@@ -55,6 +55,10 @@ app.post('/api/Register', async (req, res) => {
   return res.sendStatus(400);
 });
 
+// TODO:
+// Separate routes to respetfull files/folders
+// Refactor login to make it more readable
+
 app.post('/api/Login', async (req, res) => {
   const token: unknown = req.cookies.token;
   //prettier-ignore

@@ -165,7 +165,7 @@ const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
                     name="search-params"
                     value={searchInput}
                     onChange={handleSearchChange}
-                    placeholder="Search"
+                    placeholder="Search in users"
                     ref={searchRef}
                   />
                 </form>
