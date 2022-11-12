@@ -24,7 +24,7 @@ export interface messageDetails extends RowDataPacket {
   message: string;
   sender_user_id: number;
   reciever_user_id: number;
-  is_read: boolean;
+  status: string;
   created_at: string;
   message_id: number;
 }
@@ -35,7 +35,7 @@ export interface newMessage {
   message: string;
   sender_user_id: number;
   reciever_user_id: number;
-  is_read: boolean;
+  status: 'sending' | 'sent' | 'delivered' | 'read';
   created_at: string;
 }
 
@@ -137,7 +137,7 @@ export class DbQueries {
         user_messages.message,
         user_messages.sender_user_id,
         user_messages.reciever_user_id,
-        user_messages.is_read,
+        user_messages.status,
         user_messages.created_at,
         user_messages.message_id
         FROM user_accounts, user_messages
@@ -156,18 +156,21 @@ export class DbQueries {
       });
     });
   }
-  getChatHistory(firstUserId: number, secondUserId: number): Promise<messageDetails[] | mysql.QueryError> {
+  getChatHistory(
+    firstUserId: number,
+    secondUserId: number,
+  ): Promise<messageDetails[] | mysql.QueryError> {
     return this.#usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
         connection.execute<messageDetails[]>(
-          `SELECT message, sender_user_id, reciever_user_id, is_read, created_at,message_id 
+          `SELECT message, sender_user_id, reciever_user_id, status, created_at, message_id 
           FROM user_messages 
           WHERE (sender_user_id = ? AND reciever_user_id = ?) OR (reciever_user_id = ? AND sender_user_id = ?)
           ORDER BY user_messages.created_at DESC;`,
           [firstUserId, secondUserId, firstUserId, secondUserId],
           (err, res) => {
             if (err) {
-              console.log(err)
+              console.log(err);
               reject(500);
             }
             resolve(res);
@@ -181,13 +184,13 @@ export class DbQueries {
       return new Promise((resolve, reject) => {
         connection.execute<OkPacket>(
           `
-    INSERT INTO user_messages (sender_user_id, reciever_user_id, message, is_read)
+    INSERT INTO user_messages (sender_user_id, reciever_user_id, message, status)
     VALUES ( ?, ?, ?, ? );`,
           [
             message.sender_user_id,
             message.reciever_user_id,
             message.message,
-            message.is_read,
+            message.status,
           ],
           err => {
             if (err) reject(err);

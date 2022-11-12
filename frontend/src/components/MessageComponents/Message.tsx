@@ -5,9 +5,10 @@ import SvgIcons from '../SvgIcons';
 interface MessageProps {
   isOnLeftSide: boolean;
   message: string;
+  status?: 'sending' | 'sent' | 'delivered' | 'read';
 }
 
-const Message = ({ isOnLeftSide, message }: MessageProps) => {
+const Message = ({ isOnLeftSide, message, status }: MessageProps) => {
   const media = useMedia();
   return (
     <div

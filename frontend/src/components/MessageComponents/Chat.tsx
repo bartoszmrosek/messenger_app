@@ -161,7 +161,9 @@ const Chat = ({
                     maxRows={4}
                     ref={tag => setRef(tag)}
                   />
-                  {/* There shouldn`t be any empty divs, but this is easier and less complicated option to push scrollbar to the left */}
+                  {/* There shouldn`t be any empty divs, but this is easier and less complicated option to push scrollbar to the left 
+                      also makes it more compatible with multiple browsers and their versions
+                  */}
                   <div className="w-5"></div>
                 </section>
                 <button className="rounded-full w-16 h-full p-2 hover:bg-black/20">
