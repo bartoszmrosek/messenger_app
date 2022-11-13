@@ -43,6 +43,7 @@ const Chat = ({
   const { loggedUser } = useContext(UserContext) as UserContextExports;
   const navigate = useNavigate();
   const [textAreaValue, setTextAreaValue] = useState('');
+  // This normally would be useRef hook but due to how package works this is recommended from documentation
   const [ref, setRef] = useState<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -90,6 +91,7 @@ const Chat = ({
             isOnLeftSide={loggedUser.user_id !== message.sender_user_id}
             message={message.message}
             status={message.status}
+            clickHandler={() => sendMessage(message.message_id, message)}
           />
         );
       });
@@ -116,10 +118,13 @@ const Chat = ({
     ref.focus();
   };
 
-  const sendMessage = async () => {
-    if (textAreaValue.length > 0) {
-      const id = nanoid();
-      const preparedMessage: UserMessageInterface = {
+  const sendMessage = async (
+    id?: string | number,
+    message?: UserMessageInterface,
+  ) => {
+    if (!id) {
+      id = nanoid();
+      message = {
         message_id: id,
         message: textAreaValue,
         sender_user_id: loggedUser.user_id,
@@ -127,22 +132,20 @@ const Chat = ({
         created_at: moment().tz('Europe/Warsaw').format(),
         status: 'sending',
       };
-      setMessages(prevMessages => [...prevMessages, preparedMessage]);
-      socket
-        .timeout(10000)
-        .emit('newMessageToServer', preparedMessage, (err, arg) => {
-          if (err)
-            setMessages(messages =>
-              messages.map(message =>
-                message.message_id === id
-                  ? { ...message, status: 'error' }
-                  : message,
-              ),
-            );
-          console.log(err, arg);
-        });
-      setTextAreaValue('');
+      setMessages(prevMessages => [...prevMessages, message]);
     }
+    socket.timeout(1000).emit('newMessageToServer', message, (err, arg) => {
+      if (err)
+        setMessages(messages =>
+          messages.map(message =>
+            message.message_id === id
+              ? { ...message, status: 'error', errorHandler: sendMessage }
+              : message,
+          ),
+        );
+      console.log(err, arg);
+    });
+    setTextAreaValue('');
   };
 
   return (
@@ -187,7 +190,7 @@ const Chat = ({
                   onClick={expandFocusArea}
                 >
                   <TextareaAutosize
-                    className="w-full h-8 max-h-30 outline-none overflow-y-scroll resize-none bg-inherit text-left scrollbar-thin scrollbar-thumb-[#717375] whitespace-pre-wrap break-words pr-3"
+                    className="w-full h-16 p-2 max-h-30 outline-none overflow-y-scroll resize-none bg-inherit text-left scrollbar-thin scrollbar-thumb-[#717375] whitespace-pre-wrap break-words pr-3"
                     onChange={handleTextAreaChange}
                     value={textAreaValue}
                     placeholder="Aa"
@@ -200,8 +203,10 @@ const Chat = ({
                   <div className="w-5"></div>
                 </section>
                 <button
-                  className="rounded-full w-16 h-full p-2 hover:bg-black/20"
-                  onClick={sendMessage}
+                  className={`rounded-full w-16 h-full p-2 hover:bg-black/20 ${
+                    textAreaValue.length < 1 && 'hidden'
+                  }`}
+                  onClick={() => sendMessage()}
                 >
                   <SvgIcons type="send" />
                 </button>
