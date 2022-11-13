@@ -12,7 +12,10 @@ import ErrorDisplayer from '../components/ErrorDisplayer';
 import Chat from '../components/MessageComponents/Chat';
 import useMedia from '../hooks/useMedia';
 import { io, Socket } from 'socket.io-client';
-import { DefaultEventsMap } from '@socket.io/component-emitter';
+import {
+  ServerToClientEvents,
+  ClientToServerEvents,
+} from '../interfaces/SocketEvents';
 
 const Messeges = ({
   setRenderNavOnMobile,
@@ -36,15 +39,18 @@ const Messeges = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
   const [socket, setSocket] = useState<Socket<
-    DefaultEventsMap,
-    DefaultEventsMap
+    ServerToClientEvents,
+    ClientToServerEvents<true>
   > | null>(null);
 
   //Code only to make socket resistant to rerenders caused by other data states
   useEffect(() => {
-    const socket = io(import.meta.env.VITE_REST_ENDPOINT, {
-      withCredentials: true,
-    });
+    const socket: Socket<ServerToClientEvents, ClientToServerEvents<true>> = io(
+      import.meta.env.VITE_REST_ENDPOINT,
+      {
+        withCredentials: true,
+      },
+    );
     socket.on(
       'newMessageToClient',
       (message: userMessageInterface, callback) => {

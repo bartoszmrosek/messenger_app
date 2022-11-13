@@ -24,7 +24,7 @@ export interface messageDetails extends RowDataPacket {
   message: string;
   sender_user_id: number;
   reciever_user_id: number;
-  status: string;
+  status: 'sending' | 'sent' | 'delivered' | 'read';
   created_at: string;
   message_id: number;
 }

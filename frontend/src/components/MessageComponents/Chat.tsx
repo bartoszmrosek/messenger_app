@@ -13,6 +13,12 @@ import Loader from '../Loader';
 import SvgIcons from '../SvgIcons';
 import Message from './Message';
 import TextareaAutosize from 'react-textarea-autosize';
+import { nanoid } from 'nanoid';
+import moment from 'moment-timezone';
+import {
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from '../../interfaces/SocketEvents';
 
 interface ChatProps {
   messages: userMessageInterface[] | null;
@@ -21,7 +27,7 @@ interface ChatProps {
   shouldOpenMobileVersion: boolean;
   setMobileVersionSwitch: React.Dispatch<React.SetStateAction<boolean>>;
   setRenderNavOnMobile: React.Dispatch<React.SetStateAction<boolean>>;
-  socket: Socket;
+  socket: Socket<ServerToClientEvents, ClientToServerEvents<true>>;
 }
 
 const Chat = ({
@@ -112,6 +118,28 @@ const Chat = ({
     ref.focus();
   };
 
+  const sendMessage = async () => {
+    if (textAreaValue.length > 0) {
+      const id = nanoid();
+      const preparedMessage: userMessageInterface = {
+        message_id: id,
+        message: textAreaValue,
+        sender_user_id: loggedUser.user_id,
+        reciever_user_id: selectedChat.userId,
+        created_at: moment().tz('Europe/Warsaw').format(),
+        status: 'sending',
+      };
+      setMessages(prevMessages => [...prevMessages, preparedMessage]);
+      socket
+        .timeout(10000)
+        .emit('newMessageToServer', preparedMessage, (err, arg) => {
+          console.log(err, arg);
+        });
+      setTextAreaValue('');
+    }
+  };
+
+  console.log(messages);
   return (
     <>
       <section
@@ -166,7 +194,10 @@ const Chat = ({
                   */}
                   <div className="w-5"></div>
                 </section>
-                <button className="rounded-full w-16 h-full p-2 hover:bg-black/20">
+                <button
+                  className="rounded-full w-16 h-full p-2 hover:bg-black/20"
+                  onClick={sendMessage}
+                >
                   <SvgIcons type="send" />
                 </button>
               </section>

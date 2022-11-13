@@ -27,7 +27,7 @@ const UserConnections = ({
   return (
     <>
       {connections.length < 1 ? (
-        <div className="h-full w-full max-w-sm flex justify-center items-center text-center p-10 text-lg">
+        <div className="h-full w-full max-w-md flex justify-center items-center text-center p-10 text-lg">
           It seems that you don`t have any conversations yet, search for user to
           chat with!
         </div>
