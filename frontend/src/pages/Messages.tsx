@@ -33,6 +33,7 @@ const Messeges = ({
   const [shouldOpenMobileChat, setShouldOpenMobileChat] =
     useState<boolean>(false);
   const media = useMedia();
+  // Tried making it anything other than any but react-router just isn't compatible with it unless I really complicate types
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
   const [socket, setSocket] = useState<Socket<

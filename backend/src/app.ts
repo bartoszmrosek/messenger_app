@@ -14,27 +14,34 @@ import checkOrCreateUser from './utils/checkOrCreateUser';
 import checkUserLoginData from './utils/checkUserLoginData';
 import searchUser from './utils/searchUser';
 import getLastestConnections from './utils/getUserLatestConnections';
-import { DbQueries, userDetails } from './queries';
+import { DbQueries, UserDetails } from './queries';
 import authTokenMiddleware, {
   IGetUserAuth,
 } from './middleware/authenticate.middleware';
-import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import authSocketMiddleware from './middleware/authSocket.middleware';
+import {
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from './interfaces/SocketEvents';
+import saveNewMessage from './utils/saveNewMessage';
 
 export interface SocketWithUserAuth
-  extends Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any> {
-  user: userDetails;
+  extends Socket<ClientToServerEvents, ServerToClientEvents, never, never> {
+  user: UserDetails;
 }
 
 const PORT = process.env.PORT || 3030;
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  cors: {
-    origin: process.env.CORS_ORIGIN as string,
-    credentials: true,
+const io = new Server<ClientToServerEvents, ServerToClientEvents, never, never>(
+  httpServer,
+  {
+    cors: {
+      origin: process.env.CORS_ORIGIN as string,
+      credentials: true,
+    },
   },
-});
+);
 
 const db = new DbQueries();
 
@@ -48,7 +55,7 @@ app.post('/api/Register', async (req, res) => {
     typeof req.body.email === 'string' &&
     typeof req.body.password === 'string'
   ) {
-    const data: userDetails = req.body;
+    const data: UserDetails = req.body;
     const resCode = await checkOrCreateUser(data, db);
     return res.sendStatus(resCode);
   }
@@ -90,7 +97,7 @@ app.post('/api/Login', async (req, res) => {
       return jwt.verify(
         token,
         process.env.SECRET_KEY as string,
-        (err: Error, user: userDetails) => {
+        (err: Error, user: UserDetails) => {
           if (err) {
             res.cookie('token', 'rubbish', { maxAge: 0 });
             throw 401;
@@ -143,6 +150,19 @@ io.use(authSocketMiddleware);
 
 io.on('connection', (socket: SocketWithUserAuth) => {
   socket.join(socket.user.user_id.toString());
+  socket.on('newMessageToServer', async (message, callback) => {
+    let isUserConnected: boolean;
+    const iterableSidsMap = io.of('/').adapter.sids[Symbol.iterator]();
+    for (const sid of iterableSidsMap) {
+      if (isUserConnected) break;
+      isUserConnected = sid[1].has(message.reciever_user_id.toString());
+    }
+
+    if (!isUserConnected) {
+      const savingResults = await saveNewMessage(message, db, 'sent');
+      callback(savingResults === null ? 'sent' : 'error');
+    }
+  });
 });
 
 httpServer.listen(PORT, () => {

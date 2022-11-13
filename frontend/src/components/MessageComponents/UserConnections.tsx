@@ -1,11 +1,11 @@
 import React from 'react';
-import { userMessageInterface } from '../../Contexts/UserContext';
 import SvgIcons from '../SvgIcons';
 import moment from 'moment';
+import { UserMessageInterface } from '../../interfaces/MessageInterfaces';
 
 interface UserConnectionsProps {
   loggedUserId: number;
-  connections: userMessageInterface[];
+  connections: UserMessageInterface[];
   handleChatChange: (userToSendMessage: {
     userId: number;
     username: string;
@@ -17,7 +17,7 @@ const UserConnections = ({
   connections,
   handleChatChange,
 }: UserConnectionsProps) => {
-  const userToSendMessageTo = (userNode: userMessageInterface): number => {
+  const userToSendMessageTo = (userNode: UserMessageInterface): number => {
     if (loggedUserId === userNode.reciever_user_id) {
       return userNode.sender_user_id;
     } else {

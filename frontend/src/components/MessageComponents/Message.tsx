@@ -30,6 +30,7 @@ const Message = ({
           <SvgIcons type="user" className="w-12 h-12" />
         </section>
       )}
+      {/* Just a placholder down here */}
       <section
         className={`px-5 py-3 rounded-full 
         ${

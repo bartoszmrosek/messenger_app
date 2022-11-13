@@ -2,13 +2,14 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { nanoid } from 'nanoid';
 
-import { UserContext, userMessageInterface } from '../Contexts/UserContext';
+import { UserContext } from '../Contexts/UserContext';
 import useErrorType from '../hooks/useErrorType';
 
 import { UserContextExports } from '../Contexts/UserContext';
 import FoundUserSection from '../components/SearchComponents/FoundUserSection';
 import ErrorDisplayer from '../components/ErrorDisplayer';
 import Loader from '../components/Loader';
+import { UserMessageInterface } from '../interfaces/MessageInterfaces';
 
 const SearchResultsPage = () => {
   const { loggedUser, userConnetions, setUserConnections } = useContext(
@@ -24,13 +25,13 @@ const SearchResultsPage = () => {
 
   const makeNewMessage = (userId: number, username: string) => {
     if (loggedUser) {
-      const nullMessage: userMessageInterface = {
+      const nullMessage: UserMessageInterface = {
         message_id: nanoid(),
         username: username,
         message: null,
         sender_user_id: loggedUser.user_id,
         reciever_user_id: userId,
-        is_read: null,
+        status: 'sending',
         created_at: null,
       };
 

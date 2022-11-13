@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
-import { userDetails } from '../queries';
+import { UserDetails } from '../queries';
 
 export interface IGetUserAuth extends Request {
-  user: userDetails;
+  user: UserDetails;
 }
 
 export type authTokenMiddlewareParams = (
@@ -23,7 +23,7 @@ const authTokenMiddleware: authTokenMiddlewareParams = (
   jwt.verify(
     token,
     process.env.SECRET_KEY as string,
-    (err: Error, user: userDetails) => {
+    (err: Error, user: UserDetails) => {
       if (err) return res.sendStatus(403);
       req.user = user;
       next();

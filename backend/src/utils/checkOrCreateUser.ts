@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { DbQueries, userDetails } from '../queries';
+import { DbQueries, UserDetails } from '../queries';
 
-const checkOrCreateUser = async (data: userDetails, db: DbQueries) => {
+const checkOrCreateUser = async (data: UserDetails, db: DbQueries) => {
   try {
     await db.insertNewUser(data);
     return 200;
