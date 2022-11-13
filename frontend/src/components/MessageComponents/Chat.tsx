@@ -82,28 +82,6 @@ const Chat = ({
     };
   }, [selectedChat, retrySwitch]);
 
-  const renderedMessages = () => {
-    if (messages !== null && messages.length > 0 && selectedChat)
-      return messages.map(message => {
-        return (
-          <Message
-            key={message.created_at}
-            isOnLeftSide={loggedUser.user_id !== message.sender_user_id}
-            message={message.message}
-            status={message.status}
-            clickHandler={() => sendMessage(message.message_id, message)}
-          />
-        );
-      });
-    return (
-      <p className="text-lg font-medium absolute w-fit h-fit inset-0 m-auto p-5">
-        {(messages === null || messages.length === 0) && selectedChat
-          ? 'It looks like you don`t have any messages yet!'
-          : 'Select any user to open chat!'}
-      </p>
-    );
-  };
-
   const handleMobileChatClose = () => {
     setMobileVersionSwitch(false);
     setRenderNavOnMobile(true);
@@ -118,10 +96,33 @@ const Chat = ({
     ref.focus();
   };
 
+  const renderedMessages = () => {
+    if (messages !== null && messages.length > 0 && selectedChat)
+      return messages.map(message => {
+        return (
+          <Message
+            key={message.created_at}
+            isOnLeftSide={loggedUser.user_id !== message.sender_user_id}
+            message={message.message}
+            status={message.status}
+            errorClickHandler={() => sendMessage(message.message_id, message)}
+          />
+        );
+      });
+    return (
+      <p className="text-lg font-medium absolute w-fit h-fit inset-0 m-auto p-5">
+        {(messages === null || messages.length === 0) && selectedChat
+          ? 'It looks like you don`t have any messages yet!'
+          : 'Select any user to open chat!'}
+      </p>
+    );
+  };
+
   const sendMessage = async (
     id?: string | number,
     message?: UserMessageInterface,
   ) => {
+    // This state managment needs to be rewritten to redux dispatches as soon as migrated, it is getting really complex with multiple status states
     if (!id) {
       id = nanoid();
       message = {
@@ -132,19 +133,28 @@ const Chat = ({
         created_at: moment().tz('Europe/Warsaw').format(),
         status: 'sending',
       };
+      // Push new message with previous state
       setMessages(prevMessages => [...prevMessages, message]);
     }
-    socket.timeout(1000).emit('newMessageToServer', message, (err, arg) => {
-      if (err)
-        setMessages(messages =>
-          messages.map(message =>
-            message.message_id === id
-              ? { ...message, status: 'error', errorHandler: sendMessage }
-              : message,
-          ),
-        );
-      console.log(err, arg);
+
+    //Change status to sending for specific message
+    setMessages(messages =>
+      messages.map(message =>
+        message.message_id === id ? { ...message, status: 'sending' } : message,
+      ),
+    );
+
+    socket.timeout(10000).emit('newMessageToServer', message, (err, arg) => {
+      // Update message status with new status value
+      setMessages(messages =>
+        messages.map(message =>
+          message.message_id === id
+            ? { ...message, status: err ? 'error' : arg }
+            : message,
+        ),
+      );
     });
+
     setTextAreaValue('');
   };
 

@@ -18,6 +18,6 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents<isSender extends boolean = false> {
   newMessageToServer: (
     arg: UserMessageInterface,
-    callback: (...args: WithTimeoutAck<isSender, [string]>) => void,
+    callback: (...args: WithTimeoutAck<isSender, [MessageStatus]>) => void,
   ) => void;
 }

@@ -1,23 +1,20 @@
 import React from 'react';
 import useMedia from '../../hooks/useMedia';
-import {
-  MessageStatus,
-  UserMessageInterface,
-} from '../../interfaces/MessageInterfaces';
+import { MessageStatus } from '../../interfaces/MessageInterfaces';
 import SvgIcons from '../SvgIcons';
 
 interface MessageProps {
   isOnLeftSide: boolean;
   message: string;
   status?: MessageStatus;
-  clickHandler?: () => Promise<void>;
+  errorClickHandler?: () => Promise<void>;
 }
 
 const Message = ({
   isOnLeftSide,
   message,
   status,
-  clickHandler,
+  errorClickHandler,
 }: MessageProps) => {
   const media = useMedia();
   return (
@@ -26,7 +23,7 @@ const Message = ({
         isOnLeftSide ? 'justify-start self-start' : 'justify-end self-end'
       }
       `}
-      onClick={clickHandler}
+      onClick={errorClickHandler}
     >
       {isOnLeftSide && (
         <section className="w-12 h-12 flex flex-col order-2">
