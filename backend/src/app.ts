@@ -26,22 +26,29 @@ import {
 import saveNewMessage from './utils/saveNewMessage';
 
 export interface SocketWithUserAuth
-  extends Socket<ClientToServerEvents, ServerToClientEvents, never, never> {
+  extends Socket<
+    ClientToServerEvents,
+    ServerToClientEvents<true>,
+    never,
+    never
+  > {
   user: UserDetails;
 }
 
 const PORT = process.env.PORT || 3030;
 const app = express();
 const httpServer = createServer(app);
-const io = new Server<ClientToServerEvents, ServerToClientEvents, never, never>(
-  httpServer,
-  {
-    cors: {
-      origin: process.env.CORS_ORIGIN as string,
-      credentials: true,
-    },
+const io = new Server<
+  ClientToServerEvents,
+  ServerToClientEvents<true>,
+  never,
+  never
+>(httpServer, {
+  cors: {
+    origin: process.env.CORS_ORIGIN as string,
+    credentials: true,
   },
-);
+});
 
 const db = new DbQueries();
 
@@ -161,6 +168,16 @@ io.on('connection', (socket: SocketWithUserAuth) => {
     if (!isUserConnected) {
       const savingResults = await saveNewMessage(message, db, 'sent');
       callback(savingResults === null ? 'sent' : 'error');
+    } else {
+      socket
+        .timeout(5000)
+        .to(message.reciever_user_id.toString())
+        .emit('newMessageToClient', message, async (err, status) => {
+          if (err) return callback('error');
+          const savingResults = await saveNewMessage(message, db, status);
+          if (savingResults === 500) return callback('error');
+          return callback(status);
+        });
     }
   });
 });

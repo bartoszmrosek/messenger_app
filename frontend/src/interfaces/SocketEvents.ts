@@ -10,7 +10,7 @@ type WithTimeoutAck<
 export interface ServerToClientEvents {
   newMessageToClient: (
     param: UserMessageInterface,
-    callback: (obj: { status: MessageStatus }) => void,
+    callback: (status: MessageStatus) => void,
   ) => void;
   reconnect: () => void;
 }

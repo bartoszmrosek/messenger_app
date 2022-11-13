@@ -52,12 +52,15 @@ const Messeges = ({
     socket.on(
       'newMessageToClient',
       (message: UserMessageInterface, callback) => {
+        if (activeChat === null) {
+          callback('delivered');
+          return handleNewConnectionMessage(message);
+        }
         if (activeChat.userId !== message.sender_user_id) {
-          callback({ status: 'delivered' });
-          handleNewConnectionMessage(message);
+          return callback('delivered');
         } else {
-          callback({ status: 'read' });
-          setCurrentChat(prev => [...prev, message]);
+          callback('read');
+          return setCurrentChat(prev => [...prev, message]);
         }
       },
     );
@@ -75,17 +78,35 @@ const Messeges = ({
       socket.removeAllListeners();
       socket.close();
     };
-  }, [loggedUser]);
+  }, [loggedUser, activeChat]);
 
   // Specially for reason of displaying newest message in user connections
   const handleNewConnectionMessage = (message: UserMessageInterface) => {
-    setUserConnections(connections => {
-      const filteredConnections = connections.filter(connection => {
-        return connection.username !== message.username;
-      });
-      return [message, ...filteredConnections];
-    });
+    setUserConnections(connections =>
+      connections.map(connection => {
+        if (
+          (message.sender_user_id === connection.sender_user_id ||
+            message.reciever_user_id === connection.sender_user_id) &&
+          (message.reciever_user_id === connection.reciever_user_id ||
+            message.sender_user_id === connection.reciever_user_id)
+        ) {
+          return {
+            ...connection,
+            message: message.message,
+            created_at: message.created_at,
+            status: message.status,
+          };
+        }
+        return connection;
+      }),
+    );
   };
+
+  useEffect(() => {
+    if (currentChat !== null && currentChat.length > 1) {
+      handleNewConnectionMessage(currentChat[currentChat.length - 1]);
+    }
+  }, [currentChat]);
 
   useEffect(() => {
     if (state && state.activeChat && state.from && state.username) {
@@ -152,7 +173,7 @@ const Messeges = ({
       {isLoading && !error && <Loader loadingMessage="Loading..." />}
       {error && <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />}
       {!isLoading && !error && (
-        <div className="h-screen w-screen flex flex-row divide-x divide-slate-400 overflow-x-hidden overflow-hidden relative">
+        <div className="h-screen w-screen flex flex-row divide-x divide-slate-400 overflow-x-hidden relative">
           {userConnetions && (
             <>
               <UserConnections

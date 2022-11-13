@@ -101,7 +101,7 @@ const Chat = ({
       return messages.map(message => {
         return (
           <Message
-            key={message.created_at}
+            key={message.message_id}
             isOnLeftSide={loggedUser.user_id !== message.sender_user_id}
             message={message.message}
             status={message.status}
@@ -163,7 +163,7 @@ const Chat = ({
       <section
         className={`transition-all delay-250 absolute md:static
          ${shouldOpenMobileVersion ? 'translate-x-[0%]' : 'translate-x-[100%]'} 
-         md:translate-x-[0%] flex flex-col h-full w-full max-w-full items-center overflow-x-hidden bg-porcelain text-center py-3 lg:p-3 lg:pr-0 ${
+         md:translate-x-[0%] flex flex-col flex-grow-0 w-full max-w-full items-center overflow-x-hidden bg-porcelain text-center py-3 lg:p-3 lg:pr-0 ${
            //prettier-ignore
            (messages !== null && messages.length > 0 && selectedChat)
             ? 'justify-end'

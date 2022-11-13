@@ -20,10 +20,12 @@ const Message = ({
   return (
     <div
       className={`grid grid-flow-col items-center w-full h-16  ${
-        isOnLeftSide ? 'justify-start self-start' : 'justify-end self-end'
+        isOnLeftSide ? 'justify-start' : 'justify-end'
       }
       `}
-      onClick={errorClickHandler}
+      onClick={() => {
+        status === 'error' && errorClickHandler();
+      }}
     >
       {isOnLeftSide && (
         <section className="w-12 h-12 flex flex-col order-2">
