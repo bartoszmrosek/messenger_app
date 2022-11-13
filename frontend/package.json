@@ -1,7 +1,8 @@
 {
   "name": "frontend",
   "private": true,
-  "version": "0.8.5",
+  "version": "1.0.0",
+  "description": "Fully functional messenger app, real-time communication and saving messages for accounts",
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
