@@ -1,4 +1,4 @@
-import { userMessageInterface } from '../Contexts/UserContext';
+import { MessageStatus, UserMessageInterface } from './MessageInterfaces';
 
 // This is from socket.io documentation --> helper function for timeouts inside emitters
 type WithTimeoutAck<
@@ -9,15 +9,15 @@ type WithTimeoutAck<
 
 export interface ServerToClientEvents {
   newMessageToClient: (
-    param: userMessageInterface,
-    callback: (obj: { status: number }) => void,
+    param: UserMessageInterface,
+    callback: (obj: { status: MessageStatus }) => void,
   ) => void;
   reconnect: () => void;
 }
 
 export interface ClientToServerEvents<isSender extends boolean = false> {
   newMessageToServer: (
-    arg: userMessageInterface,
+    arg: UserMessageInterface,
     callback: (...args: WithTimeoutAck<isSender, [string]>) => void,
   ) => void;
 }

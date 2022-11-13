@@ -1,11 +1,12 @@
 import React from 'react';
 import useMedia from '../../hooks/useMedia';
+import { MessageStatus } from '../../interfaces/MessageInterfaces';
 import SvgIcons from '../SvgIcons';
 
 interface MessageProps {
   isOnLeftSide: boolean;
   message: string;
-  status?: 'sending' | 'sent' | 'delivered' | 'read';
+  status?: MessageStatus;
 }
 
 const Message = ({ isOnLeftSide, message, status }: MessageProps) => {

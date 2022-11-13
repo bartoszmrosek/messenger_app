@@ -1,10 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import {
-  UserContext,
-  userMessageInterface,
-  UserContextExports,
-} from '../Contexts/UserContext';
+import { UserContext, UserContextExports } from '../Contexts/UserContext';
 import UserConnections from '../components/MessageComponents/UserConnections';
 import useErrorType from '../hooks/useErrorType';
 import Loader from '../components/Loader';
@@ -16,6 +12,7 @@ import {
   ServerToClientEvents,
   ClientToServerEvents,
 } from '../interfaces/SocketEvents';
+import { UserMessageInterface } from '../interfaces/MessageInterfaces';
 
 const Messeges = ({
   setRenderNavOnMobile,
@@ -29,7 +26,7 @@ const Messeges = ({
     userId: number;
     username: string;
   }>(null);
-  const [currentChat, setCurrentChat] = useState<userMessageInterface[]>(null);
+  const [currentChat, setCurrentChat] = useState<UserMessageInterface[]>(null);
   const [error, setError] = useErrorType();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [retrySwtich, setRetrySwitch] = useState<boolean>(false);
@@ -53,11 +50,12 @@ const Messeges = ({
     );
     socket.on(
       'newMessageToClient',
-      (message: userMessageInterface, callback) => {
-        callback({ status: 200 });
+      (message: UserMessageInterface, callback) => {
         if (activeChat.userId !== message.sender_user_id) {
+          callback({ status: 'delivered' });
           handleNewConnectionMessage(message);
         } else {
+          callback({ status: 'read' });
           setCurrentChat(prev => [...prev, message]);
         }
       },
@@ -79,7 +77,7 @@ const Messeges = ({
   }, [loggedUser]);
 
   // Specially for reason of displaying newest message in user connections
-  const handleNewConnectionMessage = (message: userMessageInterface) => {
+  const handleNewConnectionMessage = (message: UserMessageInterface) => {
     setUserConnections(connections => {
       const filteredConnections = connections.filter(connection => {
         return connection.username !== message.username;
@@ -113,7 +111,7 @@ const Messeges = ({
           },
         );
         if (!response.ok) throw response.status;
-        const result: [userMessageInterface] = await response.json();
+        const result: UserMessageInterface[] = await response.json();
         setError(null);
         setUserConnections(prev => {
           const onlyNullMessage = prev.filter(message => {

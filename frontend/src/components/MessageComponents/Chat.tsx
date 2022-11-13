@@ -1,11 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Socket } from 'socket.io-client';
-import {
-  UserContext,
-  UserContextExports,
-  userMessageInterface,
-} from '../../Contexts/UserContext';
+import { UserContext, UserContextExports } from '../../Contexts/UserContext';
 import useErrorType from '../../hooks/useErrorType';
 import useMedia from '../../hooks/useMedia';
 import ErrorDisplayer from '../ErrorDisplayer';
@@ -19,10 +15,11 @@ import {
   ClientToServerEvents,
   ServerToClientEvents,
 } from '../../interfaces/SocketEvents';
+import { UserMessageInterface } from '../../interfaces/MessageInterfaces';
 
 interface ChatProps {
-  messages: userMessageInterface[] | null;
-  setMessages: React.Dispatch<React.SetStateAction<userMessageInterface[]>>;
+  messages: UserMessageInterface[] | null;
+  setMessages: React.Dispatch<React.SetStateAction<UserMessageInterface[]>>;
   selectedChat: { userId: number; username: string } | null;
   shouldOpenMobileVersion: boolean;
   setMobileVersionSwitch: React.Dispatch<React.SetStateAction<boolean>>;
@@ -67,7 +64,7 @@ const Chat = ({
             },
           );
           if (!response.ok) throw response.status;
-          const result: userMessageInterface[] = await response.json();
+          const result: UserMessageInterface[] = await response.json();
           setMessages(result);
           setIsLoading(false);
         } catch (err) {
@@ -92,6 +89,7 @@ const Chat = ({
             key={message.created_at}
             isOnLeftSide={loggedUser.user_id !== message.sender_user_id}
             message={message.message}
+            status={message.status}
           />
         );
       });
@@ -121,7 +119,7 @@ const Chat = ({
   const sendMessage = async () => {
     if (textAreaValue.length > 0) {
       const id = nanoid();
-      const preparedMessage: userMessageInterface = {
+      const preparedMessage: UserMessageInterface = {
         message_id: id,
         message: textAreaValue,
         sender_user_id: loggedUser.user_id,
@@ -133,13 +131,20 @@ const Chat = ({
       socket
         .timeout(10000)
         .emit('newMessageToServer', preparedMessage, (err, arg) => {
+          if (err)
+            setMessages(messages =>
+              messages.map(message =>
+                message.message_id === id
+                  ? { ...message, status: 'error' }
+                  : message,
+              ),
+            );
           console.log(err, arg);
         });
       setTextAreaValue('');
     }
   };
 
-  console.log(messages);
   return (
     <>
       <section
