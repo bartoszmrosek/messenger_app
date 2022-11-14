@@ -1,22 +1,12 @@
 import React, { FunctionComponent, createContext, useState } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
+import { UserMessageInterface } from '../interfaces/MessageInterfaces';
 interface UserContextChildren {
   children?: React.ReactNode;
 }
 
 interface userPropertiesInterface {
   (user_id: number, username: string, email: string, password?: string): void;
-}
-
-export interface userMessageInterface {
-  user_id?: number;
-  message_id: number | string;
-  username?: string;
-  message: string | null;
-  sender_user_id: number;
-  reciever_user_id: number;
-  is_read: boolean | null;
-  created_at: string | null;
 }
 
 export interface userInformationsInterface {
@@ -28,9 +18,9 @@ export interface userInformationsInterface {
 export interface UserContextExports {
   loggedUser: userInformationsInterface;
   loginUser: userPropertiesInterface;
-  userConnetions: userMessageInterface[];
+  userConnetions: UserMessageInterface[];
   setUserConnections: React.Dispatch<
-    React.SetStateAction<userMessageInterface[]>
+    React.SetStateAction<UserMessageInterface[]>
   >;
   logoutUser: () => void;
 }
@@ -40,7 +30,7 @@ const UserContext = createContext<UserContextExports>(null);
 const UserContextProvider: FunctionComponent<UserContextChildren> = ({
   children,
 }) => {
-  const [userConnetions, setUserConnections] = useState<userMessageInterface[]>(
+  const [userConnetions, setUserConnections] = useState<UserMessageInterface[]>(
     [],
   );
   const [loggedUser, setLoggedUser, removeLoggedUser] = useLocalStorage(

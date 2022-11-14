@@ -1,11 +1,11 @@
 import React from 'react';
-import { userMessageInterface } from '../../Contexts/UserContext';
 import SvgIcons from '../SvgIcons';
 import moment from 'moment';
+import { UserMessageInterface } from '../../interfaces/MessageInterfaces';
 
 interface UserConnectionsProps {
   loggedUserId: number;
-  connections: userMessageInterface[];
+  connections: UserMessageInterface[];
   handleChatChange: (userToSendMessage: {
     userId: number;
     username: string;
@@ -17,7 +17,7 @@ const UserConnections = ({
   connections,
   handleChatChange,
 }: UserConnectionsProps) => {
-  const userToSendMessageTo = (userNode: userMessageInterface): number => {
+  const userToSendMessageTo = (userNode: UserMessageInterface): number => {
     if (loggedUserId === userNode.reciever_user_id) {
       return userNode.sender_user_id;
     } else {
@@ -27,12 +27,12 @@ const UserConnections = ({
   return (
     <>
       {connections.length < 1 ? (
-        <div className="h-full w-full flex justify-center items-center text-center p-10 text-lg">
+        <div className="h-full w-full max-w-md flex justify-center items-center text-center p-10 text-lg">
           It seems that you don`t have any conversations yet, search for user to
           chat with!
         </div>
       ) : (
-        <section className="flex flex-col gap-3 h-full w-full items-center divide-y-2 divide-slate-100 p-5 md:w-3/12">
+        <section className="flex flex-col gap-3 h-full w-full items-center divide-y-2 divide-slate-100 p-5 md:w-3/12 min-w-[18rem]">
           {connections.map(userNode => {
             return (
               <button
@@ -47,8 +47,8 @@ const UserConnections = ({
               >
                 <SvgIcons type="user" className="h-16 w-16" />
                 <div className="flex flex-row justify-between w-full text-justify overflow-x-clip items-end">
-                  <span className="truncate whitespace-nowrap">
-                    <h3 className="font-bold text-lg capitalize">
+                  <span className="truncate whitespace-nowrap min-w-[10%]">
+                    <h3 className="font-bold text-lg capitalize overflow-visible z-20">
                       {userNode.username}
                     </h3>
                     {userNode.message !== null && (
@@ -59,7 +59,7 @@ const UserConnections = ({
                     )}
                   </span>
                   {userNode.message !== null && (
-                    <p className="m-1 text-sm text-black/50 whitespace-nowrap">
+                    <p className="m-1 text-sm text-black/50 whitespace-wrap bg-transparent truncate">
                       {moment(userNode.created_at).fromNow()}
                     </p>
                   )}

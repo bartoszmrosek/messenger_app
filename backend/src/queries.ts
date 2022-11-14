@@ -1,42 +1,39 @@
 import mysql, { OkPacket, RowDataPacket } from 'mysql2';
 import 'dotenv/config';
-export interface userInfoWithPacket extends RowDataPacket {
+import { MessageStatus } from './interfaces/MessageInterfaces';
+export interface UserDetails {
+  username: string;
+  password?: string;
+  email?: string;
+  user_id?: number;
+}
+export interface UserInfoWithPacket extends RowDataPacket {
   username: string;
   password?: string;
   email?: string;
   user_id?: number;
 }
 
-export interface userDetails {
-  username: string;
-  password?: string;
-  email?: string;
-  user_id?: number;
-}
-
-export interface userLoginDetails {
+export interface UserLoginDetails {
   email: string;
   password: string;
 }
 
-export interface messageDetails extends RowDataPacket {
+export interface MessageDetails extends RowDataPacket {
   username: string;
   message: string;
   sender_user_id: number;
   reciever_user_id: number;
-  is_read: boolean;
+  status: MessageStatus;
   created_at: string;
   message_id: number;
 }
 
-export interface newMessage {
-  user_id: number;
-  username: string;
+export interface NewMessage {
   message: string;
   sender_user_id: number;
   reciever_user_id: number;
-  is_read: boolean;
-  created_at: string;
+  status: MessageStatus;
 }
 
 const dbConnection = mysql.createPool({
@@ -74,7 +71,7 @@ export class DbQueries {
   }
 
   insertNewUser(
-    newUserData: userDetails,
+    newUserData: UserDetails,
   ): Promise<mysql.QueryError | null | number> {
     return this.#usePooledConnection<mysql.QueryError | null>(
       async connection => {
@@ -93,12 +90,12 @@ export class DbQueries {
     );
   }
   loginUser(
-    userLoginData: userLoginDetails,
-  ): Promise<userInfoWithPacket | number> {
-    return this.#usePooledConnection<userInfoWithPacket | number>(
+    userLoginData: UserLoginDetails,
+  ): Promise<UserInfoWithPacket | number> {
+    return this.#usePooledConnection<UserInfoWithPacket | number>(
       async connection => {
         return new Promise((resolve, reject) => {
-          connection.execute<userInfoWithPacket[]>(
+          connection.execute<UserInfoWithPacket[]>(
             `SELECT user_id, username, email 
             FROM user_accounts 
             WHERE email = ? AND password = ?`,
@@ -113,10 +110,10 @@ export class DbQueries {
       },
     );
   }
-  searchUser(username: string): Promise<userDetails[] | number> {
+  searchUser(username: string): Promise<UserDetails[] | number> {
     return this.#usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
-        connection.execute<userInfoWithPacket[]>(
+        connection.execute<UserInfoWithPacket[]>(
           'SELECT user_id, username FROM user_accounts WHERE username LIKE ?',
           [`${username}%`],
           (err, res) => {
@@ -127,17 +124,17 @@ export class DbQueries {
       });
     });
   }
-  getUserLatestConnections(userId: number): Promise<messageDetails[] | number> {
+  getUserLatestConnections(userId: number): Promise<MessageDetails[] | number> {
     return this.#usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
-        connection.execute<messageDetails[]>(
+        connection.execute<MessageDetails[]>(
           `
           SELECT
         user_accounts.username,
         user_messages.message,
         user_messages.sender_user_id,
         user_messages.reciever_user_id,
-        user_messages.is_read,
+        user_messages.status,
         user_messages.created_at,
         user_messages.message_id
         FROM user_accounts, user_messages
@@ -146,7 +143,7 @@ export class DbQueries {
         OR
         (user_messages.sender_user_id = ? AND user_messages.reciever_user_id = user_accounts.user_id)
         GROUP BY user_accounts.username 
-        ORDER BY user_messages.created_at DESC;`,
+        ORDER BY user_messages.created_at ASC`,
           [userId, userId],
           (err, res) => {
             if (err) reject(err);
@@ -156,18 +153,21 @@ export class DbQueries {
       });
     });
   }
-  getChatHistory(firstUserId: number, secondUserId: number): Promise<messageDetails[] | mysql.QueryError> {
+  getChatHistory(
+    firstUserId: number,
+    secondUserId: number,
+  ): Promise<MessageDetails[] | mysql.QueryError> {
     return this.#usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
-        connection.execute<messageDetails[]>(
-          `SELECT message, sender_user_id, reciever_user_id, is_read, created_at,message_id 
+        connection.execute<MessageDetails[]>(
+          `SELECT message, sender_user_id, reciever_user_id, status, created_at, message_id 
           FROM user_messages 
           WHERE (sender_user_id = ? AND reciever_user_id = ?) OR (reciever_user_id = ? AND sender_user_id = ?)
-          ORDER BY user_messages.created_at DESC;`,
+          ORDER BY user_messages.created_at ASC;`,
           [firstUserId, secondUserId, firstUserId, secondUserId],
           (err, res) => {
             if (err) {
-              console.log(err)
+              console.log(err);
               reject(500);
             }
             resolve(res);
@@ -176,21 +176,24 @@ export class DbQueries {
       });
     });
   }
-  saveNewMessage(message: newMessage): Promise<null | number> {
+  saveNewMessage(message: NewMessage): Promise<null | 500> {
     return this.#usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
         connection.execute<OkPacket>(
           `
-    INSERT INTO user_messages (sender_user_id, reciever_user_id, message, is_read)
+    INSERT INTO user_messages (sender_user_id, reciever_user_id, message, status)
     VALUES ( ?, ?, ?, ? );`,
           [
             message.sender_user_id,
             message.reciever_user_id,
             message.message,
-            message.is_read,
+            message.status,
           ],
           err => {
-            if (err) reject(err);
+            if (err) {
+              console.log(err);
+              reject(500);
+            }
             resolve(null);
           },
         );

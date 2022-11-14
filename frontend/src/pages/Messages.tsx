@@ -1,10 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import {
-  UserContext,
-  userMessageInterface,
-  UserContextExports,
-} from '../Contexts/UserContext';
+import { UserContext, UserContextExports } from '../Contexts/UserContext';
 import UserConnections from '../components/MessageComponents/UserConnections';
 import useErrorType from '../hooks/useErrorType';
 import Loader from '../components/Loader';
@@ -12,7 +8,11 @@ import ErrorDisplayer from '../components/ErrorDisplayer';
 import Chat from '../components/MessageComponents/Chat';
 import useMedia from '../hooks/useMedia';
 import { io, Socket } from 'socket.io-client';
-import { DefaultEventsMap } from '@socket.io/component-emitter';
+import {
+  ServerToClientEvents,
+  ClientToServerEvents,
+} from '../interfaces/SocketEvents';
+import { UserMessageInterface } from '../interfaces/MessageInterfaces';
 
 const Messeges = ({
   setRenderNavOnMobile,
@@ -26,33 +26,41 @@ const Messeges = ({
     userId: number;
     username: string;
   }>(null);
-  const [currentChat, setCurrentChat] = useState<userMessageInterface[]>(null);
+  const [currentChat, setCurrentChat] = useState<UserMessageInterface[]>(null);
   const [error, setError] = useErrorType();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [retrySwtich, setRetrySwitch] = useState<boolean>(false);
   const [shouldOpenMobileChat, setShouldOpenMobileChat] =
     useState<boolean>(false);
   const media = useMedia();
+  // Tried making it anything other than any but react-router just isn't compatible with it unless I really complicate types
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
   const [socket, setSocket] = useState<Socket<
-    DefaultEventsMap,
-    DefaultEventsMap
+    ServerToClientEvents,
+    ClientToServerEvents<true>
   > | null>(null);
 
   //Code only to make socket resistant to rerenders caused by other data states
   useEffect(() => {
-    const socket = io(import.meta.env.VITE_REST_ENDPOINT, {
-      withCredentials: true,
-    });
+    const socket: Socket<ServerToClientEvents, ClientToServerEvents<true>> = io(
+      import.meta.env.VITE_REST_ENDPOINT,
+      {
+        withCredentials: true,
+      },
+    );
     socket.on(
       'newMessageToClient',
-      (message: userMessageInterface, callback) => {
-        callback({ status: 200 });
+      (message: UserMessageInterface, callback) => {
+        if (activeChat === null) {
+          callback('delivered');
+          return handleNewConnectionMessage(message);
+        }
         if (activeChat.userId !== message.sender_user_id) {
-          handleNewConnectionMessage(message);
+          return callback('delivered');
         } else {
-          setCurrentChat(prev => [...prev, message]);
+          callback('read');
+          return setCurrentChat(prev => [...prev, message]);
         }
       },
     );
@@ -60,27 +68,51 @@ const Messeges = ({
     socket.on('connect_error', err => {
       setError(err);
     });
+
+    socket.on('reconnect', () => {
+      setError(null);
+    });
+
     setSocket(socket);
     return () => {
       socket.removeAllListeners();
       socket.close();
     };
-  }, [loggedUser]);
+  }, [loggedUser, activeChat]);
 
   // Specially for reason of displaying newest message in user connections
-  const handleNewConnectionMessage = (message: userMessageInterface) => {
-    setUserConnections(connections => {
-      const filteredConnections = connections.filter(connection => {
-        return connection.username !== message.username;
-      });
-      return [message, ...filteredConnections];
-    });
+  const handleNewConnectionMessage = (message: UserMessageInterface) => {
+    setUserConnections(connections =>
+      connections.map(connection => {
+        if (
+          (message.sender_user_id === connection.sender_user_id ||
+            message.reciever_user_id === connection.sender_user_id) &&
+          (message.reciever_user_id === connection.reciever_user_id ||
+            message.sender_user_id === connection.reciever_user_id)
+        ) {
+          return {
+            ...connection,
+            message: message.message,
+            created_at: message.created_at,
+            status: message.status,
+          };
+        }
+        return connection;
+      }),
+    );
   };
 
   useEffect(() => {
-    if (state && state.activeChat && state.from) {
+    if (currentChat !== null && currentChat.length > 1) {
+      handleNewConnectionMessage(currentChat[currentChat.length - 1]);
+    }
+  }, [currentChat]);
+
+  useEffect(() => {
+    if (state && state.activeChat && state.from && state.username) {
       if (state.from === '/SearchResultsPage') {
-        setActiveChat(state.activeChat);
+        setShouldOpenMobileChat(true);
+        setActiveChat({ userId: state.activeChat, username: state.username });
       } else {
         setActiveChat(null);
       }
@@ -101,7 +133,7 @@ const Messeges = ({
           },
         );
         if (!response.ok) throw response.status;
-        const result: [userMessageInterface] = await response.json();
+        const result: UserMessageInterface[] = await response.json();
         setError(null);
         setUserConnections(prev => {
           const onlyNullMessage = prev.filter(message => {
@@ -130,7 +162,7 @@ const Messeges = ({
       userId: userToSendMessage.userId,
       username: userToSendMessage.username,
     });
-    if (media === 'sm') {
+    if (media === 'sm' || media === 'md') {
       setShouldOpenMobileChat(true);
       setRenderNavOnMobile(false);
     }
@@ -141,7 +173,7 @@ const Messeges = ({
       {isLoading && !error && <Loader loadingMessage="Loading..." />}
       {error && <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />}
       {!isLoading && !error && (
-        <div className="h-screen w-screen flex flex-row divide-x divide-slate-400 overflow-x-hidden overflow-hidden relative">
+        <div className="h-screen w-screen flex flex-row divide-x divide-slate-400 overflow-x-hidden relative">
           {userConnetions && (
             <>
               <UserConnections

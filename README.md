@@ -5,7 +5,13 @@ I want it to interconnect multiple libraries so I can get better at managing com
 while also being nice to look at and great with usability.
 
 ## Viewable demo:
-https://emotekpl-messenger-prod.netlify.app/Login
+
+https://emotekpl-messenger-prod.netlify.app/
+
+## Development demo:
+
+https://emotekpl-messenger-dev.netlify.app/
+
 ### Netlify make errors on refresh, in the future app will be moved to better hosting, also first login can take up to 5 minutes becouse of backend server beeing hosted on [render](https://render.com/)
 
 ## Technologies used:
@@ -16,6 +22,8 @@ https://emotekpl-messenger-prod.netlify.app/Login
 - React router
 - React hook form
 - Tailwind CSS
+- Tailwind scrollbar plugin
+- React textarea autosize
 - MomentJs
 
 ### Backend:

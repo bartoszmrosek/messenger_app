@@ -1,24 +1,50 @@
 import React from 'react';
 import useMedia from '../../hooks/useMedia';
+import { MessageStatus } from '../../interfaces/MessageInterfaces';
 import SvgIcons from '../SvgIcons';
 
 interface MessageProps {
   isOnLeftSide: boolean;
-  username: string;
   message: string;
+  status?: MessageStatus;
+  errorClickHandler?: () => Promise<void>;
 }
 
-const Message = ({ isOnLeftSide, username, message }: MessageProps) => {
+const Message = ({
+  isOnLeftSide,
+  message,
+  status,
+  errorClickHandler,
+}: MessageProps) => {
+  const media = useMedia();
   return (
     <div
-      className={`grid grid-flow-col items-center w-full h-16 ${
-        isOnLeftSide ? 'justify-start self-start' : 'justify-end self-end'
-      }`}
+      className={`grid grid-flow-col items-center w-full h-16  ${
+        isOnLeftSide ? 'justify-start' : 'justify-end'
+      }
+      `}
+      onClick={() => {
+        status === 'error' && errorClickHandler();
+      }}
     >
-      <section className="w-12 h-12 flex flex-col order-2">
-        <SvgIcons type="user" className="w-12 h-12" />
-      </section>
-      <section className={`${isOnLeftSide ? 'order-3' : 'order-1'}`}>
+      {isOnLeftSide && (
+        <section className="w-12 h-12 flex flex-col order-2">
+          <SvgIcons type="user" className="w-12 h-12" />
+        </section>
+      )}
+      {/* Just a placholder down here */}
+      <section
+        className={`px-5 py-3 rounded-full 
+        ${
+          isOnLeftSide
+            ? 'order-3 bg-[#bcbfc3] text-[#371965]'
+            : `order-1 bg-main-purple ${
+                status === 'error' ? 'text-red-800' : 'text-white'
+              }`
+        } 
+        ${media === 'sm' ? 'mr-2' : 'mr-5'}
+        `}
+      >
         {message}
       </section>
     </div>

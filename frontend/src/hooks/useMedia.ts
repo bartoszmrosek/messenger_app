@@ -6,9 +6,9 @@ const useMedia = () => {
   const [mediaType, setMediaType] = useState<mediaTypes>('unknown');
   const QUERIES = [
     '(max-width: 640px)',
-    '(min-width: 640px)',
-    '(min-width: 1024px)',
-    '(min-width: 1280px)',
+    '(max-width: 768px)',
+    '(max-width: 1024px)',
+    '(max-width: 1536px)',
     '(min-width: 1536px)',
   ];
 
