@@ -4,11 +4,7 @@ import AnimatedBlobs from '../components/AnimatedBlobs';
 import FormTemplate from '../components/FormsComponents/FormTemplate';
 import { mainSubmit } from '../components/FormsComponents/FormTemplate';
 
-const RegisterUserForm = ({
-  setRenderNavOnMobile,
-}: {
-  setRenderNavOnMobile: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
+const RegisterUserForm = () => {
   const controller = new AbortController();
   const signal = controller.signal;
   const onSubmit: mainSubmit = (
@@ -86,7 +82,6 @@ const RegisterUserForm = ({
           },
         ]}
         mainSubmitHandler={onSubmit}
-        setRenderNavOnMobile={setRenderNavOnMobile}
       />
     </div>
   );

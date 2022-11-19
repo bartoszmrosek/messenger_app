@@ -42,7 +42,7 @@ const Message = ({
                 status === 'error' ? 'text-red-800' : 'text-white'
               }`
         } 
-        ${media === 'sm' ? 'mr-2' : 'mr-5'}
+        ${media === 'sm' ? 'mr-3' : 'mr-5'}
         `}
       >
         {message}

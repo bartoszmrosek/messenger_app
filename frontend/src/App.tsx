@@ -15,7 +15,6 @@ const App = () => {
   const { loggedUser, loginUser, logoutUser } = useContext(
     UserContext,
   ) as UserContextExports;
-  const [renderNavOnMobile, setRenderNavOnMobile] = useState<boolean>(true);
   const [searchOverlayOpened, setSearchOverlayOpened] =
     useState<boolean>(false);
   const navigate = useNavigate();
@@ -61,44 +60,23 @@ const App = () => {
 
   return (
     <div className="absolute inset-0 bg-porcelain h-full w-full">
-      <Navbar
-        shouldRender={renderNavOnMobile}
-        setSearchOverlayOpened={setSearchOverlayOpened}
-      />
+      <Navbar setSearchOverlayOpened={setSearchOverlayOpened} />
       <main
-        className={`transition-all duration-1000 min-h-full flex justify-center items-center ${
+        className={`transition-all duration-1000 min-h-full h-full w-full flex justify-center items-center overflow-x-hidden ${
           searchOverlayOpened && 'blur-sm'
         } bg-porcelain`}
       >
         <Routes>
-          <Route
-            path="/Register"
-            element={
-              <RegisterUserForm setRenderNavOnMobile={setRenderNavOnMobile} />
-            }
-          />
-          <Route
-            path="/Login"
-            element={<LoginForm setRenderNavOnMobile={setRenderNavOnMobile} />}
-          />
+          <Route path="/Register" element={<RegisterUserForm />} />
+          <Route path="/Login" element={<LoginForm />} />
           {loggedUser && (
             <>
-              <Route
-                path="/Messages"
-                element={
-                  <Messages setRenderNavOnMobile={setRenderNavOnMobile} />
-                }
-              />
+              <Route path="/Messages" element={<Messages />} />
               <Route path="/SearchResults" element={<SearchResultsPage />} />
             </>
           )}
           <Route path="*" element={<Navigate to="/" replace />} />
-          <Route
-            path="/"
-            element={
-              <RegisterUserForm setRenderNavOnMobile={setRenderNavOnMobile} />
-            }
-          />
+          <Route path="/" element={<RegisterUserForm />} />
         </Routes>
       </main>
     </div>

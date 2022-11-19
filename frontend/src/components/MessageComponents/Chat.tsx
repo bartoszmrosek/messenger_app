@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Socket } from 'socket.io-client';
 import { UserContext, UserContextExports } from '../../Contexts/UserContext';
@@ -16,6 +16,10 @@ import {
   ServerToClientEvents,
 } from '../../interfaces/SocketEvents';
 import { UserMessageInterface } from '../../interfaces/MessageInterfaces';
+import {
+  MobileNavbarContext,
+  MobileNavbarContextExports,
+} from '../../Contexts/MobileNavbarContext';
 
 interface ChatProps {
   messages: UserMessageInterface[] | null;
@@ -23,7 +27,6 @@ interface ChatProps {
   selectedChat: { userId: number; username: string } | null;
   shouldOpenMobileVersion: boolean;
   setMobileVersionSwitch: React.Dispatch<React.SetStateAction<boolean>>;
-  setRenderNavOnMobile: React.Dispatch<React.SetStateAction<boolean>>;
   socket: Socket<ServerToClientEvents, ClientToServerEvents<true>>;
 }
 
@@ -33,7 +36,6 @@ const Chat = ({
   selectedChat,
   shouldOpenMobileVersion,
   setMobileVersionSwitch,
-  setRenderNavOnMobile,
   socket,
 }: ChatProps) => {
   const media = useMedia();
@@ -41,10 +43,14 @@ const Chat = ({
   const [error, setError] = useErrorType();
   const [retrySwitch, setRetrySwitch] = useState(false);
   const { loggedUser } = useContext(UserContext) as UserContextExports;
+  const { setIsMobileNavbar } = useContext(
+    MobileNavbarContext,
+  ) as MobileNavbarContextExports;
   const navigate = useNavigate();
   const [textAreaValue, setTextAreaValue] = useState('');
   // This normally would be useRef hook but due to how package works this is recommended from documentation
   const [ref, setRef] = useState<HTMLTextAreaElement>(null);
+  const scrollRef = useRef<HTMLElement>();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -82,9 +88,15 @@ const Chat = ({
     };
   }, [selectedChat, retrySwitch]);
 
+  useEffect(() => {
+    if (messages && messages.length > 0) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   const handleMobileChatClose = () => {
     setMobileVersionSwitch(false);
-    setRenderNavOnMobile(true);
+    setIsMobileNavbar(true);
   };
 
   const handleTextAreaChange = (
@@ -163,12 +175,7 @@ const Chat = ({
       <section
         className={`transition-all delay-250 absolute md:static
          ${shouldOpenMobileVersion ? 'translate-x-[0%]' : 'translate-x-[100%]'} 
-         md:translate-x-[0%] flex flex-col flex-grow-0 w-full max-w-full items-center overflow-x-hidden bg-porcelain text-center py-3 lg:p-3 lg:pr-0 ${
-           //prettier-ignore
-           (messages !== null && messages.length > 0 && selectedChat)
-            ? 'justify-end'
-            : 'justify-end'
-         }`}
+         md:translate-x-[0%] flex flex-col w-full h-full max-w-full items-center isolate bg-porcelain text-center py-3 lg:p-3 lg:pr-0 justify-end`}
       >
         {isLoading && <Loader loadingMessage="Loading..." />}
         {error && <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />}
@@ -190,7 +197,12 @@ const Chat = ({
         }
         {!isLoading && !error && (
           <>
-            {renderedMessages()}
+            <section
+              className={`relative h-full w-full overflow-y-auto overflow-x-hidden mt-20`}
+              ref={scrollRef}
+            >
+              {renderedMessages()}
+            </section>
             {selectedChat && messages && (
               <section
                 className={`static border-none h-fit w-full text-[#371965] flex flex-row flex-grow-0 mt-2 self-end items-center`}

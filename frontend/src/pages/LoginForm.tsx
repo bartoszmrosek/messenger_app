@@ -7,11 +7,7 @@ import FormTemplate, {
 } from '../components/FormsComponents/FormTemplate';
 import { userInformationsInterface } from '../Contexts/UserContext';
 
-const LoginForm = ({
-  setRenderNavOnMobile,
-}: {
-  setRenderNavOnMobile: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
+const LoginForm = () => {
   const { loginUser } = useContext(UserContext) as UserContextExports;
   const onSubmit: mainSubmit = async (
     data,
@@ -55,7 +51,6 @@ const LoginForm = ({
       <AnimatedBlobs />
       <FormTemplate
         title="Login"
-        setRenderNavOnMobile={setRenderNavOnMobile}
         mainSubmitHandler={onSubmit}
         renderedInputs={[
           {

@@ -6,16 +6,22 @@ import { nanoid } from 'nanoid';
 import useMedia from '../hooks/useMedia';
 import SvgIcons from './SvgIcons';
 import SearchOverlay from './SearchComponents/SearchOverlay';
+import {
+  MobileNavbarContext,
+  MobileNavbarContextExports,
+} from '../Contexts/MobileNavbarContext';
 
 interface NavbarProps {
-  shouldRender: boolean;
   setSearchOverlayOpened: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
+const Navbar = ({ setSearchOverlayOpened }: NavbarProps) => {
   const { loggedUser, logoutUser: contextLogOut } = useContext(
     UserContext,
   ) as UserContextExports;
+  const { isMobileNavbar } = useContext(
+    MobileNavbarContext,
+  ) as MobileNavbarContextExports;
   const [searchInput, setSearchInput] = useState<string>('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -100,7 +106,7 @@ const Navbar = ({ shouldRender, setSearchOverlayOpened }: NavbarProps) => {
         location.pathname === '/'
           ? 'md:bg-transparent'
           : 'md:bg-porcelain'
-      } ${!shouldRender && 'hidden md:block'}`}
+      } ${!isMobileNavbar && 'hidden md:block'}`}
     >
       <div
         className={`gap-3 items-center justify-end md:flex md:flex-row text-center 

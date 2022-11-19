@@ -31,14 +31,12 @@ export interface FormTemplateProps {
     };
   }[];
   mainSubmitHandler: mainSubmit;
-  setRenderNavOnMobile: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const FormTemplate = ({
   title,
   renderedInputs,
   mainSubmitHandler,
-  setRenderNavOnMobile,
 }: FormTemplateProps) => {
   const { handleSubmit, control } = useForm<userInput>();
   const [isSubmitSuccessfull, setIsSubmitSuccessfull] = useState<string | null>(
@@ -124,7 +122,6 @@ const FormTemplate = ({
                     error={fieldState.error}
                     type={input.type}
                     inputName={input.name}
-                    setRenderNavOnMobile={setRenderNavOnMobile}
                   />
                 );
               }
