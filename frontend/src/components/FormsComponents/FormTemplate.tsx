@@ -4,6 +4,7 @@ import InputForm from './InputForm';
 import useErrorType from '../../hooks/useErrorType';
 import SvgIcons from '../SvgIcons';
 import { useLocation } from 'react-router-dom';
+import useRequestStatus from '../../hooks/useRequestStatus';
 
 export interface userInput {
   username: string;
@@ -45,6 +46,7 @@ const FormTemplate = ({
   const [error, setError] = useErrorType();
   const [isLoading, setIsLoading] = useState<boolean | null>(null);
   const [formStateResetSwitch, setFormStateResetSwitch] = useState(false);
+  const [longWaitingInfo, startWaitingInfoTimer] = useRequestStatus();
   // Same situation as in SearchResultsPage, only any works in react-router type assertion
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
@@ -132,6 +134,7 @@ const FormTemplate = ({
       })}
       <button
         onClick={handleSubmit(data => {
+          startWaitingInfoTimer(prev => prev++);
           mainSubmitHandler(
             data,
             setIsLoading,
@@ -150,6 +153,7 @@ const FormTemplate = ({
       >
         {renderResults()}
       </button>
+      {longWaitingInfo && <p>{longWaitingInfo}</p>}
       {state && state.status && <p>{state.status}</p>}
     </form>
   );

@@ -5,7 +5,7 @@ export interface Item {
   value: unknown;
 }
 
-function useLocalStorage(key: string, initialValue: unknown) {
+const useLocalStorage = (key: string, initialValue: unknown) => {
   const [storedValue, setStoredValue] = useState(() => {
     if (typeof window === 'undefined') {
       return initialValue;
@@ -41,6 +41,6 @@ function useLocalStorage(key: string, initialValue: unknown) {
     }
   };
   return [storedValue, setValue, removeValue] as const;
-}
+};
 
 export default useLocalStorage;
