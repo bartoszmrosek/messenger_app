@@ -39,7 +39,7 @@ const InputForm = memo(function InputForm({
     setIsMobileNavbar(true);
   };
   return (
-    <label className="relative">
+    <label className="relative w-fit justify-self-center">
       <input
         className={`peer transition-all duration-500 p-3 rounded-md ring-offset-1 ring-gray-400/80
               ring-1 outline-offset-1 outline-3 autofill:bg-[#E8F0FE]] ${

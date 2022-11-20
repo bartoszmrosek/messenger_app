@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 
 const useRequestStatus = () => {
-  const [countdownTrigger, setCountdownTrigger] = useState(0);
+  const [countdownTrigger, setCountdownTrigger] = useState(false);
   const [countdownResults, setCountDownResults] = useState<string>(null);
   useEffect(() => {
     const startTimeout = setTimeout(() => {
-      if (countdownTrigger !== 0) {
+      if (countdownTrigger) {
         setCountDownResults(
           'First request can take up to 5 minutes becouse of servers starting up',
         );
       }
-    }, 20000);
+    }, 2000);
+    if (!countdownTrigger) clearTimeout(startTimeout);
     return () => {
       clearTimeout(startTimeout);
     };
