@@ -10,7 +10,7 @@ const useRequestStatus = () => {
           'First request can take up to 5 minutes becouse of servers starting up',
         );
       }
-    }, 2000);
+    }, 20000);
     if (!countdownTrigger) clearTimeout(startTimeout);
     return () => {
       clearTimeout(startTimeout);

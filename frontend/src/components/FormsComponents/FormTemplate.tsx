@@ -18,6 +18,7 @@ export type mainSubmit = (
   setFormStateResetSwitch: React.Dispatch<React.SetStateAction<boolean>>,
   setError: (error: unknown) => void,
   setSuccess: React.Dispatch<React.SetStateAction<string | null>>,
+  controlWaitingInfoTimer: React.Dispatch<React.SetStateAction<boolean>>,
 ) => void;
 
 export interface FormTemplateProps {
@@ -138,13 +139,13 @@ const FormTemplate = ({
       })}
       <button
         onClick={handleSubmit(data => {
-          controlWaitingInfoTimer(true);
           mainSubmitHandler(
             data,
             setIsLoading,
             setFormStateResetSwitch,
             setError,
             setIsSubmitSuccessfull,
+            controlWaitingInfoTimer,
           );
         })}
         className={`${
