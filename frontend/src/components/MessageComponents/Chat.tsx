@@ -198,7 +198,7 @@ const Chat = ({
         {!isLoading && !error && (
           <>
             <section
-              className={`relative h-full w-full overflow-y-auto overflow-x-hidden mt-20`}
+              className={`relative h-full w-full overflow-y-auto overflow-x-auto mt-20`}
               ref={scrollRef}
             >
               {renderedMessages()}

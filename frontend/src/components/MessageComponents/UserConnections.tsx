@@ -59,7 +59,7 @@ const UserConnections = ({
                     )}
                   </span>
                   {userNode.message !== null && (
-                    <p className="m-1 text-sm text-black/50 whitespace-wrap bg-transparent truncate">
+                    <p className="m-1 text-sm text-black/50 whitespace-wrap bg-transparent truncate min-w-fit">
                       {moment(userNode.created_at).fromNow()}
                     </p>
                   )}
