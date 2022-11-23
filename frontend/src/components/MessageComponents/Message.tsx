@@ -19,7 +19,7 @@ const Message = ({
   const media = useMedia();
   return (
     <div
-      className={`grid grid-flow-col items-center w-full h-fit my-3 text-center  ${
+      className={`grid grid-flow-col items-center w-full h-max my-3 text-center  ${
         isOnLeftSide ? 'justify-start' : 'justify-end'
       }
       `}
@@ -34,8 +34,9 @@ const Message = ({
       )}
       <section
         className={`px-5 py-3 rounded-full ${
-          message.length > 30 && 'rounded-[3rem]'
-        } overflow-hidden break-words whitespace-normal w-auto min-w-[3rem] max-w-[50%] justify-self-end
+          message.length > 30 &&
+          'rounded-[3rem] max-w-[50%] overflow-hidden break-words'
+        } break-normal h-auto min-w-[3rem] w-auto justify-self-end
         ${
           isOnLeftSide
             ? 'order-3 bg-[#bcbfc3] text-[#371965]'
