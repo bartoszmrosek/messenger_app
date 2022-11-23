@@ -33,10 +33,10 @@ const Message = ({
         </section>
       )}
       <section
-        className={`px-5 py-3 rounded-full ${
+        className={`px-5 py-3 rounded-full break-normal h-auto min-w-[3rem] w-auto ${
           message.length > 30 &&
           'rounded-[3rem] max-w-[50%] overflow-hidden break-words'
-        } break-normal h-auto min-w-[3rem] w-auto justify-self-end
+        } ${isOnLeftSide ? 'justify-self-start' : 'justify-self-end'}
         ${
           isOnLeftSide
             ? 'order-3 bg-[#bcbfc3] text-[#371965]'
