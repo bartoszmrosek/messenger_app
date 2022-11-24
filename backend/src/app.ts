@@ -133,7 +133,9 @@ app.get(
   '/api/UserConnections',
   authTokenMiddleware,
   async (req: IGetUserAuth, res) => {
-    return res.send(await getLastestConnections(req.user.user_id, db));
+    const dbQueryRes = await getLastestConnections(req.user.user_id, db);
+    if (typeof dbQueryRes === 'number') return res.sendStatus(dbQueryRes);
+    return res.send(dbQueryRes);
   },
 );
 

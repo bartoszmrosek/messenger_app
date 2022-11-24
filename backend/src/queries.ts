@@ -129,34 +129,16 @@ export class DbQueries {
       return new Promise((resolve, reject) => {
         connection.execute<MessageDetails[]>(
           `
-          SELECT
-        user_accounts.username,
-        r.message,
-        r.sender_user_id,
-        r.reciever_user_id,
-        r.status,
-        r.created_at,
-        r.message_id
-        FROM user_accounts, (
-          SELECT message, sender_user_id, reciever_user_id, status, created_at, message_id FROM user_messages WHERE created_at = (select max(created_at) from user_messages)
-        ) r
-        WHERE
-        (r.reciever_user_id = ? AND r.sender_user_id = user_accounts.user_id)
-        OR
-        (r.sender_user_id = ? AND r.reciever_user_id = user_accounts.user_id)
-        GROUP BY user_accounts.username`,
-          // Candidate for query with more predictable results :
-          /* 
           SELECT newest_grouped_messages.*, user_accounts.username FROM user_accounts, (
             SELECT h.* 
             FROM user_messages h 
             LEFT JOIN user_messages b ON h.sender_user_id = b.sender_user_id AND h.reciever_user_id = b.reciever_user_id AND h.created_at < b.created_at 
-            WHERE b.created_at IS NULL AND (h.sender_user_id = 1 OR h.reciever_user_id = 1)
+            WHERE b.created_at IS NULL AND (h.sender_user_id = ? OR h.reciever_user_id = ?)
             ) as newest_grouped_messages 
-          WHERE (newest_grouped_messages.sender_user_id = 1 AND newest_grouped_messages.reciever_user_id = user_accounts.user_id) 
-          OR (newest_grouped_messages.reciever_user_id = 1 AND newest_grouped_messages.sender_user_id = user_accounts.user_id) 
-          ORDER BY newest_grouped_messages.created_at DESC; */
-          [userId, userId],
+          WHERE (newest_grouped_messages.sender_user_id = ? AND newest_grouped_messages.reciever_user_id = user_accounts.user_id) 
+          OR (newest_grouped_messages.reciever_user_id = ? AND newest_grouped_messages.sender_user_id = user_accounts.user_id) 
+          ORDER BY newest_grouped_messages.created_at DESC;`,
+          [userId, userId, userId, userId],
           (err, res) => {
             if (err) reject(err);
             resolve(res);
