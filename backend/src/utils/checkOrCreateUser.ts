@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { DbQueries, UserDetails } from '../queries';
+import { UserDetails } from '../queries';
+import { DbConnection } from '../app';
 
-const checkOrCreateUser = async (data: UserDetails, db: DbQueries) => {
+const checkOrCreateUser = async (data: UserDetails) => {
   try {
-    await db.insertNewUser(data);
+    await DbConnection.insertNewUser(data);
     return 200;
   } catch (error) {
     if (error === 1) {

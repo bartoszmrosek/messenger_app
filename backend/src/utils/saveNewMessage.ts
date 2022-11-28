@@ -2,11 +2,11 @@ import {
   MessageStatus,
   UserMessageInterface,
 } from '../interfaces/MessageInterfaces';
-import { DbQueries, NewMessage } from '../queries';
+import { NewMessage } from '../queries';
+import { DbConnection } from '../app';
 
 const saveNewMessage = async (
   message: UserMessageInterface,
-  db: DbQueries,
   statusOverride?: MessageStatus,
 ): Promise<500 | null> => {
   const strippedMessage: NewMessage = {
@@ -15,7 +15,7 @@ const saveNewMessage = async (
     message: message.message,
     status: statusOverride ? statusOverride : message.status,
   };
-  const queryRes = await db.saveNewMessage(strippedMessage);
+  const queryRes = await DbConnection.saveNewMessage(strippedMessage);
   if (queryRes === 500) return 500;
   return null;
 };

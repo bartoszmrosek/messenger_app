@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { DbQueries, MessageDetails } from '../queries';
+import { MessageDetails } from '../queries';
+import { DbConnection } from '../app';
 
-const getLastestConnections = async (userId: number, db: DbQueries) => {
+const getLastestConnections = async (userId: number) => {
   try {
-    const messagesSearchResults = await db.getUserLatestConnections(userId);
+    const messagesSearchResults = await DbConnection.getUserLatestConnections(
+      userId,
+    );
     if (!Array.isArray(messagesSearchResults)) throw 500;
     // This would be unnecessary but i can`t make sql query any more accurate while beeing predictable as it is
     const deDuplicatingMap = new Map<string, MessageDetails>();
@@ -12,11 +15,11 @@ const getLastestConnections = async (userId: number, db: DbQueries) => {
         deDuplicatingMap.set(connection.username, connection);
       }
     });
-    const ArrOfMapValues: MessageDetails[] = [];
+    const arrOfMapValues: MessageDetails[] = [];
     deDuplicatingMap.forEach(value => {
-      ArrOfMapValues.push(value);
+      arrOfMapValues.push(value);
     });
-    return ArrOfMapValues;
+    return arrOfMapValues;
   } catch (err) {
     console.log('[utils][getUserLatestConnections] error: ', err);
     return 500;

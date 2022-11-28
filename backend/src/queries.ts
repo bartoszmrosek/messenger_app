@@ -47,8 +47,8 @@ const dbConnection = mysql.createPool({
   connectTimeout: 10000,
 });
 
-export class DbQueries {
-  async #usePooledConnection<Type>(
+export class MysqlDb {
+  private async usePooledConnection<Type>(
     action: (callback: mysql.PoolConnection) => Promise<Type>,
   ) {
     const connection = await new Promise<mysql.PoolConnection>(
@@ -73,7 +73,7 @@ export class DbQueries {
   insertNewUser(
     newUserData: UserDetails,
   ): Promise<mysql.QueryError | null | number> {
-    return this.#usePooledConnection<mysql.QueryError | null>(
+    return this.usePooledConnection<mysql.QueryError | null>(
       async connection => {
         return new Promise((resolve, reject) => {
           connection.query<OkPacket>(
@@ -92,7 +92,7 @@ export class DbQueries {
   loginUser(
     userLoginData: UserLoginDetails,
   ): Promise<UserInfoWithPacket | number> {
-    return this.#usePooledConnection<UserInfoWithPacket | number>(
+    return this.usePooledConnection<UserInfoWithPacket | number>(
       async connection => {
         return new Promise((resolve, reject) => {
           connection.execute<UserInfoWithPacket[]>(
@@ -111,7 +111,7 @@ export class DbQueries {
     );
   }
   searchUser(username: string): Promise<UserDetails[] | number> {
-    return this.#usePooledConnection(async connection => {
+    return this.usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
         connection.execute<UserInfoWithPacket[]>(
           'SELECT user_id, username FROM user_accounts WHERE username LIKE ?',
@@ -125,7 +125,7 @@ export class DbQueries {
     });
   }
   getUserLatestConnections(userId: number): Promise<MessageDetails[] | number> {
-    return this.#usePooledConnection(async connection => {
+    return this.usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
         connection.execute<MessageDetails[]>(
           `
@@ -151,7 +151,7 @@ export class DbQueries {
     firstUserId: number,
     secondUserId: number,
   ): Promise<MessageDetails[] | mysql.QueryError> {
-    return this.#usePooledConnection(async connection => {
+    return this.usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
         connection.execute<MessageDetails[]>(
           `SELECT message, sender_user_id, reciever_user_id, status, created_at, message_id 
@@ -171,7 +171,7 @@ export class DbQueries {
     });
   }
   saveNewMessage(message: NewMessage): Promise<null | 500> {
-    return this.#usePooledConnection(async connection => {
+    return this.usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
         connection.execute<OkPacket>(
           `

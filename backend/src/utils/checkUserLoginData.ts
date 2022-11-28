@@ -1,15 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { DbQueries, UserInfoWithPacket, UserLoginDetails } from '../queries';
+import { UserInfoWithPacket, UserLoginDetails } from '../queries';
+import { DbConnection } from '../app';
 
-const checkUserLoginData = async (
-  userLoginData: UserLoginDetails,
-  db: DbQueries,
-) => {
+const checkUserLoginData = async (userLoginData: UserLoginDetails) => {
   try {
-    const loginTryResult: UserInfoWithPacket | number = await db.loginUser(
-      userLoginData,
-    );
+    const loginTryResult: UserInfoWithPacket | number =
+      await DbConnection.loginUser(userLoginData);
     if (typeof loginTryResult === 'number') {
       return 400;
     } else {

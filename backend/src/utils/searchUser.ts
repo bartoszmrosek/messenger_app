@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-import { DbQueries } from '../queries';
+import { DbConnection } from '../app';
 
-const searchUser = async (username: string, db: DbQueries) => {
+const searchUser = async (username: string) => {
   try {
-    const searchResults = await db.searchUser(username);
+    const searchResults = await DbConnection.searchUser(username);
     if (Array.isArray(searchResults)) {
       return searchResults;
     }
