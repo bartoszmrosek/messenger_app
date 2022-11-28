@@ -1,11 +1,27 @@
 import { Request, Response } from 'express';
-import { UserDetails, UserInfoWithPacket } from '../queries';
+import { MysqlDb, UserDetails, UserInfoWithPacket } from '../queries';
 import checkUserLoginData from '../utils/checkUserLoginData';
 import checkOrCreateUser from '../utils/checkOrCreateUser';
 import jwt from 'jsonwebtoken';
 import ms from 'ms';
+import searchUserUtil from '../utils/searchUserUtil';
+import getLastestConnections from '../utils/getUserLatestConnections';
+import { IGetUserAuth } from '../middleware/authenticate.middleware';
 
-function createNewCookie(bodyCheckResults: UserInfoWithPacket) {
+//This is purely to satisfy typescript errors when using with expressJs cookies
+type CreateNewCookieType = (bodyCheckResults: UserInfoWithPacket) => {
+  content: string;
+  options: {
+    httpOnly: boolean;
+    expires: Date;
+    sameSite: 'none';
+    secure: boolean;
+  };
+};
+
+const createNewCookie: CreateNewCookieType = (
+  bodyCheckResults: UserInfoWithPacket,
+) => {
   const newToken = jwt.sign(
     bodyCheckResults,
     process.env.SECRET_KEY as string,
@@ -21,7 +37,7 @@ function createNewCookie(bodyCheckResults: UserInfoWithPacket) {
     content: newToken,
     options: { httpOnly: true, expires: date, sameSite: 'none', secure: true },
   };
-}
+};
 
 export class Users {
   registerUser = async (req: Request, res: Response) => {
@@ -51,7 +67,7 @@ export class Users {
     const bodyCheckResults = await bodyCheck();
     if (typeof bodyCheckResults === 'object') {
       const cookie = createNewCookie(bodyCheckResults.results);
-      res.cookie(cookie.content, cookie.options);
+      res.cookie('token', cookie.content, cookie.options);
       return res.send(bodyCheckResults.results);
     }
 
@@ -75,5 +91,37 @@ export class Users {
       }
     }
     return res.sendStatus(bodyCheckResults);
+  };
+
+  searchUser = async (req: Request, res: Response) => {
+    if (typeof req.query.username === 'string') {
+      const queryRes = await searchUserUtil(req.query.username);
+      if (queryRes === 500) return res.sendStatus(500);
+      return res.send(queryRes);
+    }
+    return res.sendStatus(400);
+  };
+
+  getUserHistory = async (req: IGetUserAuth, res: Response) => {
+    const dbQueryRes = await getLastestConnections(req.user.user_id);
+    if (typeof dbQueryRes === 'number') return res.sendStatus(dbQueryRes);
+    return res.send(dbQueryRes);
+  };
+
+  getUserChatHistory = async (
+    req: IGetUserAuth,
+    res: Response,
+    DbConnection: MysqlDb,
+  ) => {
+    if (
+      typeof req.query.selectedChat === 'string' &&
+      req.query.selectedChat !== 'undefined'
+    ) {
+      const selectedChat = parseInt(req.query.selectedChat);
+      return res.send(
+        await DbConnection.getChatHistory(req.user.user_id, selectedChat),
+      );
+    }
+    return res.sendStatus(400);
   };
 }

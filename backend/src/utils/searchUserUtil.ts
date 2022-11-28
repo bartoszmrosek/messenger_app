@@ -1,6 +1,6 @@
 import { DbConnection } from '../app';
 
-const searchUser = async (username: string) => {
+const searchUserUtil = async (username: string) => {
   try {
     const searchResults = await DbConnection.searchUser(username);
     if (Array.isArray(searchResults)) {
@@ -13,4 +13,4 @@ const searchUser = async (username: string) => {
   }
 };
 
-export default searchUser;
+export default searchUserUtil;

@@ -8,8 +8,6 @@ import { Server, Socket } from 'socket.io';
 import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 
-import searchUser from './utils/searchUser';
-import getLastestConnections from './utils/getUserLatestConnections';
 import { UserDetails, MysqlDb } from './queries';
 import authTokenMiddleware, {
   IGetUserAuth,
@@ -74,44 +72,21 @@ router.post('/api/Login', async (req, res) =>
   UsersController.loginUser(req, res),
 );
 
-router.get(
-  '/api/Search',
-  authTokenMiddleware,
-  async (req: IGetUserAuth, res) => {
-    if (typeof req.query.username === 'string') {
-      const queryRes = await searchUser(req.query.username);
-      if (queryRes === 500) return res.sendStatus(500);
-      return res.send(queryRes);
-    }
-    return res.sendStatus(400);
-  },
+router.get('/api/Search', authTokenMiddleware, async (req: IGetUserAuth, res) =>
+  UsersController.searchUser(req, res),
 );
 
 router.get(
   '/api/UserConnections',
   authTokenMiddleware,
-  async (req: IGetUserAuth, res) => {
-    const dbQueryRes = await getLastestConnections(req.user.user_id);
-    if (typeof dbQueryRes === 'number') return res.sendStatus(dbQueryRes);
-    return res.send(dbQueryRes);
-  },
+  async (req: IGetUserAuth, res) => UsersController.getUserHistory(req, res),
 );
 
 router.get(
   '/api/ChatHistory',
   authTokenMiddleware,
-  async (req: IGetUserAuth, res) => {
-    if (
-      typeof req.query.selectedChat === 'string' &&
-      req.query.selectedChat !== 'undefined'
-    ) {
-      const selectedChat = parseInt(req.query.selectedChat);
-      return res.send(
-        await DbConnection.getChatHistory(req.user.user_id, selectedChat),
-      );
-    }
-    return res.sendStatus(400);
-  },
+  async (req: IGetUserAuth, res) =>
+    UsersController.getUserChatHistory(req, res, DbConnection),
 );
 
 //Normal expressjs middleware doesn't work with sockets so this is custom made for this specific case
