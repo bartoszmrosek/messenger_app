@@ -10,6 +10,10 @@ import FoundUserSection from '../components/SearchComponents/FoundUserSection';
 import ErrorDisplayer from '../components/ErrorDisplayer';
 import Loader from '../components/Loader';
 import { UserMessageInterface } from '../interfaces/MessageInterfaces';
+import {
+  MobileNavbarContext,
+  MobileNavbarContextExports,
+} from '../Contexts/MobileNavbarContext';
 
 const SearchResultsPage = () => {
   const { loggedUser, userConnetions, setUserConnections } = useContext(
@@ -20,6 +24,9 @@ const SearchResultsPage = () => {
   const navigate = useNavigate();
   const [error, setError] = useErrorType();
   const [renderedUsers, setRenderedUsers] = useState<JSX.Element>(<></>);
+  const { setIsMobileNavbar } = useContext(
+    MobileNavbarContext,
+  ) as MobileNavbarContextExports;
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [retrySwitch, setRetrySwitch] = useState<boolean>(false);
 
@@ -45,6 +52,7 @@ const SearchResultsPage = () => {
       ) {
         setUserConnections(prev => [nullMessage, ...prev]);
       }
+      setIsMobileNavbar(false);
       navigate('/Messages', {
         state: { from: '/SearchResultsPage', activeChat: userId, username },
       });

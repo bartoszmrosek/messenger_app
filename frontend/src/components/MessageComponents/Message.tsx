@@ -19,7 +19,7 @@ const Message = ({
   const media = useMedia();
   return (
     <div
-      className={`grid grid-flow-col items-center w-full h-16  ${
+      className={`grid grid-flow-col items-center w-full h-max my-3 text-center  ${
         isOnLeftSide ? 'justify-start' : 'justify-end'
       }
       `}
@@ -32,9 +32,11 @@ const Message = ({
           <SvgIcons type="user" className="w-12 h-12" />
         </section>
       )}
-      {/* Just a placholder down here */}
       <section
-        className={`px-5 py-3 rounded-full 
+        className={`px-5 py-3 rounded-full break-normal h-auto min-w-[3rem] w-auto ${
+          message.length > 30 &&
+          'rounded-[3rem] max-w-[50%] overflow-hidden break-words'
+        } ${isOnLeftSide ? 'justify-self-start' : 'justify-self-end'}
         ${
           isOnLeftSide
             ? 'order-3 bg-[#bcbfc3] text-[#371965]'
@@ -42,7 +44,7 @@ const Message = ({
                 status === 'error' ? 'text-red-800' : 'text-white'
               }`
         } 
-        ${media === 'sm' ? 'mr-2' : 'mr-5'}
+        ${media === 'sm' ? 'mr-3' : 'mr-5'}
         `}
       >
         {message}

@@ -47,8 +47,8 @@ const dbConnection = mysql.createPool({
   connectTimeout: 10000,
 });
 
-export class DbQueries {
-  async #usePooledConnection<Type>(
+export class MysqlDb {
+  private async usePooledConnection<Type>(
     action: (callback: mysql.PoolConnection) => Promise<Type>,
   ) {
     const connection = await new Promise<mysql.PoolConnection>(
@@ -73,7 +73,7 @@ export class DbQueries {
   insertNewUser(
     newUserData: UserDetails,
   ): Promise<mysql.QueryError | null | number> {
-    return this.#usePooledConnection<mysql.QueryError | null>(
+    return this.usePooledConnection<mysql.QueryError | null>(
       async connection => {
         return new Promise((resolve, reject) => {
           connection.query<OkPacket>(
@@ -92,7 +92,7 @@ export class DbQueries {
   loginUser(
     userLoginData: UserLoginDetails,
   ): Promise<UserInfoWithPacket | number> {
-    return this.#usePooledConnection<UserInfoWithPacket | number>(
+    return this.usePooledConnection<UserInfoWithPacket | number>(
       async connection => {
         return new Promise((resolve, reject) => {
           connection.execute<UserInfoWithPacket[]>(
@@ -111,7 +111,7 @@ export class DbQueries {
     );
   }
   searchUser(username: string): Promise<UserDetails[] | number> {
-    return this.#usePooledConnection(async connection => {
+    return this.usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
         connection.execute<UserInfoWithPacket[]>(
           'SELECT user_id, username FROM user_accounts WHERE username LIKE ?',
@@ -125,26 +125,20 @@ export class DbQueries {
     });
   }
   getUserLatestConnections(userId: number): Promise<MessageDetails[] | number> {
-    return this.#usePooledConnection(async connection => {
+    return this.usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
         connection.execute<MessageDetails[]>(
           `
-          SELECT
-        user_accounts.username,
-        user_messages.message,
-        user_messages.sender_user_id,
-        user_messages.reciever_user_id,
-        user_messages.status,
-        user_messages.created_at,
-        user_messages.message_id
-        FROM user_accounts, user_messages
-        WHERE
-        (user_messages.reciever_user_id = ? AND user_messages.sender_user_id = user_accounts.user_id)
-        OR
-        (user_messages.sender_user_id = ? AND user_messages.reciever_user_id = user_accounts.user_id)
-        GROUP BY user_accounts.username 
-        ORDER BY user_messages.created_at ASC`,
-          [userId, userId],
+          SELECT newest_grouped_messages.*, user_accounts.username FROM user_accounts, (
+            SELECT h.* 
+            FROM user_messages h 
+            LEFT JOIN user_messages b ON h.sender_user_id = b.sender_user_id AND h.reciever_user_id = b.reciever_user_id AND h.created_at < b.created_at 
+            WHERE b.created_at IS NULL AND (h.sender_user_id = ? OR h.reciever_user_id = ?)
+            ) as newest_grouped_messages 
+          WHERE (newest_grouped_messages.sender_user_id = ? AND newest_grouped_messages.reciever_user_id = user_accounts.user_id) 
+          OR (newest_grouped_messages.reciever_user_id = ? AND newest_grouped_messages.sender_user_id = user_accounts.user_id) 
+          ORDER BY newest_grouped_messages.created_at DESC;`,
+          [userId, userId, userId, userId],
           (err, res) => {
             if (err) reject(err);
             resolve(res);
@@ -157,7 +151,7 @@ export class DbQueries {
     firstUserId: number,
     secondUserId: number,
   ): Promise<MessageDetails[] | mysql.QueryError> {
-    return this.#usePooledConnection(async connection => {
+    return this.usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
         connection.execute<MessageDetails[]>(
           `SELECT message, sender_user_id, reciever_user_id, status, created_at, message_id 
@@ -177,7 +171,7 @@ export class DbQueries {
     });
   }
   saveNewMessage(message: NewMessage): Promise<null | 500> {
-    return this.#usePooledConnection(async connection => {
+    return this.usePooledConnection(async connection => {
       return new Promise((resolve, reject) => {
         connection.execute<OkPacket>(
           `

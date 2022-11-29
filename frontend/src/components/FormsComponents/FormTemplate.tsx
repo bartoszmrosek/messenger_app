@@ -4,6 +4,7 @@ import InputForm from './InputForm';
 import useErrorType from '../../hooks/useErrorType';
 import SvgIcons from '../SvgIcons';
 import { useLocation } from 'react-router-dom';
+import useRequestStatus from '../../hooks/useRequestStatus';
 
 export interface userInput {
   username: string;
@@ -17,6 +18,7 @@ export type mainSubmit = (
   setFormStateResetSwitch: React.Dispatch<React.SetStateAction<boolean>>,
   setError: (error: unknown) => void,
   setSuccess: React.Dispatch<React.SetStateAction<string | null>>,
+  controlWaitingInfoTimer: React.Dispatch<React.SetStateAction<boolean>>,
 ) => void;
 
 export interface FormTemplateProps {
@@ -31,14 +33,12 @@ export interface FormTemplateProps {
     };
   }[];
   mainSubmitHandler: mainSubmit;
-  setRenderNavOnMobile: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const FormTemplate = ({
   title,
   renderedInputs,
   mainSubmitHandler,
-  setRenderNavOnMobile,
 }: FormTemplateProps) => {
   const { handleSubmit, control } = useForm<userInput>();
   const [isSubmitSuccessfull, setIsSubmitSuccessfull] = useState<string | null>(
@@ -47,6 +47,7 @@ const FormTemplate = ({
   const [error, setError] = useErrorType();
   const [isLoading, setIsLoading] = useState<boolean | null>(null);
   const [formStateResetSwitch, setFormStateResetSwitch] = useState(false);
+  const [longWaitingInfo, controlWaitingInfoTimer] = useRequestStatus();
   // Same situation as in SearchResultsPage, only any works in react-router type assertion
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { state }: any = useLocation();
@@ -64,6 +65,10 @@ const FormTemplate = ({
       clearTimeout(resetingFunction);
     };
   }, [formStateResetSwitch]);
+
+  useEffect(() => {
+    controlWaitingInfoTimer(false);
+  }, [isSubmitSuccessfull]);
 
   const renderResults = () => {
     if (isLoading) {
@@ -124,7 +129,6 @@ const FormTemplate = ({
                     error={fieldState.error}
                     type={input.type}
                     inputName={input.name}
-                    setRenderNavOnMobile={setRenderNavOnMobile}
                   />
                 );
               }
@@ -141,6 +145,7 @@ const FormTemplate = ({
             setFormStateResetSwitch,
             setError,
             setIsSubmitSuccessfull,
+            controlWaitingInfoTimer,
           );
         })}
         className={`${
@@ -153,6 +158,11 @@ const FormTemplate = ({
       >
         {renderResults()}
       </button>
+      {!error && longWaitingInfo && (
+        <p className="w-fit max-w-md relative break-words justify-self-center self-center">
+          {longWaitingInfo}
+        </p>
+      )}
       {state && state.status && <p>{state.status}</p>}
     </form>
   );

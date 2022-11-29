@@ -6,15 +6,9 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
 import cookieParser from 'cookie-parser';
-import jwt from 'jsonwebtoken';
-import ms from 'ms';
 import 'dotenv/config';
 
-import checkOrCreateUser from './utils/checkOrCreateUser';
-import checkUserLoginData from './utils/checkUserLoginData';
-import searchUser from './utils/searchUser';
-import getLastestConnections from './utils/getUserLatestConnections';
-import { DbQueries, UserDetails } from './queries';
+import { UserDetails, MysqlDb } from './queries';
 import authTokenMiddleware, {
   IGetUserAuth,
 } from './middleware/authenticate.middleware';
@@ -24,6 +18,7 @@ import {
   ServerToClientEvents,
 } from './interfaces/SocketEvents';
 import saveNewMessage from './utils/saveNewMessage';
+import { Users } from './controllers/users';
 
 export interface SocketWithUserAuth
   extends Socket<
@@ -36,120 +31,62 @@ export interface SocketWithUserAuth
 }
 
 const PORT = process.env.PORT || 3030;
-const app = express();
-const httpServer = createServer(app);
+const router = express();
+const httpServer = createServer(router);
+
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    'https://emotekpl-messenger-dev.netlify.app',
+    'https://emotekpl-messenger-prod.netlify.app',
+  ],
+  credentials: true,
+};
+
 const io = new Server<
   ClientToServerEvents,
   ServerToClientEvents<true>,
   never,
   never
 >(httpServer, {
-  cors: {
-    origin: process.env.CORS_ORIGIN as string,
-    credentials: true,
-  },
+  cors: corsOptions,
 });
 
-const db = new DbQueries();
+// Making one and only source of connections and truths to make things easier to manage
+export const DbConnection = new MysqlDb();
+const UsersController = new Users();
 
-app.use(cors({ origin: process.env.CORS_ORIGIN as string, credentials: true }));
-app.use(cookieParser());
-app.use(express.json());
-
-app.post('/api/Register', async (req, res) => {
-  if (
-    typeof req.body.username === 'string' &&
-    typeof req.body.email === 'string' &&
-    typeof req.body.password === 'string'
-  ) {
-    const data: UserDetails = req.body;
-    const resCode = await checkOrCreateUser(data, db);
-    return res.sendStatus(resCode);
-  }
-  return res.sendStatus(400);
-});
+router.use(cors(corsOptions));
+router.use(cookieParser());
+router.use(express.json());
 
 // TODO:
-// Separate routes to respetfull files/folders
+// Separate routes to respetfull files/folders - WIP
 // Refactor login to make it more readable
 
-app.post('/api/Login', async (req, res) => {
-  const token: unknown = req.cookies.token;
-  //prettier-ignore
-  const checkingAuth =
-  (typeof req.body.email === 'string' && typeof req.body.password === 'string'
-      ? await checkUserLoginData(req.body, db)
-      : 400);
-  if (typeof checkingAuth === 'object') {
-    const newToken = jwt.sign(
-      checkingAuth.results,
-      process.env.SECRET_KEY as string,
-      { expiresIn: '30m' },
-    );
-    const date = new Date();
-    const now = date.getTime();
-    const expire = now + ms('30m');
-    date.setTime(expire);
-    return res
-      .cookie('token', newToken, {
-        httpOnly: true,
-        expires: date,
-        sameSite: 'none',
-        secure: true,
-      })
-      .send(checkingAuth.results);
-  }
-  if (typeof token === 'string') {
-    try {
-      return jwt.verify(
-        token,
-        process.env.SECRET_KEY as string,
-        (err: Error, user: UserDetails) => {
-          if (err) {
-            res.cookie('token', 'rubbish', { maxAge: 0 });
-            throw 401;
-          } else {
-            return res.send(user);
-          }
-        },
-      );
-    } catch (err) {
-      res.sendStatus(err);
-    }
-  }
-  return res.sendStatus(checkingAuth);
-});
-
-app.get('/api/Search', authTokenMiddleware, async (req: IGetUserAuth, res) => {
-  if (typeof req.query.username === 'string') {
-    const queryRes = await searchUser(req.query.username, db);
-    if (queryRes === 500) return res.sendStatus(500);
-    return res.send(queryRes);
-  }
-  return res.sendStatus(400);
-});
-
-app.get(
-  '/api/UserConnections',
-  authTokenMiddleware,
-  async (req: IGetUserAuth, res) => {
-    return res.send(await getLastestConnections(req.user.user_id, db));
-  },
+router.post('/api/Register', async (req, res) =>
+  UsersController.registerUser(req, res),
 );
 
-app.get(
+router.post('/api/Login', async (req, res) =>
+  UsersController.loginUser(req, res),
+);
+
+router.get('/api/Search', authTokenMiddleware, async (req: IGetUserAuth, res) =>
+  UsersController.searchUser(req, res),
+);
+
+router.get(
+  '/api/UserConnections',
+  authTokenMiddleware,
+  async (req: IGetUserAuth, res) => UsersController.getUserHistory(req, res),
+);
+
+router.get(
   '/api/ChatHistory',
   authTokenMiddleware,
-  async (req: IGetUserAuth, res) => {
-    if (
-      typeof req.query.selectedChat === 'string' &&
-      req.query.selectedChat !== 'undefined'
-    ) {
-      const selectedChat = parseInt(req.query.selectedChat);
-      return res.send(await db.getChatHistory(req.user.user_id, selectedChat));
-    }
-    return res.sendStatus(400);
-  },
+  async (req: IGetUserAuth, res) =>
+    UsersController.getUserChatHistory(req, res, DbConnection),
 );
 
 //Normal expressjs middleware doesn't work with sockets so this is custom made for this specific case
@@ -166,7 +103,7 @@ io.on('connection', (socket: SocketWithUserAuth) => {
     }
 
     if (!isUserConnected) {
-      const savingResults = await saveNewMessage(message, db, 'sent');
+      const savingResults = await saveNewMessage(message, 'sent');
       callback(savingResults === null ? 'sent' : 'error');
     } else {
       socket
@@ -174,7 +111,7 @@ io.on('connection', (socket: SocketWithUserAuth) => {
         .to(message.reciever_user_id.toString())
         .emit('newMessageToClient', message, async (err, status) => {
           if (err) return callback('error');
-          const savingResults = await saveNewMessage(message, db, status);
+          const savingResults = await saveNewMessage(message, status);
           if (savingResults === 500) return callback('error');
           return callback(status);
         });

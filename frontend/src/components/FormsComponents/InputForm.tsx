@@ -1,5 +1,9 @@
-import React, { memo } from 'react';
+import React, { memo, useContext } from 'react';
 import { FieldError } from 'react-hook-form';
+import {
+  MobileNavbarContext,
+  MobileNavbarContextExports,
+} from '../../Contexts/MobileNavbarContext';
 
 export interface InputFormInterface {
   value: string;
@@ -16,8 +20,10 @@ const InputForm = memo(function InputForm({
   error,
   type,
   inputName,
-  setRenderNavOnMobile,
 }: InputFormInterface) {
+  const { setIsMobileNavbar } = useContext(
+    MobileNavbarContext,
+  ) as MobileNavbarContextExports;
   const errorMessage = (error: FieldError) => {
     switch (error.type) {
       case 'required':
@@ -27,17 +33,13 @@ const InputForm = memo(function InputForm({
     }
   };
   const onFocus = () => {
-    if (setRenderNavOnMobile !== undefined) {
-      setRenderNavOnMobile(false);
-    }
+    setIsMobileNavbar(false);
   };
   const onBlur = () => {
-    if (setRenderNavOnMobile !== undefined) {
-      setRenderNavOnMobile(true);
-    }
+    setIsMobileNavbar(true);
   };
   return (
-    <label className="relative">
+    <label className="relative w-fit justify-self-center">
       <input
         className={`peer transition-all duration-500 p-3 rounded-md ring-offset-1 ring-gray-400/80
               ring-1 outline-offset-1 outline-3 autofill:bg-[#E8F0FE]] ${

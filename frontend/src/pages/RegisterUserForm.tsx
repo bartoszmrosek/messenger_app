@@ -4,11 +4,7 @@ import AnimatedBlobs from '../components/AnimatedBlobs';
 import FormTemplate from '../components/FormsComponents/FormTemplate';
 import { mainSubmit } from '../components/FormsComponents/FormTemplate';
 
-const RegisterUserForm = ({
-  setRenderNavOnMobile,
-}: {
-  setRenderNavOnMobile: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
+const RegisterUserForm = () => {
   const controller = new AbortController();
   const signal = controller.signal;
   const onSubmit: mainSubmit = (
@@ -17,9 +13,11 @@ const RegisterUserForm = ({
     setFormStateResetSwitch,
     setError,
     setSuccess,
+    controlWaitingInfoTimer,
   ) => {
     (async () => {
       setLoading(true);
+      controlWaitingInfoTimer(true);
       try {
         const response = await fetch(
           `${import.meta.env.VITE_REST_ENDPOINT}/api/Register`,
@@ -32,15 +30,13 @@ const RegisterUserForm = ({
             body: JSON.stringify(data),
           },
         );
-        if (response.ok) {
-          setSuccess('Registration succeded');
-        } else {
-          setError(response.status);
-        }
+        if (!response.ok) throw response.status;
+        setSuccess('Registration succeded');
       } catch (error) {
         setSuccess(null);
         setError(error);
       } finally {
+        controlWaitingInfoTimer(false);
         setLoading(false);
         setFormStateResetSwitch(prev => !prev);
       }
@@ -86,7 +82,6 @@ const RegisterUserForm = ({
           },
         ]}
         mainSubmitHandler={onSubmit}
-        setRenderNavOnMobile={setRenderNavOnMobile}
       />
     </div>
   );

@@ -13,15 +13,18 @@ import {
   ClientToServerEvents,
 } from '../interfaces/SocketEvents';
 import { UserMessageInterface } from '../interfaces/MessageInterfaces';
+import {
+  MobileNavbarContext,
+  MobileNavbarContextExports,
+} from '../Contexts/MobileNavbarContext';
 
-const Messeges = ({
-  setRenderNavOnMobile,
-}: {
-  setRenderNavOnMobile: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
+const Messeges = () => {
   const { loggedUser, userConnetions, setUserConnections } = useContext(
     UserContext,
   ) as UserContextExports;
+  const { setIsMobileNavbar } = useContext(
+    MobileNavbarContext,
+  ) as MobileNavbarContextExports;
   const [activeChat, setActiveChat] = useState<null | {
     userId: number;
     username: string;
@@ -134,6 +137,7 @@ const Messeges = ({
         );
         if (!response.ok) throw response.status;
         const result: UserMessageInterface[] = await response.json();
+        console.log(result);
         setError(null);
         setUserConnections(prev => {
           const onlyNullMessage = prev.filter(message => {
@@ -164,7 +168,7 @@ const Messeges = ({
     });
     if (media === 'sm' || media === 'md') {
       setShouldOpenMobileChat(true);
-      setRenderNavOnMobile(false);
+      setIsMobileNavbar(false);
     }
   };
 
@@ -173,7 +177,7 @@ const Messeges = ({
       {isLoading && !error && <Loader loadingMessage="Loading..." />}
       {error && <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />}
       {!isLoading && !error && (
-        <div className="h-screen w-screen flex flex-row divide-x divide-slate-400 overflow-x-hidden relative">
+        <div className="h-full w-full flex flex-row divide-x divide-slate-400 overflow-hidden absolute">
           {userConnetions && (
             <>
               <UserConnections
@@ -187,7 +191,6 @@ const Messeges = ({
                 selectedChat={activeChat}
                 shouldOpenMobileVersion={shouldOpenMobileChat}
                 setMobileVersionSwitch={setShouldOpenMobileChat}
-                setRenderNavOnMobile={setRenderNavOnMobile}
                 socket={socket}
               />
             </>
