@@ -18,7 +18,7 @@ import {
   ServerToClientEvents,
 } from './interfaces/SocketEvents';
 import saveNewMessage from './utils/saveNewMessage';
-import { Users } from './controllers/users';
+import { Users } from './controllers/Users';
 
 export interface SocketWithUserAuth
   extends Socket<
