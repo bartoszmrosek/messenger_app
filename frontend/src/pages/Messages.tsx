@@ -137,7 +137,6 @@ const Messeges = () => {
         );
         if (!response.ok) throw response.status;
         const result: UserMessageInterface[] = await response.json();
-        console.log(result);
         setError(null);
         setUserConnections(prev => {
           const onlyNullMessage = prev.filter(message => {

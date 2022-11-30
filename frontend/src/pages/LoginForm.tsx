@@ -15,9 +15,11 @@ const LoginForm = () => {
     setFormStateResetSwitch,
     setError,
     setSuccess,
+    controlWaitingInfoTimer,
   ) => {
     try {
       setLoading(true);
+      controlWaitingInfoTimer(true);
       const response = await fetch(
         `${import.meta.env.VITE_REST_ENDPOINT}/api/Login`,
         {
@@ -39,11 +41,14 @@ const LoginForm = () => {
       } else {
         throw 401;
       }
+      setLoading(false);
+      setFormStateResetSwitch(prev => !prev);
+      controlWaitingInfoTimer(false);
     } catch (error) {
       setError(error);
-    } finally {
-      setFormStateResetSwitch(prev => !prev);
       setLoading(false);
+      setFormStateResetSwitch(prev => !prev);
+      controlWaitingInfoTimer(false);
     }
   };
   return (

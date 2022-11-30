@@ -7,11 +7,14 @@ const useRequestStatus = () => {
     const startTimeout = setTimeout(() => {
       if (countdownTrigger) {
         setCountDownResults(
-          'First request can take up to 5 minutes becouse of servers starting up',
+          'Server request can take up to 5 minutes becouse of hobby server subscription',
         );
       }
-    }, 20000);
-    if (!countdownTrigger) clearTimeout(startTimeout);
+    }, 2000);
+    if (!countdownTrigger) {
+      clearTimeout(startTimeout);
+      setCountDownResults('');
+    }
     return () => {
       clearTimeout(startTimeout);
     };
