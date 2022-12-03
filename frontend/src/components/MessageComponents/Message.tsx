@@ -1,5 +1,4 @@
 import React from 'react';
-import useMedia from '../../hooks/useMedia';
 import { MessageStatus } from '../../interfaces/MessageInterfaces';
 import SvgIcons from '../SvgIcons';
 
@@ -16,10 +15,24 @@ const Message = ({
   status,
   errorClickHandler,
 }: MessageProps) => {
-  const media = useMedia();
+  const checkStatusForSvg = () => {
+    switch (status) {
+      case 'sent':
+        return <SvgIcons type="status-sent" />;
+      case 'sending':
+        return <SvgIcons type="status-sending" />;
+      case 'delivered':
+        return <SvgIcons type="status-delivered" />;
+      case 'read':
+        return <SvgIcons type="user" className="h-6 w-6" />;
+    }
+  };
+
   return (
     <div
-      className={`grid grid-flow-col items-center w-full h-max my-3 text-center  ${
+      className={`grid ${
+        isOnLeftSide ? 'grid-flow-col my-3' : 'grid-col-row'
+      } items-center w-full h-max text-center  ${
         isOnLeftSide ? 'justify-start' : 'justify-end'
       }
       `}
@@ -33,7 +46,7 @@ const Message = ({
         </section>
       )}
       <section
-        className={`px-5 py-3 rounded-full break-normal h-auto min-w-[3rem] w-auto ${
+        className={`relative mr-5 px-5 py-3 rounded-full break-normal h-auto min-w-[3rem] w-auto ${
           message.length > 30 &&
           'rounded-[3rem] max-w-[50%] overflow-hidden break-words'
         } ${isOnLeftSide ? 'justify-self-start' : 'justify-self-end'}
@@ -44,11 +57,19 @@ const Message = ({
                 status === 'error' ? 'text-red-800' : 'text-white'
               }`
         } 
-        ${media === 'sm' ? 'mr-3' : 'mr-5'}
         `}
       >
         {message}
       </section>
+      {!isOnLeftSide && (
+        <div
+          className={`${
+            status === 'read' ? 'w-6 h-6' : 'w-4 h-4'
+          } order-4 justify-self-end`}
+        >
+          {checkStatusForSvg()}
+        </div>
+      )}
     </div>
   );
 };

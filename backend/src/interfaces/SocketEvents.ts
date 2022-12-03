@@ -10,7 +10,7 @@ type WithTimeoutAck<
 export interface ServerToClientEvents<isSender extends boolean = false> {
   newMessageToClient: (
     param: UserMessageInterface,
-    callback: (...args: WithTimeoutAck<isSender, [MessageStatus]>) => void,
+    callback: (...args: WithTimeoutAck<isSender, [[MessageStatus]]>) => void,
   ) => void;
   reconnect: () => void;
 }

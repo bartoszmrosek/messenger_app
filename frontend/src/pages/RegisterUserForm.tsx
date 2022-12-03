@@ -30,12 +30,15 @@ const RegisterUserForm = () => {
             body: JSON.stringify(data),
           },
         );
+        // As usual I cannot use finally closure becouse it will fire when abort happens
         if (!response.ok) throw response.status;
         setSuccess('Registration succeded');
+        controlWaitingInfoTimer(false);
+        setLoading(false);
+        setFormStateResetSwitch(prev => !prev);
       } catch (error) {
         setSuccess(null);
         setError(error);
-      } finally {
         controlWaitingInfoTimer(false);
         setLoading(false);
         setFormStateResetSwitch(prev => !prev);

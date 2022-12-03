@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { MessageDetails } from '../queries';
 import { DbConnection } from '../app';
 
