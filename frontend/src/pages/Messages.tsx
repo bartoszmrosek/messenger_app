@@ -55,16 +55,15 @@ const Messeges = () => {
     socket.on(
       'newMessageToClient',
       (message: UserMessageInterface, callback) => {
-        if (activeChat === null) {
+        if (
+          activeChat === null ||
+          activeChat.userId !== message.sender_user_id
+        ) {
           callback('delivered');
           return handleNewConnectionMessage(message);
         }
-        if (activeChat.userId !== message.sender_user_id) {
-          return callback('delivered');
-        } else {
-          callback('read');
-          return setCurrentChat(prev => [...prev, message]);
-        }
+        callback('read');
+        return setCurrentChat(prev => [...prev, message]);
       },
     );
 
@@ -98,6 +97,8 @@ const Messeges = () => {
             message: message.message,
             created_at: message.created_at,
             status: message.status,
+            reciever_user_id: message.reciever_user_id,
+            sender_user_id: message.sender_user_id,
           };
         }
         return connection;
