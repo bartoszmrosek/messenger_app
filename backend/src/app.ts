@@ -108,9 +108,10 @@ io.on('connection', (socket: SocketWithUserAuth) => {
         .to(message.reciever_user_id.toString())
         .emit('newMessageToClient', message, async (err, status) => {
           if (err) return callback('error');
-          const savingResults = await saveNewMessage(message, status);
+          const savingResults = await saveNewMessage(message, status[0]);
           if (savingResults === 500) return callback('error');
-          return callback(status);
+          console.log('status', status);
+          return callback(status[0]);
         });
     }
   });

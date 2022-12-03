@@ -158,6 +158,7 @@ const Chat = ({
 
     socket.timeout(10000).emit('newMessageToServer', message, (err, arg) => {
       // Update message status with new status value
+
       setMessages(messages =>
         messages.map(message =>
           message.message_id === id

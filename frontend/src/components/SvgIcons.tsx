@@ -10,7 +10,11 @@ export interface SvgIconsProps {
     | 'search'
     | 'user'
     | 'arrow-left'
-    | 'send';
+    | 'send'
+    | 'status-sent'
+    | 'status-sending'
+    | 'status-delivered'
+    | 'status-read';
   className?: string;
 }
 
@@ -140,8 +144,6 @@ const SvgIcons = ({ type, className }: SvgIconsProps) => {
         return (
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="752pt"
-            height="752pt"
             version="1.1"
             viewBox="0 0 752 752"
             className={className}
@@ -197,6 +199,22 @@ const SvgIcons = ({ type, className }: SvgIconsProps) => {
                 />
               </g>
             </g>
+          </svg>
+        );
+      case 'status-sending':
+        return (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlnsXlink="http://www.w3.org/1999/xlink"
+            version="1.1"
+            id="Capa_1"
+            x="0px"
+            y="0px"
+            viewBox="0 0 300 300"
+            xmlSpace="preserve"
+            className={className}
+          >
+            <path d="M150,0C67.29,0,0,67.29,0,150s67.29,150,150,150s150-67.29,150-150S232.71,0,150,0z M150,270c-66.169,0-120-53.832-120-120  S83.831,30,150,30s120,53.832,120,120S216.168,270,150,270z" />
           </svg>
         );
     }
