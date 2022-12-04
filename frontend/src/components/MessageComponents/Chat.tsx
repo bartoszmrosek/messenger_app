@@ -142,6 +142,7 @@ const Chat = ({
         message: textAreaValue,
         sender_user_id: loggedUser.user_id,
         reciever_user_id: selectedChat.userId,
+        username: loggedUser.username,
         created_at: moment().tz('Europe/Warsaw').format(),
         status: 'sending',
       };
@@ -199,7 +200,7 @@ const Chat = ({
         {!isLoading && !error && (
           <>
             <section
-              className={`relative h-full w-full overflow-y-auto overflow-x-auto mt-20`}
+              className={`relative h-full w-full overflow-y-auto overflow-x-hidden mt-20`}
               ref={scrollRef}
             >
               {renderedMessages()}

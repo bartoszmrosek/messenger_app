@@ -55,12 +55,12 @@ const Messeges = () => {
     socket.on(
       'newMessageToClient',
       (message: UserMessageInterface, callback) => {
+        handleNewConnectionMessage(message);
         if (
           activeChat === null ||
           activeChat.userId !== message.sender_user_id
         ) {
-          callback('delivered');
-          return handleNewConnectionMessage(message);
+          return callback('delivered');
         }
         callback('read');
         return setCurrentChat(prev => [...prev, message]);
@@ -84,6 +84,21 @@ const Messeges = () => {
 
   // Specially for reason of displaying newest message in user connections
   const handleNewConnectionMessage = (message: UserMessageInterface) => {
+    // Reapeated if statements due to how react treats state, there seens to be problem with rerenders becouse of asynchornous state treatment
+    // Needs to be rewritten in way that doesn`t depend that much on synchronous flow of state
+    console.log(userConnetions);
+    if (
+      !userConnetions.some(
+        connection =>
+          (message.sender_user_id === connection.sender_user_id ||
+            message.reciever_user_id === connection.sender_user_id) &&
+          (message.reciever_user_id === connection.reciever_user_id ||
+            message.sender_user_id === connection.reciever_user_id),
+      )
+    ) {
+      return setUserConnections(connections => [...connections, message]);
+    }
+
     setUserConnections(connections =>
       connections.map(connection => {
         if (
@@ -107,7 +122,7 @@ const Messeges = () => {
   };
 
   useEffect(() => {
-    if (currentChat !== null && currentChat.length > 1) {
+    if (currentChat !== null && currentChat.length > 0) {
       handleNewConnectionMessage(currentChat[currentChat.length - 1]);
     }
   }, [currentChat]);

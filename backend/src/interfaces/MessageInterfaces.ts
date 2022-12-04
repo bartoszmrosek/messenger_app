@@ -8,5 +8,6 @@ export interface UserMessageInterface {
   sender_user_id: number;
   reciever_user_id: number;
   status?: MessageStatus;
+  isCompletlyNew?: boolean;
   created_at: string | null;
 }
