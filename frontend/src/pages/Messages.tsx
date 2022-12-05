@@ -84,23 +84,35 @@ const Messeges = () => {
 
   // Specially for reason of displaying newest message in user connections
   const handleNewConnectionMessage = (message: UserMessageInterface) => {
-    // Reapeated if statements due to how react treats state, there seens to be problem with rerenders becouse of asynchornous state treatment
-    // Needs to be rewritten in way that doesn`t depend that much on synchronous flow of state
-    console.log(userConnetions);
-    if (
-      !userConnetions.some(
-        connection =>
-          (message.sender_user_id === connection.sender_user_id ||
-            message.reciever_user_id === connection.sender_user_id) &&
-          (message.reciever_user_id === connection.reciever_user_id ||
-            message.sender_user_id === connection.reciever_user_id),
-      )
-    ) {
-      return setUserConnections(connections => [...connections, message]);
-    }
+    setUserConnections(connections => {
+      //Check and solution for edge case where user gets new message from completly new connection
+      const toChangeIndexes: number[] = connections.reduce(
+        (acc: number[], connection, index) => {
+          if (
+            (message.sender_user_id === connection.sender_user_id ||
+              message.reciever_user_id === connection.sender_user_id) &&
+            (message.reciever_user_id === connection.reciever_user_id ||
+              message.sender_user_id === connection.reciever_user_id)
+          ) {
+            return [...acc, index];
+          }
+        },
+        [],
+      );
+      console.log(toChangeIndexes);
+      if (
+        !connections.some(
+          connection =>
+            (message.sender_user_id === connection.sender_user_id ||
+              message.reciever_user_id === connection.sender_user_id) &&
+            (message.reciever_user_id === connection.reciever_user_id ||
+              message.sender_user_id === connection.reciever_user_id),
+        )
+      ) {
+        return [...connections, message];
+      }
 
-    setUserConnections(connections =>
-      connections.map(connection => {
+      return connections.map(connection => {
         if (
           (message.sender_user_id === connection.sender_user_id ||
             message.reciever_user_id === connection.sender_user_id) &&
@@ -117,8 +129,8 @@ const Messeges = () => {
           };
         }
         return connection;
-      }),
-    );
+      });
+    });
   };
 
   useEffect(() => {
