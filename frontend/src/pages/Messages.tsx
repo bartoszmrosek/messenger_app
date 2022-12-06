@@ -85,10 +85,9 @@ const Messeges = () => {
   // Specially for reason of displaying newest message in user connections
   const handleNewConnectionMessage = (message: UserMessageInterface) => {
     setUserConnections(connections => {
-      //Check and solution for edge case where user gets new message from completly new connection
-
-      const toChangeIndexes: number = connections.reduce(
-        (acc: number, connection, index) => {
+      //Checks if any of connections is already made, if so returns index else null
+      const toChangeIndex = connections.reduce(
+        (acc: number | null, connection, index) => {
           if (
             (message.sender_user_id === connection.sender_user_id ||
               message.reciever_user_id === connection.sender_user_id) &&
@@ -102,26 +101,11 @@ const Messeges = () => {
         null,
       );
 
-      console.log(toChangeIndexes);
-      if (
-        !connections.some(
-          connection =>
-            (message.sender_user_id === connection.sender_user_id ||
-              message.reciever_user_id === connection.sender_user_id) &&
-            (message.reciever_user_id === connection.reciever_user_id ||
-              message.sender_user_id === connection.reciever_user_id),
-        )
-      ) {
-        return [...connections, message];
+      if (toChangeIndex === null) {
+        return [message, ...connections];
       }
-
-      return connections.map(connection => {
-        if (
-          (message.sender_user_id === connection.sender_user_id ||
-            message.reciever_user_id === connection.sender_user_id) &&
-          (message.reciever_user_id === connection.reciever_user_id ||
-            message.sender_user_id === connection.reciever_user_id)
-        ) {
+      return connections.map((connection, index) => {
+        if (index === toChangeIndex) {
           return {
             ...connection,
             message: message.message,
