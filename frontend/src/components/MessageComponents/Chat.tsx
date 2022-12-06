@@ -88,6 +88,14 @@ const Chat = ({
     };
   }, [selectedChat, retrySwitch]);
 
+  //Due to limiting number of external request I decided it`s better to push socket to other useEffect (change in dependencies),
+  //Purely to make sure REST api is separated from socket in this instance
+  useEffect(() => {
+    if (socket && selectedChat) {
+      socket.emit('clientUpdateStatus', [selectedChat.userId], 'read');
+    }
+  }, [selectedChat, socket]);
+
   useEffect(() => {
     if (messages && messages.length > 0) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;

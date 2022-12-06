@@ -115,6 +115,10 @@ io.on('connection', (socket: SocketWithUserAuth) => {
         });
     }
   });
+
+  socket.on('clientUpdateStatus', (recievers, status) => {
+    console.log('data', recievers, status);
+  });
 });
 
 httpServer.listen(PORT, () => {

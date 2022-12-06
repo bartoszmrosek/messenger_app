@@ -20,4 +20,5 @@ export interface ClientToServerEvents<isSender extends boolean = false> {
     arg: UserMessageInterface,
     callback: (...args: WithTimeoutAck<isSender, [MessageStatus]>) => void,
   ) => void;
+  clientUpdateStatus: (recievers: number[], status: MessageStatus) => void;
 }

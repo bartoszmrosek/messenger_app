@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { UserContext, UserContextExports } from '../Contexts/UserContext';
 import UserConnections from '../components/MessageComponents/UserConnections';
@@ -25,24 +25,25 @@ const Messeges = () => {
   const { setIsMobileNavbar } = useContext(
     MobileNavbarContext,
   ) as MobileNavbarContextExports;
+  const [error, setError] = useErrorType();
+  const media = useMedia();
+  // Tried making it anything other than any but react-router just isn't compatible with it unless I really complicate types
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { state }: any = useLocation();
   const [activeChat, setActiveChat] = useState<null | {
     userId: number;
     username: string;
   }>(null);
   const [currentChat, setCurrentChat] = useState<UserMessageInterface[]>(null);
-  const [error, setError] = useErrorType();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [retrySwtich, setRetrySwitch] = useState<boolean>(false);
   const [shouldOpenMobileChat, setShouldOpenMobileChat] =
     useState<boolean>(false);
-  const media = useMedia();
-  // Tried making it anything other than any but react-router just isn't compatible with it unless I really complicate types
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { state }: any = useLocation();
   const [socket, setSocket] = useState<Socket<
     ServerToClientEvents,
     ClientToServerEvents<true>
   > | null>(null);
+  const dataSent = useRef(false);
 
   //Code only to make socket resistant to rerenders caused by other data states
   useEffect(() => {
@@ -52,6 +53,7 @@ const Messeges = () => {
         withCredentials: true,
       },
     );
+
     socket.on(
       'newMessageToClient',
       (message: UserMessageInterface, callback) => {
@@ -85,7 +87,7 @@ const Messeges = () => {
   // Specially for reason of displaying newest message in user connections
   const handleNewConnectionMessage = (message: UserMessageInterface) => {
     setUserConnections(connections => {
-      //Checks if any of connections is already made, if so returns index else null
+      //Checks if any of connections are already matching, if so returns index else null
       const toChangeIndex = connections.reduce(
         (acc: number | null, connection, index) => {
           if (
@@ -186,10 +188,25 @@ const Messeges = () => {
     }
   };
 
+  useEffect(() => {
+    //Somewhat hacky way (via useRef.current field) to make sure this is only fired on first state change,
+    if (userConnetions.length > 0 && socket && !dataSent.current) {
+      const recievers = userConnetions.map(connection =>
+        connection.reciever_user_id === loggedUser.user_id
+          ? connection.sender_user_id
+          : connection.reciever_user_id,
+      );
+      socket.emit('clientUpdateStatus', recievers, 'delivered');
+      dataSent.current = true;
+    }
+  }, [userConnetions]);
+
   return (
     <>
-      {isLoading && !error && <Loader loadingMessage="Loading..." />}
-      {error && <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />}
+      {isLoading && <Loader loadingMessage="Loading..." />}
+      {error && !isLoading && (
+        <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />
+      )}
       {!isLoading && !error && (
         <div className="h-full w-full flex flex-row divide-x divide-slate-400 overflow-hidden absolute">
           {userConnetions && (
