@@ -86,19 +86,22 @@ const Messeges = () => {
   const handleNewConnectionMessage = (message: UserMessageInterface) => {
     setUserConnections(connections => {
       //Check and solution for edge case where user gets new message from completly new connection
-      const toChangeIndexes: number[] = connections.reduce(
-        (acc: number[], connection, index) => {
+
+      const toChangeIndexes: number = connections.reduce(
+        (acc: number, connection, index) => {
           if (
             (message.sender_user_id === connection.sender_user_id ||
               message.reciever_user_id === connection.sender_user_id) &&
             (message.reciever_user_id === connection.reciever_user_id ||
               message.sender_user_id === connection.reciever_user_id)
           ) {
-            return [...acc, index];
+            return index;
           }
+          return acc;
         },
-        [],
+        null,
       );
+
       console.log(toChangeIndexes);
       if (
         !connections.some(
