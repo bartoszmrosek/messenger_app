@@ -12,6 +12,7 @@ export interface ServerToClientEvents {
     param: UserMessageInterface,
     callback: (status: MessageStatus) => void,
   ) => void;
+  serverUpdateStatus: (sender: number, status: MessageStatus) => void;
   reconnect: () => void;
 }
 

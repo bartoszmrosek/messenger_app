@@ -20,7 +20,12 @@ const Message = ({
       case 'sent':
         return <SvgIcons type="status-sent" className="fill-main-purple" />;
       case 'sending':
-        return <SvgIcons type="status-sending" className="h-4 w-4" />;
+        return (
+          <SvgIcons
+            type="status-sending"
+            className="h-3 w-3 fill-main-purple"
+          />
+        );
       case 'delivered':
         return (
           <SvgIcons

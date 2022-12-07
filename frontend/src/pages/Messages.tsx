@@ -69,6 +69,21 @@ const Messeges = () => {
       },
     );
 
+    socket.on('serverUpdateStatus', (sender, status) => {
+      setCurrentChat(messages => {
+        if (messages && messages[0].reciever_user_id === sender) {
+          return messages.map(message => {
+            return {
+              ...message,
+              status: message.status === 'read' ? 'read' : status,
+            };
+          });
+        } else {
+          return messages;
+        }
+      });
+    });
+
     socket.on('connect_error', err => {
       setError(err);
     });

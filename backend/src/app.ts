@@ -109,15 +109,17 @@ io.on('connection', (socket: SocketWithUserAuth) => {
           if (err) return callback('error');
           const savingResults = await saveNewMessage(message, status[0]);
           if (savingResults === 500) return callback('error');
-          console.log('status', status);
           return callback(status[0]);
         });
     }
   });
 
   socket.on('clientUpdateStatus', (recievers, status) => {
-    console.log(io.of('/').adapter.rooms);
-    console.log('data', recievers, status);
+    const stringifiedRecievers = recievers.map(reciever => reciever.toString());
+    socket
+      .to(stringifiedRecievers)
+      .emit('serverUpdateStatus', socket.user.user_id, status);
+    void MySqlConnetion.updateMessageStatus(recievers, status);
   });
 });
 
