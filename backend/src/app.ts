@@ -5,7 +5,7 @@ import { Server, Socket } from 'socket.io';
 import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 
-import { UserDetails, MysqlDb } from './queries';
+import { UserDetails, MySqlConnetion } from './queries';
 import authTokenMiddleware, {
   IGetUserAuth,
 } from './middleware/authenticate.middleware';
@@ -50,7 +50,6 @@ const io = new Server<
 });
 
 // Making one and only source of connections and truths to make things easier to manage
-export const DbConnection = new MysqlDb();
 const UsersController = new Users();
 
 router.use(cors(corsOptions));
@@ -83,7 +82,7 @@ router.get(
   '/api/ChatHistory',
   authTokenMiddleware,
   async (req: IGetUserAuth, res) =>
-    UsersController.getUserChatHistory(req, res, DbConnection),
+    UsersController.getUserChatHistory(req, res, MySqlConnetion),
 );
 
 //Normal expressjs middleware doesn't work with sockets so this is custom made for this specific case
@@ -117,6 +116,7 @@ io.on('connection', (socket: SocketWithUserAuth) => {
   });
 
   socket.on('clientUpdateStatus', (recievers, status) => {
+    console.log(io.of('/').adapter.rooms);
     console.log('data', recievers, status);
   });
 });

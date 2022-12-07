@@ -1,9 +1,8 @@
-import { UserDetails } from '../queries';
-import { DbConnection } from '../app';
+import { UserDetails, MySqlConnetion } from '../queries';
 
 const checkOrCreateUser = async (data: UserDetails) => {
   try {
-    await DbConnection.insertNewUser(data);
+    await MySqlConnetion.insertNewUser(data);
     return 200;
   } catch (error) {
     if (error === 1) {

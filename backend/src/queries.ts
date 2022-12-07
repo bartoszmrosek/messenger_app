@@ -46,7 +46,6 @@ const dbConnection = mysql.createPool({
   },
   connectTimeout: 10000,
 });
-
 export class MysqlDb {
   private async usePooledConnection<Type>(
     action: (callback: mysql.PoolConnection) => Promise<Type>,
@@ -195,3 +194,5 @@ export class MysqlDb {
     });
   }
 }
+
+export const MySqlConnetion = new MysqlDb();

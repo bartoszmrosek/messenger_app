@@ -1,10 +1,13 @@
-import { UserInfoWithPacket, UserLoginDetails } from '../queries';
-import { DbConnection } from '../app';
+import {
+  UserInfoWithPacket,
+  UserLoginDetails,
+  MySqlConnetion,
+} from '../queries';
 
 const checkUserLoginData = async (userLoginData: UserLoginDetails) => {
   try {
     const loginTryResult: UserInfoWithPacket | number =
-      await DbConnection.loginUser(userLoginData);
+      await MySqlConnetion.loginUser(userLoginData);
     if (typeof loginTryResult === 'number') {
       return 400;
     } else {
