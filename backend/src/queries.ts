@@ -46,7 +46,6 @@ const dbConnection = mysql.createPool({
   },
   connectTimeout: 10000,
 });
-
 export class MysqlDb {
   private async usePooledConnection<Type>(
     action: (callback: mysql.PoolConnection) => Promise<Type>,
@@ -194,4 +193,23 @@ export class MysqlDb {
       });
     });
   }
+  updateMessageStatus(recievers: number[], status: MessageStatus) {
+    this.usePooledConnection(async connection => {
+      const promisesArray = recievers.map(reciever => {
+        return new Promise((resolve, reject) => {
+          connection.execute<OkPacket>(
+            `UPDATE user_messages SET status = ? WHERE sender_user_id = ?`,
+            [status, reciever],
+            err => {
+              if (err) reject(500);
+              resolve(null);
+            },
+          );
+        });
+      });
+      return Promise.all(promisesArray);
+    });
+  }
 }
+
+export const MySqlConnetion = new MysqlDb();

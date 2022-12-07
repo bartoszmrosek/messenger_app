@@ -1,9 +1,8 @@
-import { MessageDetails } from '../queries';
-import { DbConnection } from '../app';
+import { MessageDetails, MySqlConnetion } from '../queries';
 
 const getLastestConnections = async (userId: number) => {
   try {
-    const messagesSearchResults = await DbConnection.getUserLatestConnections(
+    const messagesSearchResults = await MySqlConnetion.getUserLatestConnections(
       userId,
     );
     if (!Array.isArray(messagesSearchResults)) throw 500;

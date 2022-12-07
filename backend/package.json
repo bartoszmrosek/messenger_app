@@ -1,16 +1,14 @@
 {
   "name": "backend",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Express app for handling CRUD operations through REST and SocketIO to mysql2",
   "main": "dist/app.js",
   "scripts": {
-    "prebuild": "eslint --ignore-path ../.gitignore .",
-    "lint":"eslint --ignore-path ../.gitignore",
+    "prebuild": "yarn install",
+    "lint": "eslint --ignore-path ../.gitignore",
     "build": "tsc",
-    "prestart": "yarn run build",
     "start": "node .",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx nodemon ./app.ts"
+    "dev": "npx nodemon --watch src src/app.ts"
   },
   "author": "Bartosz Mrosek",
   "license": "ISC",

@@ -5,7 +5,7 @@ import { Server, Socket } from 'socket.io';
 import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 
-import { UserDetails, MysqlDb } from './queries';
+import { UserDetails, MySqlConnetion } from './queries';
 import authTokenMiddleware, {
   IGetUserAuth,
 } from './middleware/authenticate.middleware';
@@ -50,7 +50,6 @@ const io = new Server<
 });
 
 // Making one and only source of connections and truths to make things easier to manage
-export const DbConnection = new MysqlDb();
 const UsersController = new Users();
 
 router.use(cors(corsOptions));
@@ -83,7 +82,7 @@ router.get(
   '/api/ChatHistory',
   authTokenMiddleware,
   async (req: IGetUserAuth, res) =>
-    UsersController.getUserChatHistory(req, res, DbConnection),
+    UsersController.getUserChatHistory(req, res, MySqlConnetion),
 );
 
 //Normal expressjs middleware doesn't work with sockets so this is custom made for this specific case
@@ -110,10 +109,17 @@ io.on('connection', (socket: SocketWithUserAuth) => {
           if (err) return callback('error');
           const savingResults = await saveNewMessage(message, status[0]);
           if (savingResults === 500) return callback('error');
-          console.log('status', status);
           return callback(status[0]);
         });
     }
+  });
+
+  socket.on('clientUpdateStatus', (recievers, status) => {
+    const stringifiedRecievers = recievers.map(reciever => reciever.toString());
+    socket
+      .to(stringifiedRecievers)
+      .emit('serverUpdateStatus', socket.user.user_id, status);
+    void MySqlConnetion.updateMessageStatus(recievers, status);
   });
 });
 

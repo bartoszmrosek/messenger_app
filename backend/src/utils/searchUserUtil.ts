@@ -1,8 +1,8 @@
-import { DbConnection } from '../app';
+import { MySqlConnetion } from '../queries';
 
 const searchUserUtil = async (username: string) => {
   try {
-    const searchResults = await DbConnection.searchUser(username);
+    const searchResults = await MySqlConnetion.searchUser(username);
     if (Array.isArray(searchResults)) {
       return searchResults;
     }

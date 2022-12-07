@@ -18,13 +18,23 @@ const Message = ({
   const checkStatusForSvg = () => {
     switch (status) {
       case 'sent':
-        return <SvgIcons type="status-sent" />;
+        return <SvgIcons type="status-sent" className="fill-main-purple" />;
       case 'sending':
-        return <SvgIcons type="status-sending" />;
+        return (
+          <SvgIcons
+            type="status-sending"
+            className="h-3 w-3 fill-main-purple"
+          />
+        );
       case 'delivered':
-        return <SvgIcons type="status-delivered" />;
+        return (
+          <SvgIcons
+            type="status-delivered"
+            className="fill-main-purple bg-transparent"
+          />
+        );
       case 'read':
-        return <SvgIcons type="user" className="h-6 w-6" />;
+        return <SvgIcons type="user" className="h-5 w-5 fill-main-purple" />;
     }
   };
 
@@ -64,8 +74,8 @@ const Message = ({
       {!isOnLeftSide && (
         <div
           className={`${
-            status === 'read' ? 'w-6 h-6' : 'w-4 h-4'
-          } order-4 justify-self-end`}
+            status === 'read' ? 'mr-1' : ''
+          } h-4 w-4 order-4 justify-self-end`}
         >
           {checkStatusForSvg()}
         </div>

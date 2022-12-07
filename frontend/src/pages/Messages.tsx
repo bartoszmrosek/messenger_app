@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { UserContext, UserContextExports } from '../Contexts/UserContext';
 import UserConnections from '../components/MessageComponents/UserConnections';
@@ -25,24 +25,25 @@ const Messeges = () => {
   const { setIsMobileNavbar } = useContext(
     MobileNavbarContext,
   ) as MobileNavbarContextExports;
+  const [error, setError] = useErrorType();
+  const media = useMedia();
+  // Tried making it anything other than any but react-router just isn't compatible with it unless I really complicate types
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { state }: any = useLocation();
   const [activeChat, setActiveChat] = useState<null | {
     userId: number;
     username: string;
   }>(null);
   const [currentChat, setCurrentChat] = useState<UserMessageInterface[]>(null);
-  const [error, setError] = useErrorType();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [retrySwtich, setRetrySwitch] = useState<boolean>(false);
   const [shouldOpenMobileChat, setShouldOpenMobileChat] =
     useState<boolean>(false);
-  const media = useMedia();
-  // Tried making it anything other than any but react-router just isn't compatible with it unless I really complicate types
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { state }: any = useLocation();
   const [socket, setSocket] = useState<Socket<
     ServerToClientEvents,
     ClientToServerEvents<true>
   > | null>(null);
+  const dataSent = useRef(false);
 
   //Code only to make socket resistant to rerenders caused by other data states
   useEffect(() => {
@@ -52,20 +53,36 @@ const Messeges = () => {
         withCredentials: true,
       },
     );
+
     socket.on(
       'newMessageToClient',
       (message: UserMessageInterface, callback) => {
+        handleNewConnectionMessage(message);
         if (
           activeChat === null ||
           activeChat.userId !== message.sender_user_id
         ) {
-          callback('delivered');
-          return handleNewConnectionMessage(message);
+          return callback('delivered');
         }
         callback('read');
         return setCurrentChat(prev => [...prev, message]);
       },
     );
+
+    socket.on('serverUpdateStatus', (sender, status) => {
+      setCurrentChat(messages => {
+        if (messages && messages[0].reciever_user_id === sender) {
+          return messages.map(message => {
+            return {
+              ...message,
+              status: message.status === 'read' ? 'read' : status,
+            };
+          });
+        } else {
+          return messages;
+        }
+      });
+    });
 
     socket.on('connect_error', err => {
       setError(err);
@@ -84,14 +101,28 @@ const Messeges = () => {
 
   // Specially for reason of displaying newest message in user connections
   const handleNewConnectionMessage = (message: UserMessageInterface) => {
-    setUserConnections(connections =>
-      connections.map(connection => {
-        if (
-          (message.sender_user_id === connection.sender_user_id ||
-            message.reciever_user_id === connection.sender_user_id) &&
-          (message.reciever_user_id === connection.reciever_user_id ||
-            message.sender_user_id === connection.reciever_user_id)
-        ) {
+    setUserConnections(connections => {
+      //Checks if any of connections are already matching, if so returns index else null
+      const toChangeIndex = connections.reduce(
+        (acc: number | null, connection, index) => {
+          if (
+            (message.sender_user_id === connection.sender_user_id ||
+              message.reciever_user_id === connection.sender_user_id) &&
+            (message.reciever_user_id === connection.reciever_user_id ||
+              message.sender_user_id === connection.reciever_user_id)
+          ) {
+            return index;
+          }
+          return acc;
+        },
+        null,
+      );
+
+      if (toChangeIndex === null) {
+        return [message, ...connections];
+      }
+      return connections.map((connection, index) => {
+        if (index === toChangeIndex) {
           return {
             ...connection,
             message: message.message,
@@ -102,12 +133,12 @@ const Messeges = () => {
           };
         }
         return connection;
-      }),
-    );
+      });
+    });
   };
 
   useEffect(() => {
-    if (currentChat !== null && currentChat.length > 1) {
+    if (currentChat !== null && currentChat.length > 0) {
       handleNewConnectionMessage(currentChat[currentChat.length - 1]);
     }
   }, [currentChat]);
@@ -172,10 +203,25 @@ const Messeges = () => {
     }
   };
 
+  useEffect(() => {
+    //Somewhat hacky way (via useRef.current field) to make sure this is only fired on first state change,
+    if (userConnetions.length > 0 && socket && !dataSent.current) {
+      const recievers = userConnetions.map(connection =>
+        connection.reciever_user_id === loggedUser.user_id
+          ? connection.sender_user_id
+          : connection.reciever_user_id,
+      );
+      socket.emit('clientUpdateStatus', recievers, 'delivered');
+      dataSent.current = true;
+    }
+  }, [userConnetions]);
+
   return (
     <>
-      {isLoading && !error && <Loader loadingMessage="Loading..." />}
-      {error && <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />}
+      {isLoading && <Loader loadingMessage="Loading..." />}
+      {error && !isLoading && (
+        <ErrorDisplayer error={error} retrySwitch={setRetrySwitch} />
+      )}
       {!isLoading && !error && (
         <div className="h-full w-full flex flex-row divide-x divide-slate-400 overflow-hidden absolute">
           {userConnetions && (

@@ -11,9 +11,9 @@ export interface SvgIconsProps {
     | 'user'
     | 'arrow-left'
     | 'send'
+    | 'status-delivered'
     | 'status-sent'
     | 'status-sending'
-    | 'status-delivered'
     | 'status-read';
   className?: string;
 }
@@ -215,6 +215,48 @@ const SvgIcons = ({ type, className }: SvgIconsProps) => {
             className={className}
           >
             <path d="M150,0C67.29,0,0,67.29,0,150s67.29,150,150,150s150-67.29,150-150S232.71,0,150,0z M150,270c-66.169,0-120-53.832-120-120  S83.831,30,150,30s120,53.832,120,120S216.168,270,150,270z" />
+          </svg>
+        );
+      case 'status-delivered':
+        return (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 30 30"
+            className={className}
+          >
+            <a
+              target="_blank"
+              rel="noreferrer"
+              href="https://icons8.com/icon/59850/ok"
+            >
+              Ok
+            </a>
+            icon by
+            <a target="_blank" rel="noreferrer" href="https://icons8.com">
+              Icons8
+            </a>
+            <path d="M15,3C8.373,3,3,8.373,3,15c0,6.627,5.373,12,12,12s12-5.373,12-12C27,8.373,21.627,3,15,3z M21.707,12.707l-7.56,7.56 c-0.188,0.188-0.442,0.293-0.707,0.293s-0.52-0.105-0.707-0.293l-3.453-3.453c-0.391-0.391-0.391-1.023,0-1.414s1.023-0.391,1.414,0 l2.746,2.746l6.853-6.853c0.391-0.391,1.023-0.391,1.414,0S22.098,12.316,21.707,12.707z" />
+          </svg>
+        );
+      case 'status-sent':
+        return (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className={className}
+            viewBox="0 0 24 24"
+          >
+            <a
+              target="_blank"
+              rel="noreferrer"
+              href="https://icons8.com/icon/82759/ok"
+            >
+              Ok
+            </a>
+            icon by
+            <a target="_blank" rel="noreferrer" href="https://icons8.com">
+              Icons8
+            </a>
+            <path d="M 12 2 C 6.4889971 2 2 6.4889971 2 12 C 2 17.511003 6.4889971 22 12 22 C 17.511003 22 22 17.511003 22 12 C 22 6.4889971 17.511003 2 12 2 z M 12 4 C 16.430123 4 20 7.5698774 20 12 C 20 16.430123 16.430123 20 12 20 C 7.5698774 20 4 16.430123 4 12 C 4 7.5698774 7.5698774 4 12 4 z M 16.292969 8.2929688 L 10 14.585938 L 7.7070312 12.292969 L 6.2929688 13.707031 L 10 17.414062 L 17.707031 9.7070312 L 16.292969 8.2929688 z" />
           </svg>
         );
     }

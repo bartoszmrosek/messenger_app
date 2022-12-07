@@ -47,8 +47,8 @@ const UserConnections = ({
               >
                 <SvgIcons type="user" className="h-16 w-16" />
                 <div className="flex flex-row justify-between w-full text-justify overflow-x-clip items-end">
-                  <span className="truncate whitespace-nowrap min-w-[10%]">
-                    <h3 className="font-bold text-lg capitalize overflow-visible z-20">
+                  <span className="whitespace-nowrap min-w-[10%]">
+                    <h3 className="font-bold text-lg capitalize overflow-visible whitespace-normal z-20">
                       {userNode.username}
                     </h3>
                     {userNode.message !== null && (

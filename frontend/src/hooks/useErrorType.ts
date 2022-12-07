@@ -1,14 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../Contexts/UserContext';
 
 const useErrorType = () => {
   const [errorType, setErrorType] = useState<string | null>(null);
   const navigation = useNavigate();
+  const { logoutUser } = useContext(UserContext);
 
   useEffect(() => {
     // This useEffect needs testing if actually works as expected
     const redirectionTimeout = setTimeout(() => {
       if (errorType === 'Login failed' || errorType === 'Unauthorized') {
+        logoutUser();
         navigation('/Login', { state: { status: 'Session timed out' } });
       }
     }, 5000);
