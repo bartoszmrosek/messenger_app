@@ -10,7 +10,7 @@ const useRequestStatus = () => {
           'Server request can take up to 5 minutes becouse of hobby server subscription',
         );
       }
-    }, 2000);
+    }, 10000);
     if (!countdownTrigger) {
       clearTimeout(startTimeout);
       setCountDownResults('');

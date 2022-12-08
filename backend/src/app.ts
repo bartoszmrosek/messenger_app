@@ -56,10 +56,6 @@ router.use(cors(corsOptions));
 router.use(cookieParser());
 router.use(express.json());
 
-// TODO:
-// Separate routes to respetfull files/folders - WIP
-// Refactor login to make it more readable
-
 router.post('/api/Register', async (req, res) =>
   UsersController.registerUser(req, res),
 );
