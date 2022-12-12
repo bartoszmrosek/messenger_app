@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { UserContext } from '../Contexts/UserContext';
 import { UserContextExports } from '../Contexts/UserContext';
-import AnimatedBlobs from '../components/AnimatedBlobs';
+import AnimatedBlobs from '../components/AnimatedBlobs/AnimatedBlobs';
 import FormTemplate, {
   mainSubmit,
 } from '../components/FormsComponents/FormTemplate';
