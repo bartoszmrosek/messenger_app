@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import AnimatedBlobs from '../components/AnimatedBlobs';
+import AnimatedBlobs from '../components/AnimatedBlobs/AnimatedBlobs';
 import FormTemplate from '../components/FormsComponents/FormTemplate';
 import { mainSubmit } from '../components/FormsComponents/FormTemplate';
 

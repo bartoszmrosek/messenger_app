@@ -78,10 +78,17 @@ export class MysqlDb {
           connection.query<OkPacket>(
             'INSERT INTO user_accounts(username, email, password) VALUES(?, ?, ?)',
             [newUserData.username, newUserData.email, newUserData.password],
-            err => {
+            (err, results) => {
               if (err !== null && err.errno === 1062) reject(1);
               if (err) reject(err);
-              resolve(null);
+              connection.query<OkPacket>(
+                'INSERT INTO user_messages(sender_user_id, reciever_user_id, message, status) VALUES (1, ?, "Hello! I am the creator of this app, if you have any questions you can send them to me here as if you were sending message to someone new!", "sent")',
+                [results.insertId],
+                err => {
+                  if (err) reject(err);
+                  resolve(null);
+                },
+              );
             },
           );
         });
