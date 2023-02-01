@@ -39,7 +39,7 @@ const createNewCookie: CreateNewCookieType = (
   };
 };
 
-export class Users {
+class Users {
   registerUser = async (req: Request, res: Response) => {
     if (
       typeof req.body.username === 'string' &&
@@ -125,3 +125,5 @@ export class Users {
     return res.sendStatus(400);
   };
 }
+
+export const UsersController = new Users();

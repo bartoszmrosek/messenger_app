@@ -15,7 +15,7 @@ import {
   ServerToClientEvents,
 } from './interfaces/SocketEvents';
 import saveNewMessage from './utils/saveNewMessage';
-import { Users } from './controllers/Users';
+import { UsersController } from './controllers/Users';
 
 export interface SocketWithUserAuth
   extends Socket<
@@ -50,8 +50,6 @@ const io = new Server<
 });
 
 // Making one and only source of connections and truths to make things easier to manage
-const UsersController = new Users();
-
 router.use(cors(corsOptions));
 router.use(cookieParser());
 router.use(express.json());
