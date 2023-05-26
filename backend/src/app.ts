@@ -33,7 +33,7 @@ const httpServer = createServer(router);
 
 const corsOptions = {
   origin: [
-    'http://localhost:3000',
+    'http://localhost:5173',
     'https://emotekpl-messenger-dev.netlify.app',
     'https://emotekpl-messenger-prod.netlify.app',
   ],
