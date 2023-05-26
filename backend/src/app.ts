@@ -31,6 +31,8 @@ const PORT = process.env.PORT || 3030;
 const router = express();
 const httpServer = createServer(router);
 
+console.log(process.env.MODE);
+
 const corsOptions = {
   origin: [
     'http://localhost:5173',
