@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -17,31 +14,34 @@ model User {
   email        String         @unique
   password     String
   Group_Member Group_Member[]
-  Message      Message?
+  Message      Message[]
 
   @@index([username, email])
 }
 
 model Conversation {
-  id           Int           @id @default(autoincrement())
+  id           Int            @id @default(autoincrement())
   name         String
-  Group_Member Group_Member?
+  Group_Member Group_Member[]
+  Message      Message?
 }
 
 model Group_Member {
-  user            User         @relation(fields: [user_id], references: [id])
   user_id         Int          @unique
-  conversation    Conversation @relation(fields: [conversation_id], references: [id])
   conversation_id Int          @unique
+  user            User         @relation(fields: [user_id], references: [id])
+  conversation    Conversation @relation(fields: [conversation_id], references: [id])
 }
 
 model Message {
-  id      Int      @id @default(autoincrement())
-  user    User     @relation(fields: [user_id], references: [id])
-  user_id Int      @unique
-  text    String
-  status  Int
-  sent    DateTime @default(now())
+  id              Int          @id @default(autoincrement())
+  user_id         Int          @unique
+  conversation_id Int          @unique
+  text            String
+  status          Int
+  sent            DateTime     @default(now())
+  user            User         @relation(fields: [user_id], references: [id])
+  conversation    Conversation @relation(fields: [conversation_id], references: [id])
 
   @@index([user_id])
 }
