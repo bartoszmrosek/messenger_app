@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Directory change
-        run: cd .\backend_v2\
+        run: cd backend_v2
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install dependencies
