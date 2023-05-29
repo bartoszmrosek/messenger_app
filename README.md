@@ -1,3 +1,5 @@
+[![Backend Unit Tests](https://github.com/bartoszmrosek/messenger_app/actions/workflows/Backend_unit.yml/badge.svg)](https://github.com/bartoszmrosek/messenger_app/actions/workflows/Backend_unit.yml) [![Backend e2e Tests](https://github.com/bartoszmrosek/messenger_app/actions/workflows/Backend_e2e.yml/badge.svg)](https://github.com/bartoszmrosek/messenger_app/actions/workflows/Backend_e2e.yml)
+
 # Currently under process of refactoring on backend!
 
 # Real-time chat app
