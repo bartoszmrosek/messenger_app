@@ -16,6 +16,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install dependencies
-        run: npm run install
+        run: npm install
       - name: Run JEST unit tests
         run: npm run test
