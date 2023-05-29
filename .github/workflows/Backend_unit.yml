@@ -9,9 +9,10 @@ on:
 jobs:
   unit:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend_v2
     steps:
-      - name: Directory change
-        run: cd backend_v2
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install dependencies

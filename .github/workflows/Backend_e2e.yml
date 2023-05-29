@@ -7,8 +7,11 @@ on:
     branches: ["prod"]
 
 jobs:
-  unit:
+  e2e:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend_v2
     steps:
       - name: Directory change
         run: cd backend_v2
