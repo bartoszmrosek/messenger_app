@@ -19,4 +19,12 @@ export class UsersService {
 			},
 		});
 	}
+
+	async get(email: string) {
+		return this.prisma.user.findFirstOrThrow({
+			where: {
+				email,
+			},
+		});
+	}
 }

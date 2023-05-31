@@ -17,6 +17,7 @@ const dbTestUser = {
 const db = {
 	user: {
 		create: jest.fn().mockResolvedValue(dbTestUser),
+		findFirstOrThrow: jest.fn().mockResolvedValue(dbTestUser),
 	},
 };
 
@@ -39,5 +40,9 @@ describe("UsersService", () => {
 
 	it("should create and return user", async () => {
 		expect(await service.create(testUser)).toStrictEqual(dbTestUser);
+	});
+
+	it("should return user when found", async () => {
+		expect(await service.get(testUser.email)).toStrictEqual(dbTestUser);
 	});
 });
