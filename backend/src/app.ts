@@ -31,9 +31,11 @@ const PORT = process.env.PORT || 3030;
 const router = express();
 const httpServer = createServer(router);
 
+console.log(process.env.MODE);
+
 const corsOptions = {
   origin: [
-    'http://localhost:3000',
+    'http://localhost:5173',
     'https://emotekpl-messenger-dev.netlify.app',
     'https://emotekpl-messenger-prod.netlify.app',
   ],

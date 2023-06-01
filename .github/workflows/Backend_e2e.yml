@@ -1,0 +1,21 @@
+name: Backend e2e Tests
+
+on:
+  push:
+    branches: ["prod", "development"]
+  pull_request:
+    branches: ["prod"]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend_v2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm install
+      - name: Run JEST e2e tests
+        run: npm run test:e2e
